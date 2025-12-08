@@ -19,13 +19,10 @@ public with sharing class FollowUpFatigueService {
         }
 
         // Get follow-up rule metadata (if available)
-        // TODO: Query Follow_Up_Rule__mdt when created in Phase 2
-        // For now, use default values
         Integer maxAttempts = 3;
         Integer fatigueWindowDays = 7;
         Boolean fatigueEnabled = true;
 
-        /*
         if (String.isNotBlank(followUpRuleDeveloperName)) {
             List<Follow_Up_Rule__mdt> rules = [
                 SELECT Max_Attempts_Per_Window__c, Fatigue_Window_Days__c, Fatigue_Suppression_Enabled__c
@@ -36,14 +33,13 @@ public with sharing class FollowUpFatigueService {
             
             if (!rules.isEmpty()) {
                 Follow_Up_Rule__mdt rule = rules[0];
-                if (!rule.Fatigue_Suppression_Enabled__c) {
+                if (rule.Fatigue_Suppression_Enabled__c == false) {
                     return false;
                 }
-                maxAttempts = rule.Max_Attempts_Per_Window__c != null ? rule.Max_Attempts_Per_Window__c.intValue() : 3;
-                fatigueWindowDays = rule.Fatigue_Window_Days__c != null ? rule.Fatigue_Window_Days__c.intValue() : 7;
+                maxAttempts = rule.Max_Attempts_Per_Window__c != null ? rule.Max_Attempts_Per_Window__c.intValue() : maxAttempts;
+                fatigueWindowDays = rule.Fatigue_Window_Days__c != null ? rule.Fatigue_Window_Days__c.intValue() : fatigueWindowDays;
             }
         }
-        */
 
         if (!fatigueEnabled) {
             return false;

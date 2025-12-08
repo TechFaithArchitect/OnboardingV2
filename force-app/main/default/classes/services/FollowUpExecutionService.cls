@@ -15,7 +15,7 @@ public with sharing class FollowUpExecutionService {
 
         Follow_Up_Queue__c followUp = [
             SELECT Id, Onboarding__c, Onboarding__r.Account__c,
-                   Follow_Up_Type__c, Status__c,
+                   Follow_Up_Type__c, Status__c, Follow_Up_Rule__c,
                    Attempt_Count__c, Last_Attempt_Date__c
             FROM Follow_Up_Queue__c
             WHERE Id = :followUpQueueId
@@ -35,9 +35,9 @@ public with sharing class FollowUpExecutionService {
             return;
         }
 
-        // TODO: Get Messaging Channel ID from Follow_Up_Rule__mdt when available
-        // For now, use a placeholder or custom setting
-        Id messagingChannelId = getDefaultMessagingChannelId();
+        Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
+
+        Id messagingChannelId = getIdIfValid(rule != null ? rule.Messaging_Channel__c : null);
         if (messagingChannelId == null) {
             markFollowUpFailed(followUpQueueId, 'No messaging channel configured');
             return;
@@ -51,14 +51,14 @@ public with sharing class FollowUpExecutionService {
 
         try {
             // Get message content
-            String messageContent = getMessageContent(followUp);
+            String messageContent = getMessageContent(followUp, rule);
 
             // Send SMS
             String smsId = FollowUpMessagingService.sendSMS(
                 dealerContact.Id,
                 messageContent,
                 messagingChannelId,
-                null // TODO: Get template ID from Follow_Up_Rule__mdt when available
+                getIdIfValid(rule != null ? rule.Messaging_Template__c : null)
             );
 
             // Update Follow_Up_Queue__c
@@ -98,8 +98,7 @@ public with sharing class FollowUpExecutionService {
             LIMIT 1
         ];
 
-        // TODO: Implement email sending logic
-        // Use EmailCommSenderService or similar
+        // Placeholder: implement actual email logic when EmailCommSenderService or Messaging Email is available
         markFollowUpFailed(followUpQueueId, 'Email follow-up not yet implemented');
     }
 
@@ -171,9 +170,11 @@ public with sharing class FollowUpExecutionService {
      * @param followUp Follow_Up_Queue__c record
      * @return Message content string
      */
-    private static String getMessageContent(Follow_Up_Queue__c followUp) {
-        // TODO: Get from Follow_Up_Rule__mdt.Messaging_Template__c or similar
-        // For now, return a default message
+    private static String getMessageContent(Follow_Up_Queue__c followUp, Follow_Up_Rule__mdt rule) {
+        // If using templates, this would render template content; for now use rule metadata as source
+        if (rule != null && !String.isBlank(rule.Trigger_Condition__c)) {
+            return 'Reminder: ' + rule.Trigger_Condition__c;
+        }
         return 'Please complete your onboarding requirement. If you have questions, contact your onboarding representative.';
     }
 
@@ -182,9 +183,31 @@ public with sharing class FollowUpExecutionService {
      * TODO: Get from Custom Metadata or Custom Setting
      * @return MessagingChannel ID or null
      */
-    private static Id getDefaultMessagingChannelId() {
-        // TODO: Query Custom Metadata or Custom Setting for default SMS channel
-        // For now, return null (will cause failure, which is expected until configured)
-        return null;
+    private static Id getIdIfValid(String maybeId) {
+        if (String.isBlank(maybeId)) {
+            return null;
+        }
+        try {
+            return (Id)maybeId;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static Follow_Up_Rule__mdt getRuleByDeveloperName(String developerName) {
+        if (String.isBlank(developerName)) {
+            return null;
+        }
+        List<Follow_Up_Rule__mdt> rules = [
+            SELECT DeveloperName, Trigger_Condition__c, Follow_Up_Type__c,
+                   Initial_Delay_Days__c, Escalation_Schedule__c,
+                   Messaging_Channel__c, Messaging_Template__c,
+                   Max_Attempts_Per_Window__c, Fatigue_Window_Days__c, Fatigue_Suppression_Enabled__c,
+                   Active__c
+            FROM Follow_Up_Rule__mdt
+            WHERE DeveloperName = :developerName
+            LIMIT 1
+        ];
+        return rules.isEmpty() ? null : rules[0];
     }
 }
