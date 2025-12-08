@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Secondary_Cat__c</fullName>
+    <externalId>false</externalId>
+    <label>Secondary Cat</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Enclosures</fullName>
+                <default>false</default>
+                <label>Enclosures</label>
+            </value>
+            <value>
+                <fullName>Network Equipment</fullName>
+                <default>false</default>
+                <label>Network Equipment</label>
+            </value>
+            <value>
+                <fullName>Cables</fullName>
+                <default>false</default>
+                <label>Cables</label>
+            </value>
+            <value>
+                <fullName>Cable &amp; Connector Accessories</fullName>
+                <default>false</default>
+                <label>Cable &amp; Connector Accessories</label>
+            </value>
+            <value>
+                <fullName>Weather Proofing &amp; Seals &amp; Tape</fullName>
+                <default>false</default>
+                <label>Weather Proofing &amp; Seals &amp; Tape</label>
+            </value>
+            <value>
+                <fullName>Antennas &amp; Dishes</fullName>
+                <default>false</default>
+                <label>Antennas &amp; Dishes</label>
+            </value>
+            <value>
+                <fullName>Hardware</fullName>
+                <default>false</default>
+                <label>Hardware</label>
+            </value>
+            <value>
+                <fullName>Kit</fullName>
+                <default>false</default>
+                <label>Kit</label>
+            </value>
+            <value>
+                <fullName>Tools</fullName>
+                <default>false</default>
+                <label>Tools</label>
+            </value>
+            <value>
+                <fullName>Labeling</fullName>
+                <default>false</default>
+                <label>Labeling</label>
+            </value>
+            <value>
+                <fullName>Power Supply</fullName>
+                <default>false</default>
+                <label>Power Supply</label>
+            </value>
+            <value>
+                <fullName>Safety</fullName>
+                <default>false</default>
+                <label>Safety</label>
+            </value>
+            <value>
+                <fullName>DAS</fullName>
+                <default>false</default>
+                <label>DAS</label>
+            </value>
+            <value>
+                <fullName>Dishes &amp; Antennas</fullName>
+                <default>false</default>
+                <label>Dishes &amp; Antennas</label>
+            </value>
+            <value>
+                <fullName>Clips &amp; Clamps &amp; Fasteners</fullName>
+                <default>false</default>
+                <label>Clips &amp; Clamps &amp; Fasteners</label>
+            </value>
+            <value>
+                <fullName>Built Assemblies &amp; Parts</fullName>
+                <default>false</default>
+                <label>Built Assemblies &amp; Parts</label>
+            </value>
+            <value>
+                <fullName>Conduit</fullName>
+                <default>false</default>
+                <label>Conduit</label>
+            </value>
+            <value>
+                <fullName>Category</fullName>
+                <default>false</default>
+                <label>Category</label>
+            </value>
+            <value>
+                <fullName>Accessories</fullName>
+                <default>false</default>
+                <label>Accessories</label>
+            </value>
+            <value>
+                <fullName>CAT</fullName>
+                <default>false</default>
+                <label>CAT</label>
+            </value>
+            <value>
+                <fullName>Steel Components</fullName>
+                <default>false</default>
+                <label>Steel Components</label>
+            </value>
+            <value>
+                <fullName>Shelter Materials</fullName>
+                <default>false</default>
+                <label>Shelter Materials</label>
+            </value>
+            <value>
+                <fullName>Equipment</fullName>
+                <default>false</default>
+                <label>Equipment</label>
+            </value>
+            <value>
+                <fullName>Grounding</fullName>
+                <default>false</default>
+                <label>Grounding</label>
+            </value>
+            <value>
+                <fullName>Inductor</fullName>
+                <default>false</default>
+                <label>Inductor</label>
+            </value>
+            <value>
+                <fullName>Transformer</fullName>
+                <default>false</default>
+                <label>Transformer</label>
+            </value>
+            <value>
+                <fullName>Category Jumpers &amp; Accessories</fullName>
+                <default>false</default>
+                <label>Category Jumpers &amp; Accessories</label>
+            </value>
+            <value>
+                <fullName>Wall Plates &amp; Accessories</fullName>
+                <default>false</default>
+                <label>Wall Plates &amp; Accessories</label>
+            </value>
+            <value>
+                <fullName>50 Ohm Connectors</fullName>
+                <default>false</default>
+                <label>50 Ohm Connectors</label>
+            </value>
+            <value>
+                <fullName>Patch Panels</fullName>
+                <default>false</default>
+                <label>Patch Panels</label>
+            </value>
+            <value>
+                <fullName>Test &amp; Measurement</fullName>
+                <default>false</default>
+                <label>Test &amp; Measurement</label>
+            </value>
+            <value>
+                <fullName>Receivers</fullName>
+                <default>false</default>
+                <label>Receivers</label>
+            </value>
+            <value>
+                <fullName>Electrical Supplies</fullName>
+                <default>false</default>
+                <label>Electrical Supplies</label>
+            </value>
+            <value>
+                <fullName>Surge Protector</fullName>
+                <default>false</default>
+                <label>Surge Protector</label>
+            </value>
+            <value>
+                <fullName>Structural Modifications</fullName>
+                <default>false</default>
+                <label>Structural Modifications</label>
+            </value>
+            <value>
+                <fullName>Mounting Supplies</fullName>
+                <default>false</default>
+                <label>Mounting Supplies</label>
+            </value>
+            <value>
+                <fullName>Racks &amp; Components</fullName>
+                <default>false</default>
+                <label>Racks &amp; Components</label>
+            </value>
+            <value>
+                <fullName>Telephone, Speaker &amp; Other</fullName>
+                <default>false</default>
+                <label>Telephone, Speaker &amp; Other</label>
+            </value>
+            <value>
+                <fullName>Series6</fullName>
+                <default>false</default>
+                <label>Series6</label>
+            </value>
+            <value>
+                <fullName>Jumper</fullName>
+                <default>false</default>
+                <label>Jumper</label>
+            </value>
+            <value>
+                <fullName>50 Ohm</fullName>
+                <default>false</default>
+                <label>50 Ohm</label>
+            </value>
+            <value>
+                <fullName>Hardline</fullName>
+                <default>false</default>
+                <label>Hardline</label>
+            </value>
+            <value>
+                <fullName>Rigging Materials</fullName>
+                <default>false</default>
+                <label>Rigging Materials</label>
+            </value>
+            <value>
+                <fullName>Series11</fullName>
+                <default>false</default>
+                <label>Series11</label>
+            </value>
+            <value>
+                <fullName>Locks</fullName>
+                <default>false</default>
+                <label>Locks</label>
+            </value>
+            <value>
+                <fullName>Adapter</fullName>
+                <default>false</default>
+                <label>Adapter</label>
+            </value>
+            <value>
+                <fullName>Jumpers</fullName>
+                <default>false</default>
+                <label>Jumpers</label>
+            </value>
+            <value>
+                <fullName>Satellite Accessories</fullName>
+                <default>false</default>
+                <label>Satellite Accessories</label>
+            </value>
+            <value>
+                <fullName>Switch</fullName>
+                <default>false</default>
+                <label>Switch</label>
+            </value>
+            <value>
+                <fullName>TVs and Monitors</fullName>
+                <default>false</default>
+                <label>TVs and Monitors</label>
+            </value>
+            <value>
+                <fullName>Telephone Accessories</fullName>
+                <default>false</default>
+                <label>Telephone Accessories</label>
+            </value>
+            <value>
+                <fullName>Software</fullName>
+                <default>false</default>
+                <label>Software</label>
+            </value>
+            <value>
+                <fullName>Actives/Passives</fullName>
+                <default>false</default>
+                <label>Actives/Passives</label>
+            </value>
+            <value>
+                <fullName>Servers</fullName>
+                <default>false</default>
+                <label>Servers</label>
+            </value>
+            <value>
+                <fullName>Modulator</fullName>
+                <default>false</default>
+                <label>Modulator</label>
+            </value>
+            <value>
+                <fullName>Splice</fullName>
+                <default>false</default>
+                <label>Splice</label>
+            </value>
+            <value>
+                <fullName>Mounting</fullName>
+                <default>false</default>
+                <label>Mounting</label>
+            </value>
+            <value>
+                <fullName>Headend</fullName>
+                <default>false</default>
+                <label>Headend</label>
+            </value>
+            <value>
+                <fullName>Cable/Connector</fullName>
+                <default>false</default>
+                <label>Cable/Connector</label>
+            </value>
+            <value>
+                <fullName>Amplifier</fullName>
+                <default>false</default>
+                <label>Amplifier</label>
+            </value>
+            <value>
+                <fullName>Booster</fullName>
+                <default>false</default>
+                <label>Booster</label>
+            </value>
+            <value>
+                <fullName>Attenuator</fullName>
+                <default>false</default>
+                <label>Attenuator</label>
+            </value>
+            <value>
+                <fullName>Go Phone</fullName>
+                <default>false</default>
+                <label>Go Phone</label>
+            </value>
+            <value>
+                <fullName>Splitters</fullName>
+                <default>false</default>
+                <label>Splitters</label>
+            </value>
+            <value>
+                <fullName>Meters</fullName>
+                <default>false</default>
+                <label>Meters</label>
+            </value>
+            <value>
+                <fullName>RET Materials</fullName>
+                <default>false</default>
+                <label>RET Materials</label>
+            </value>
+            <value>
+                <fullName>Chemicals &amp; Paint</fullName>
+                <default>false</default>
+                <label>Chemicals &amp; Paint</label>
+            </value>
+            <value>
+                <fullName>Connector</fullName>
+                <default>false</default>
+                <label>Connector</label>
+            </value>
+            <value>
+                <fullName>Repeater</fullName>
+                <default>false</default>
+                <label>Repeater</label>
+            </value>
+            <value>
+                <fullName>Cable</fullName>
+                <default>false</default>
+                <label>Cable</label>
+            </value>
+            <value>
+                <fullName>Coupler</fullName>
+                <default>false</default>
+                <label>Coupler</label>
+            </value>
+            <value>
+                <fullName>Combiner</fullName>
+                <default>false</default>
+                <label>Combiner</label>
+            </value>
+            <value>
+                <fullName>Radiating</fullName>
+                <default>false</default>
+                <label>Radiating</label>
+            </value>
+            <value>
+                <fullName>Encoder</fullName>
+                <default>false</default>
+                <label>Encoder</label>
+            </value>
+            <value>
+                <fullName>Struts &amp; Fittings</fullName>
+                <default>false</default>
+                <label>Struts &amp; Fittings</label>
+            </value>
+            <value>
+                <fullName>Promotional Items</fullName>
+                <default>false</default>
+                <label>Promotional Items</label>
+            </value>
+            <value>
+                <fullName>Network Adapter</fullName>
+                <default>false</default>
+                <label>Network Adapter</label>
+            </value>
+            <value>
+                <fullName>Diplexer</fullName>
+                <default>false</default>
+                <label>Diplexer</label>
+            </value>
+            <value>
+                <fullName>Triplexer</fullName>
+                <default>false</default>
+                <label>Triplexer</label>
+            </value>
+            <value>
+                <fullName>Quadraplexer</fullName>
+                <default>false</default>
+                <label>Quadraplexer</label>
+            </value>
+            <value>
+                <fullName>Duplexer</fullName>
+                <default>false</default>
+                <label>Duplexer</label>
+            </value>
+            <value>
+                <fullName>Filter</fullName>
+                <default>false</default>
+                <label>Filter</label>
+            </value>
+            <value>
+                <fullName>DIRECTV Kit</fullName>
+                <default>false</default>
+                <label>DIRECTV Kit</label>
+            </value>
+            <value>
+                <fullName>Pack Plate</fullName>
+                <default>false</default>
+                <label>Pack Plate</label>
+            </value>
+            <value>
+                <fullName>Taps</fullName>
+                <default>false</default>
+                <label>Taps</label>
+            </value>
+            <value>
+                <fullName>Circulator</fullName>
+                <default>false</default>
+                <label>Circulator</label>
+            </value>
+            <value>
+                <fullName>Power Cabinets</fullName>
+                <default>false</default>
+                <label>Power Cabinets</label>
+            </value>
+            <value>
+                <fullName>Multiswitch</fullName>
+                <default>false</default>
+                <label>Multiswitch</label>
+            </value>
+            <value>
+                <fullName>Barrels</fullName>
+                <default>false</default>
+                <label>Barrels</label>
+            </value>
+            <value>
+                <fullName>Passive</fullName>
+                <default>false</default>
+                <label>Passive</label>
+            </value>
+            <value>
+                <fullName>Series59</fullName>
+                <default>false</default>
+                <label>Series59</label>
+            </value>
+            <value>
+                <fullName>Fiber Link Card</fullName>
+                <default>false</default>
+                <label>Fiber Link Card</label>
+            </value>
+            <value>
+                <fullName>Conditioner</fullName>
+                <default>false</default>
+                <label>Conditioner</label>
+            </value>
+            <value>
+                <fullName>Wooden Spool</fullName>
+                <default>false</default>
+                <label>Wooden Spool</label>
+            </value>
+            <value>
+                <fullName>Resistor</fullName>
+                <default>false</default>
+                <label>Resistor</label>
+            </value>
+            <value>
+                <fullName>Capacitor</fullName>
+                <default>false</default>
+                <label>Capacitor</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

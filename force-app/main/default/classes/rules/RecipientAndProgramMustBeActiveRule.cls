@@ -37,4 +37,3 @@ public class RecipientAndProgramMustBeActiveRule implements OnboardingAppValidat
         }
     }
 }
-

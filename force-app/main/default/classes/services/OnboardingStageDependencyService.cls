@@ -217,5 +217,3 @@ public with sharing class OnboardingStageDependencyService {
         @AuraEnabled public List<Id> missingStageIds;
     }
 }
-
-

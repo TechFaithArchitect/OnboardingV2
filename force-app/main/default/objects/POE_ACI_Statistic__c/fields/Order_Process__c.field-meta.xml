@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order_Process__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(Serviceability__c &gt; 0 ||  Credit_Check__c &gt; 0 || Product_Selection__c &gt; 0 ||  Checkout__c &gt; 0 ||  Schedule_Installation__c &gt; 0, 1, 0)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Order Process</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

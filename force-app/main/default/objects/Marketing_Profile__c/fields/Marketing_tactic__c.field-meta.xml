@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Marketing_tactic__c</fullName>
+    <externalId>false</externalId>
+    <label>Marketing Tactic</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Social Media</fullName>
+                <default>false</default>
+                <label>Social Media Paid/Posts</label>
+            </value>
+            <value>
+                <fullName>Yard Signs / Leave Behinds</fullName>
+                <default>false</default>
+                <label>Yards Signs</label>
+            </value>
+            <value>
+                <fullName>Radio</fullName>
+                <default>false</default>
+                <label>Radio</label>
+            </value>
+            <value>
+                <fullName>Leads / Referrals</fullName>
+                <default>false</default>
+                <label>Leads / Referrals</label>
+            </value>
+            <value>
+                <fullName>Search Engine</fullName>
+                <default>false</default>
+                <label>Search Engine PPC</label>
+            </value>
+            <value>
+                <fullName>Direct Mail / Print Ads</fullName>
+                <default>false</default>
+                <label>Direct Mail</label>
+            </value>
+            <value>
+                <fullName>Paid Digital Ads</fullName>
+                <default>false</default>
+                <label>Paid Digital Ads</label>
+            </value>
+            <value>
+                <fullName>Cross Sell</fullName>
+                <default>false</default>
+                <label>Cross Sell</label>
+            </value>
+            <value>
+                <fullName>Flyers/Print Ads</fullName>
+                <default>false</default>
+                <label>Flyers/Print Ads</label>
+            </value>
+            <value>
+                <fullName>Retail/Supermarket</fullName>
+                <default>false</default>
+                <label>Retail/Supermarket</label>
+            </value>
+            <value>
+                <fullName>Retail fixed or temporary</fullName>
+                <default>false</default>
+                <label>Retail fixed or temporary</label>
+            </value>
+            <value>
+                <fullName>Door Hangers</fullName>
+                <default>false</default>
+                <label>Door Hangers</label>
+            </value>
+            <value>
+                <fullName>Branded Search</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Branded Search</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

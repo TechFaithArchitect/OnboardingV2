@@ -282,4 +282,3 @@ public with sharing class OnboardingBlockingDetectionService {
         public List<String> reasons = new List<String>();
     }
 }
-

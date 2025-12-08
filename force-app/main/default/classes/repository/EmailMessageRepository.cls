@@ -31,4 +31,3 @@ public with sharing class EmailMessageRepository {
         return matches.isEmpty() ? null : matches[0].Id;
     }
 }
-

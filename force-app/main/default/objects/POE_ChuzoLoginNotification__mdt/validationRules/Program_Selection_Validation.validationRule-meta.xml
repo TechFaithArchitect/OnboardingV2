@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Program_Selection_Validation</fullName>
+    <active>true</active>
+    <description>Validates that Program field contains valid values [PER-4311]</description>
+    <errorConditionFormula>NOT(REGEX(Program__c, &quot;(?i)(DIRECTV|Spectrum|Earthlink|Windstream|Frontier|Optimum|All)( *, *(DIRECTV|Spectrum|Earthlink|Windstream|Frontier|Optimum|All))*&quot;))</errorConditionFormula>
+    <errorDisplayField>Program__c</errorDisplayField>
+    <errorMessage>Only values allowed are: DIRECTV, Spectrum, Earthlink, Windstream, Frontier, Optimum, All. They must be comma separated if multiple values are used.</errorMessage>
+</ValidationRule>

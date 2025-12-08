@@ -20,4 +20,3 @@ public with sharing class OnboardingAppECCController {
         OnboardingAppECCService.linkCredentialTypeToRequiredCredential(requiredCredentialId, credentialTypeId);
     }
 }
-

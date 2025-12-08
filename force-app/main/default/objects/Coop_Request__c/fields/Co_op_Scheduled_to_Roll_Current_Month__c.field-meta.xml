@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Co_op_Scheduled_to_Roll_Current_Month__c</fullName>
+    <externalId>false</externalId>
+    <formula>P10_Account_Number__r.Co_op_About_to_Expire_Current_Month__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Co-op Scheduled to Roll - Current Month</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

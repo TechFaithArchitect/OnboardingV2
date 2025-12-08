@@ -37,4 +37,3 @@ public class OnlyOneActiveRecGrpPerPrgrmRule implements OnboardingAppValidationR
         }
     }
 }
-

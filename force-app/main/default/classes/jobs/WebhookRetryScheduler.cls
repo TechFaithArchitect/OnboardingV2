@@ -89,5 +89,3 @@ global class WebhookRetryScheduler implements Database.Batchable<SObject>, Sched
         // sendCleanupSummary();
     }
 }
-
-

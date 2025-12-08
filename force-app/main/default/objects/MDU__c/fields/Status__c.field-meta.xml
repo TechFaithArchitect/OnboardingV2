@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Site Survey</fullName>
+                <default>false</default>
+                <label>Site Survey</label>
+            </value>
+            <value>
+                <fullName>BOM Design Review</fullName>
+                <default>false</default>
+                <label>BOM Design Review</label>
+            </value>
+            <value>
+                <fullName>Property Valuation</fullName>
+                <default>false</default>
+                <label>Property Valuation</label>
+            </value>
+            <value>
+                <fullName>Sales Validation</fullName>
+                <default>false</default>
+                <label>Sales Validation</label>
+            </value>
+            <value>
+                <fullName>Preloaded receiver List</fullName>
+                <default>false</default>
+                <label>Preloaded receiver List</label>
+            </value>
+            <value>
+                <fullName>Exceptions/Special Offers Approvals</fullName>
+                <default>false</default>
+                <label>Exceptions/Special Offers Approvals</label>
+            </value>
+            <value>
+                <fullName>Finance preloaded Request</fullName>
+                <default>false</default>
+                <label>Finance preloaded Request</label>
+            </value>
+            <value>
+                <fullName>ROE &amp; Property Registration</fullName>
+                <default>false</default>
+                <label>ROE &amp; Agreement Property Registration</label>
+            </value>
+            <value>
+                <fullName>ROE Review Legal</fullName>
+                <default>false</default>
+                <label>ROE &amp; Agreement Legal Review</label>
+            </value>
+            <value>
+                <fullName>Build Out</fullName>
+                <default>false</default>
+                <label>Build Out</label>
+            </value>
+            <value>
+                <fullName>Sent for BMU</fullName>
+                <default>false</default>
+                <label>Send for BMU</label>
+            </value>
+            <value>
+                <fullName>Inspection Request</fullName>
+                <default>false</default>
+                <label>Inspection Request</label>
+            </value>
+            <value>
+                <fullName>Property Release Request</fullName>
+                <default>false</default>
+                <label>Property Release Request</label>
+            </value>
+            <value>
+                <fullName>Closed Won</fullName>
+                <default>false</default>
+                <label>Closed Won</label>
+            </value>
+            <value>
+                <fullName>Closed Lost</fullName>
+                <default>false</default>
+                <label>Closed Lost</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

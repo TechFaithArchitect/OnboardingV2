@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>This is used to keep the email sending options in sync with the Org Wide Email sending addresses</description>
+    <label>Org Wide Email</label>
+    <pluralLabel>Org Wide Emails</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

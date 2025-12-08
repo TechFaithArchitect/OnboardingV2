@@ -63,4 +63,3 @@ public with sharing class EmailSenderStrategyFactory {
         STRATEGY_CACHE.clear();
     }
 }
-

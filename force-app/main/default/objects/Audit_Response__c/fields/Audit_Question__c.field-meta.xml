@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Audit_Question__c</fullName>
+    <externalId>false</externalId>
+    <label>Audit Question</label>
+    <referenceTo>Audit_Question__c</referenceTo>
+    <relationshipLabel>Audit Responses</relationshipLabel>
+    <relationshipName>Audit_Responses</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

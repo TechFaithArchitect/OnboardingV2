@@ -32,4 +32,3 @@ public with sharing class EmailAttachmentRepository {
         ];
     }
 }
-

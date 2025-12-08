@@ -30,4 +30,3 @@ public with sharing class OnboardingStatusRuleController {
         OnboardingRulesService.deleteRule(conditionId);
     }
 }
-

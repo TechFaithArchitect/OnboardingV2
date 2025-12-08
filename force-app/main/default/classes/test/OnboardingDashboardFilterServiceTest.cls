@@ -115,4 +115,3 @@ private class OnboardingDashboardFilterServiceTest {
         System.assert(clause.contains('LastModifiedDate'), 'Clause should contain LastModifiedDate filter');
     }
 }
-

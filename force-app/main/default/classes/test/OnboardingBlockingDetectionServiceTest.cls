@@ -153,4 +153,3 @@ private class OnboardingBlockingDetectionServiceTest {
         System.assertEquals(false, atRisk, 'Should return false for null ID');
     }
 }
-

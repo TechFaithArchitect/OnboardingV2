@@ -15,4 +15,3 @@ public with sharing class OrgWideSenderStrategy implements EmailSenderStrategy {
         return null;
     }
 }
-

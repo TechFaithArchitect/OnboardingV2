@@ -28,5 +28,3 @@ public with sharing class FollowUpRetryHandler {
         FollowUpExecutionService.retryFailedFollowUps(followUpIds);
     }
 }
-
-

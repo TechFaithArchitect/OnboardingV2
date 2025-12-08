@@ -8,4 +8,3 @@ trigger VendorProgramRequirementSetTrigger on Vendor_Program_Requirement_Set__c 
         RequirementSetTriggerHandler.updateDisplayLabelsFromJunction(junctions, Trigger.oldMap);
     }
 }
-

@@ -102,4 +102,3 @@ global class OnboardingCleanupScheduler implements Database.Batchable<SObject>, 
         return DEFAULT_THRESHOLD_DAYS;
     }
 }
-

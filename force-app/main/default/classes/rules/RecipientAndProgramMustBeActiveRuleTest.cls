@@ -29,4 +29,3 @@ private class RecipientAndProgramMustBeActiveRuleTest {
         );
     }
 }
-

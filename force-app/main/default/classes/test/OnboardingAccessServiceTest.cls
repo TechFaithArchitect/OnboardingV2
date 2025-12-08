@@ -386,5 +386,3 @@ private class OnboardingAccessServiceTest {
         // Note: Deprecated method no longer includes Territory_Assignments__c in SOQL
     }
 }
-
-

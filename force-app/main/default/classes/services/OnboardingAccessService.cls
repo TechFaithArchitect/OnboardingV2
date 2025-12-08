@@ -258,5 +258,3 @@ public with sharing class OnboardingAccessService {
         return userIds;
     }
 }
-
-

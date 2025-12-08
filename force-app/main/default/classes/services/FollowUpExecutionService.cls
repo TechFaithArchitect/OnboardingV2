@@ -188,5 +188,3 @@ public with sharing class FollowUpExecutionService {
         return null;
     }
 }
-
-

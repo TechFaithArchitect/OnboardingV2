@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Infraction_Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Infraction Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Sent Requirements to Dealer</fullName>
+                <default>false</default>
+                <label>Sent Requirements to Dealer</label>
+            </value>
+            <value>
+                <fullName>Marketing Audit</fullName>
+                <default>false</default>
+                <label>Marketing Audit</label>
+            </value>
+            <value>
+                <fullName>Partner Audit</fullName>
+                <default>false</default>
+                <label>Partner Audit</label>
+            </value>
+            <value>
+                <fullName>Sent changes to dealer</fullName>
+                <default>false</default>
+                <label>Sent changes to dealer</label>
+            </value>
+            <value>
+                <fullName>Approved</fullName>
+                <default>false</default>
+                <label>Approved</label>
+            </value>
+            <value>
+                <fullName>Not Approved</fullName>
+                <default>false</default>
+                <label>Not Approved</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

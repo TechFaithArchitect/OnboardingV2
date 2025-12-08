@@ -37,4 +37,3 @@ public with sharing class VendorProgramRequirementGroupService {
         return VendorOnboardingWizardRepository.insertVendorProgramRequirementGroup(vendorProgramRequirementGroup);
     }
 }
-

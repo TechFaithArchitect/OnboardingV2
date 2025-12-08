@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Social_Media_Pay_Per_Click_Websi__c</fullName>
+    <externalId>false</externalId>
+    <label>Infraction Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Social Media</fullName>
+                <default>false</default>
+                <label>Social Media</label>
+            </value>
+            <value>
+                <fullName>Pay Per Click</fullName>
+                <default>false</default>
+                <label>Pay Per Click</label>
+            </value>
+            <value>
+                <fullName>Website</fullName>
+                <default>false</default>
+                <label>Website</label>
+            </value>
+            <value>
+                <fullName>Face-to-Face</fullName>
+                <default>false</default>
+                <label>Face-to-Face</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

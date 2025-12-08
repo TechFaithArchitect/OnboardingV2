@@ -46,4 +46,3 @@ public with sharing class ActivationStrategyFactory {
         STRATEGY_CACHE.clear();
     }
 }
-

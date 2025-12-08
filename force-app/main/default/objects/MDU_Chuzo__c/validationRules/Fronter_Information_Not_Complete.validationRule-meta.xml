@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fronter_Information_Not_Complete</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(AND(NOT(ISBLANK( Frontier_UserID__c )),ISBLANK( Frontier_PID__c )),AND(NOT(ISBLANK( Frontier_PID__c )),ISBLANK( Frontier_UserID__c )))</errorConditionFormula>
+    <errorMessage>Frontier UserID is required to set Frontier PID and vice-versa.</errorMessage>
+</ValidationRule>

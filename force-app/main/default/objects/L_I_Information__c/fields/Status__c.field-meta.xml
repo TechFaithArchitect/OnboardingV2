@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>HTL Agreement Negotiation</fullName>
+                <default>false</default>
+                <label>HTL Agreement Negotiation</label>
+            </value>
+            <value>
+                <fullName>HTL Account Creation</fullName>
+                <default>false</default>
+                <label>HTL Account Creation</label>
+            </value>
+            <value>
+                <fullName>HTL Build Out</fullName>
+                <default>false</default>
+                <label>HTL Build Out</label>
+            </value>
+            <value>
+                <fullName>SD Subsidy SWAP</fullName>
+                <default>false</default>
+                <label>SD Subsidy SWAP</label>
+            </value>
+            <value>
+                <fullName>Closed Won</fullName>
+                <default>false</default>
+                <label>Closed Won</label>
+            </value>
+            <value>
+                <fullName>Closed Lost</fullName>
+                <default>false</default>
+                <label>Closed Lost</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

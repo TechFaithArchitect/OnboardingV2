@@ -77,4 +77,3 @@ private class OnboardingAppRuleRegistryTest {
         System.assertEquals(0, rules.size(), 'Should return empty list for unknown object');
     }
 }
-

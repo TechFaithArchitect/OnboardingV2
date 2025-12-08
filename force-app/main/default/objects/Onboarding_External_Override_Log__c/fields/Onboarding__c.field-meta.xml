@@ -5,10 +5,9 @@
     <externalId>false</externalId>
     <label>Onboarding</label>
     <referenceTo>Onboarding__c</referenceTo>
-    <relationshipLabel>External Override Logs</relationshipLabel>
-    <relationshipName>External_Override_Logs</relationshipName>
+    <relationshipLabel>Onboarding External Override Logs</relationshipLabel>
+    <relationshipName>Onboarding_External_Override_Logs</relationshipName>
     <required>false</required>
-    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

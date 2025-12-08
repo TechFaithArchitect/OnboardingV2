@@ -31,4 +31,3 @@ public class VendorProgramMetricsDTO {
         this.GroupNames = new List<String>();
     }
 }
-

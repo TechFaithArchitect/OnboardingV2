@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Enga_Errors_Today</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Type__c</columns>
+    <columns>Provider__c</columns>
+    <columns>Tab__c</columns>
+    <columns>Component__c</columns>
+    <columns>Endpoint__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <columns>Error__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>8/14/2025 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Type__c</field>
+        <operation>equals</operation>
+        <value>API Error</value>
+    </filters>
+    <filters>
+        <field>Provider__c</field>
+        <operation>equals</operation>
+        <value>DIRECTV</value>
+    </filters>
+    <label>All Enga Errors Today</label>
+</ListView>

@@ -111,4 +111,3 @@ private class EmailCommLogHelperTest {
         System.assertEquals('Complete Text', log.Text_Body__c, 'Text body should be set');
     }
 }
-

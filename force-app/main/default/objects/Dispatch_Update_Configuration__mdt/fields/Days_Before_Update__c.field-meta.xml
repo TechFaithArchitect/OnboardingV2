@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Days_Before_Update__c</fullName>
+    <description>The number of days before the scheduled date in which the status will be changed to dispatched. (PVFSL-218)</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>The number of days before the scheduled date in which the status will be changed to dispatched.</inlineHelpText>
+    <label>Days Before Update</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

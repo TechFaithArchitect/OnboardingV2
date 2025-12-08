@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Auto_Insurance_Needed__c</fullName>
     <defaultValue>false</defaultValue>
+    <externalId>false</externalId>
     <label>Auto Insurance Needed</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

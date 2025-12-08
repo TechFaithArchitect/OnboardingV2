@@ -73,4 +73,3 @@ public with sharing class VendorProgramGroupService {
         return 'ALL';
     }
 }
-

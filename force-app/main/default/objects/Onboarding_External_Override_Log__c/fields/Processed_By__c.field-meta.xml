@@ -5,10 +5,8 @@
     <externalId>false</externalId>
     <label>Processed By</label>
     <referenceTo>User</referenceTo>
-    <relationshipLabel>Override Logs</relationshipLabel>
-    <relationshipName>Override_Logs</relationshipName>
+    <relationshipName>Onboarding_External_Override_Logs</relationshipName>
     <required>false</required>
-    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

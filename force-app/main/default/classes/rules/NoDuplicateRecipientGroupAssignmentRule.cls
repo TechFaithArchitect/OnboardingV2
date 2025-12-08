@@ -50,4 +50,3 @@ public class NoDuplicateRecipientGroupAssignmentRule implements OnboardingAppVal
         }
     }
 }
-

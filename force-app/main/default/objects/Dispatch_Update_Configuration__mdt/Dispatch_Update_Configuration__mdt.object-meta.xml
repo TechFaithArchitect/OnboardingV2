@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>This configuration allows users to change when the service appointments are updated to “Dispatched“ by vendor. (PVFSL-218)</description>
+    <label>Dispatch Update Configuration</label>
+    <pluralLabel>Dispatch Update Configurations</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

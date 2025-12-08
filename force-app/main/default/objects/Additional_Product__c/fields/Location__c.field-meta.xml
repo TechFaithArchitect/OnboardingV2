@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Location__c</fullName>
+    <externalId>false</externalId>
+    <label>Location</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Manager&apos;s Office</fullName>
+                <default>false</default>
+                <label>Manager&apos;s Office</label>
+            </value>
+            <value>
+                <fullName>Utility Closet</fullName>
+                <default>false</default>
+                <label>Utility Closet</label>
+            </value>
+            <value>
+                <fullName>Conference Room</fullName>
+                <default>false</default>
+                <label>Conference Room</label>
+            </value>
+            <value>
+                <fullName>Reception Desk</fullName>
+                <default>false</default>
+                <label>Reception Desk</label>
+            </value>
+            <value>
+                <fullName>Lobby</fullName>
+                <default>false</default>
+                <label>Lobby</label>
+            </value>
+            <value>
+                <fullName>Maintenance Closet</fullName>
+                <default>false</default>
+                <label>Maintenance Closet</label>
+            </value>
+            <value>
+                <fullName>Break Room</fullName>
+                <default>false</default>
+                <label>Break Room</label>
+            </value>
+            <value>
+                <fullName>Kitchen</fullName>
+                <default>false</default>
+                <label>Kitchen</label>
+            </value>
+            <value>
+                <fullName>IT Closet</fullName>
+                <default>false</default>
+                <label>IT Closet</label>
+            </value>
+            <value>
+                <fullName>Stairwell</fullName>
+                <default>false</default>
+                <label>Stairwell</label>
+            </value>
+            <value>
+                <fullName>Hallway</fullName>
+                <default>false</default>
+                <label>Hallway</label>
+            </value>
+            <value>
+                <fullName>Warehouse</fullName>
+                <default>false</default>
+                <label>Warehouse</label>
+            </value>
+            <value>
+                <fullName>Restroom</fullName>
+                <default>false</default>
+                <label>Restroom</label>
+            </value>
+            <value>
+                <fullName>Wellness / Maternity Room</fullName>
+                <default>false</default>
+                <label>Wellness / Maternity Room</label>
+            </value>
+            <value>
+                <fullName>Fitness Area</fullName>
+                <default>false</default>
+                <label>Fitness Area</label>
+            </value>
+            <value>
+                <fullName>Mail Room</fullName>
+                <default>false</default>
+                <label>Mail Room</label>
+            </value>
+            <value>
+                <fullName>Roof</fullName>
+                <default>false</default>
+                <label>Roof</label>
+            </value>
+            <value>
+                <fullName>Front of Building</fullName>
+                <default>false</default>
+                <label>Front of Building</label>
+            </value>
+            <value>
+                <fullName>Back of Building</fullName>
+                <default>false</default>
+                <label>Back of Building</label>
+            </value>
+            <value>
+                <fullName>Right Side of Building</fullName>
+                <default>false</default>
+                <label>Right Side of Building</label>
+            </value>
+            <value>
+                <fullName>Left Side of Building</fullName>
+                <default>false</default>
+                <label>Left Side of Building</label>
+            </value>
+            <value>
+                <fullName>Dock / Bay Door</fullName>
+                <default>false</default>
+                <label>Dock / Bay Door</label>
+            </value>
+            <value>
+                <fullName>Courtyard</fullName>
+                <default>false</default>
+                <label>Courtyard</label>
+            </value>
+            <value>
+                <fullName>Pool Area</fullName>
+                <default>false</default>
+                <label>Pool Area</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

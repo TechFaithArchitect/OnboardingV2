@@ -44,4 +44,3 @@ public with sharing class OnboardingStatusRulesEngineController {
         return options;
     }
 }
-

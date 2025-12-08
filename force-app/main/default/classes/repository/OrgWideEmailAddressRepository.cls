@@ -11,4 +11,3 @@ public with sharing class OrgWideEmailAddressRepository {
         ];
     }
 }
-

@@ -273,4 +273,3 @@ private class VendorOnboardingWizardControllerTest {
         System.assert(true, 'Sync should complete successfully');
     }
 }
-

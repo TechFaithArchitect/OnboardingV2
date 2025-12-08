@@ -49,4 +49,3 @@ public with sharing class VendorService {
         return VendorOnboardingWizardRepository.searchVendorsWithPrograms(searchText.trim());
     }
 }
-

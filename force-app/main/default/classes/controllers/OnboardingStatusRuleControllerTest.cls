@@ -127,4 +127,3 @@ private class OnboardingStatusRuleControllerTest {
         System.assertEquals(0, remaining.size(), 'Condition should be deleted');
     }
 }
-

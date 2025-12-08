@@ -34,4 +34,3 @@ public with sharing class StageCompletionConfig {
         return VENDOR_SELECTION_COMPONENTS.clone();
     }
 }
-

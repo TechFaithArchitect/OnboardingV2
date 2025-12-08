@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Discount_Field_validation</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( ISCHANGED(DTV_Discount__c ), ISBLANK(DTV_Discount__c ) )</errorConditionFormula>
+    <errorMessage>Field Cannot be Empty</errorMessage>
+</ValidationRule>

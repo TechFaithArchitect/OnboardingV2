@@ -117,4 +117,3 @@ private class OnboardingRulesServiceTest {
         System.assertNotEquals(null, fetchedRequirement.Vendor_Program_Requirement__r.Requirement_Template__r.Requirement_Label__c);
     }
 }
-

@@ -20,4 +20,3 @@ public with sharing class AccountRepository {
         ];
     }
 }
-

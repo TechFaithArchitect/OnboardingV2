@@ -76,4 +76,3 @@ private class OnboardingStatusRulesEngineCtlrTest {
         System.assertEquals('value', result[0].keySet().iterator().next(), 'Should have value/label keys');
     }
 }
-

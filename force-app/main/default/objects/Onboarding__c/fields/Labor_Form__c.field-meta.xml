@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Labor_Form__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
     <label>Labor Form</label>
     <referenceTo>Labor_Form__c</referenceTo>
     <relationshipLabel>Onboarding</relationshipLabel>

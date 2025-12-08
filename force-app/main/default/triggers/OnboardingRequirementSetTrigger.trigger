@@ -10,4 +10,3 @@ trigger OnboardingRequirementSetTrigger on Onboarding_Requirement_Set__c (
         RequirementSetTriggerHandler.afterUpdate(Trigger.new, Trigger.oldMap);
     }
 }
-

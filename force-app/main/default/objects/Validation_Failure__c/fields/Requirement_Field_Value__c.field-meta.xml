@@ -5,7 +5,7 @@
     <externalId>false</externalId>
     <label>Requirement Field Value</label>
     <referenceTo>Requirement_Field_Value__c</referenceTo>
-    <relationshipLabel>Validation Failures</relationshipLabel>
+    <relationshipLabel>Validation Failure</relationshipLabel>
     <relationshipName>Validation_Failures</relationshipName>
     <required>false</required>
     <trackHistory>false</trackHistory>

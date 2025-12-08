@@ -74,4 +74,3 @@ private class OnboardingAppECCControllerTest {
         System.assert(true, 'Link should complete successfully');
     }
 }
-

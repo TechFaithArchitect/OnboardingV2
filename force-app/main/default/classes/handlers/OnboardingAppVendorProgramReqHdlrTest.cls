@@ -97,4 +97,3 @@ private class OnboardingAppVendorProgramReqHdlrTest {
         System.assertEquals(1, trainings.size(), 'Training requirement should be inserted');
     }
 }
-

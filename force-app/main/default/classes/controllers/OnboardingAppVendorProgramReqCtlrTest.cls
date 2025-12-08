@@ -81,4 +81,3 @@ private class OnboardingAppVendorProgramReqCtlrTest {
         System.assertNotEquals(null, trainingId, 'Training ID should be returned');
     }
 }
-

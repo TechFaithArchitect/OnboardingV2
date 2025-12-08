@@ -82,4 +82,3 @@ private class RequireParentVersionOnActivationRuleTest {
         System.assert(saveResult.isSuccess(), 'Should pass with valid Parent_Version__c');
     }
 }
-

@@ -33,4 +33,3 @@ public with sharing class EmailCommLogRepository {
         ];
     }
 }
-

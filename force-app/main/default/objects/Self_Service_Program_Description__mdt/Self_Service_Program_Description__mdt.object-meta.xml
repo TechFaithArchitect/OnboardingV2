@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>To be used for retrieving the active descriptions, the order in which they will be displayed, and the image used for them inside the Poe_lwcSelfServiceProgramDescriptions LWC.</description>
+    <label>Self Service Program Description</label>
+    <pluralLabel>Self Service Program Descriptions</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

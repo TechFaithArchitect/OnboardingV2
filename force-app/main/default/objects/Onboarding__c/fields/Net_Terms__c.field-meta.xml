@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Net_Terms__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
     <label>Net Terms</label>
     <referenceTo>Net_Terms__c</referenceTo>
     <relationshipLabel>Onboarding</relationshipLabel>

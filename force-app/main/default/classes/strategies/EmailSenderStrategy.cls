@@ -17,4 +17,3 @@ public interface EmailSenderStrategy {
      */
     String validate(EmailCommSendRequestDTO req);
 }
-

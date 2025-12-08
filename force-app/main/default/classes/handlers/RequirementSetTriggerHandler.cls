@@ -205,4 +205,3 @@ public with sharing class RequirementSetTriggerHandler {
         }
     }
 }
-

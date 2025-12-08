@@ -1060,4 +1060,3 @@ public with sharing class VendorOnboardingWizardRepository {
         return componentMap;
     }
 }
-

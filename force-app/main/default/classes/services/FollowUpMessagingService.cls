@@ -96,5 +96,3 @@ public with sharing class FollowUpMessagingService {
      */
     public class FollowUpMessagingException extends Exception {}
 }
-
-

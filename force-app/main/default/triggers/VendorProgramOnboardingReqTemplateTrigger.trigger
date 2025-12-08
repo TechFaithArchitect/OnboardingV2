@@ -11,4 +11,3 @@ trigger VendorProgramOnboardingReqTemplateTrigger on Vendor_Program_Onboarding_R
         RequirementTemplateTriggerHandler.afterInsert(Trigger.new);
     }
 }
-

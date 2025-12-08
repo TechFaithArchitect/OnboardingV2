@@ -88,4 +88,3 @@ public with sharing class VendorProgramService {
         return VendorOnboardingWizardRepository.getVendorProgramRequirementGroupForVendorProgram(vendorProgramId);
     }
 }
-

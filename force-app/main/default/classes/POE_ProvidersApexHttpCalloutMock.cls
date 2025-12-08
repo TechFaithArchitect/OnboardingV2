@@ -1,0 +1,11 @@
+global class POE_ProvidersApexHttpCalloutMock implements HttpCalloutMock {
+    global HTTPResponse respond(HTTPRequest request) {
+        HttpResponse response = new HttpResponse();
+        response.setHeader('Content-Type', 'application/json');
+        response.setBody(
+            '{"salesFlow": { "uuid":"649c3c41-1022-a131-56ec-6ded6dc8c563","sid": "88344dd0-5e2f-47e6-8401-a2c4d34f9458"},"userProfile": {"userLocations": [{"location": "ADCOMM DISTRIBUTING","secureSPICollection": "N","unmaskSPI": "Y","sellOnBehalfOf": "Y","addressOverride": "Y","dealerOnProbation": "N","PIPProductSale": "Y","BEAMProductSale": "Y","STREAMProductSale": "Y","BEAMModify": "Y","BEAMCancel": "Y","manualOrder": "Y","SaleProtectionPlan": "Y","isAdmin": "N","equipLimitOverride": "N","saleGemini": "N","BYODSale": "Y","enableAffirm": "N","forceAutopay": "N","forcePaperless": "N","modifyEquipOnly": "N","modifyNFFLWoEquip": "N","forceCreditFirst": "N","enableCreditFirst": "N","reconnectStreamSale": "Y","fullfilmentType": "TRUE","locationId": "195702","locationTypeId": "26","dealerID": "1813044","dealerCode": "Z04VQ","corpId": "2000085241","dealerChainNumber": "0000010","masterDealerId": "3348","SalesMode": null}],"userDetails": {"channel": "Indirect"}},"dnisList": {"dnisDetails": [{"dnis": "1234","dnisName": "DNIS1","effectiveFrom": "11/16/2022","effectiveTo": "12/31/2025","ranking": "1","status": "A","product": "BEAM","newOfferFlag": "Y","remarks": "Dummy 1"},{"dnis": "4321","dnisName": "DNIS2","effectiveFrom": "11/16/2022","effectiveTo": "12/31/2025","ranking": "1","status": "A","product": "STREAM","newOfferFlag": "Y","remarks": "Dummy 1"},{"dnis": "2345","dnisName": "DNIS3","effectiveFrom": "11/16/2022","effectiveTo": "12/31/2025","ranking": "1","status": "A","product": "BEAM","newOfferFlag": "Y","remarks": "Dummy 3"},{"dnis": "3214","dnisName": "DNIS4","effectiveFrom": "11/16/2022","effectiveTo": "12/31/2025","ranking": "1","status": "A","product": "STREAM","newOfferFlag": "Y","remarks": "Dummy 4"}]}}'
+        );
+        response.setStatusCode(200);
+        return response;
+    }
+}

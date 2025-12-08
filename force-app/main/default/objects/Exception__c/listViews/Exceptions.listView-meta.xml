@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Exceptions</fullName>
+    <columns>NAME</columns>
+    <columns>Status__c</columns>
+    <columns>Service_Resource__c</columns>
+    <columns>Service_Appointment__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Is_approver_view__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>notEqual</operation>
+        <value>Pending Dispatcher Approval</value>
+    </filters>
+    <label>All Exceptions</label>
+    <sharedTo>
+        <allPartnerUsers></allPartnerUsers>
+    </sharedTo>
+</ListView>

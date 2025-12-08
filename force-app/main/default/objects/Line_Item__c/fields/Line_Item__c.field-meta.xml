@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Line_Item__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( MSP__c &lt;  Price__c    ,(&apos;&lt;html&gt;&lt;body&gt;&lt;div style=&quot;color: red;&quot;&gt;&lt;b&gt;&apos; &amp; TEXT(Price__c) &amp; &apos;&lt;/b&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&apos;),
+IF(MSP__c &gt;  Price__c,(&apos;&lt;html&gt;&lt;body&gt;&lt;div style=&quot;color: green;&quot;&gt;&lt;b&gt;&apos; &amp; TEXT(Price__c) &amp; &apos;&lt;/b&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&apos;),
+&quot;&quot;
+))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Line Item</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

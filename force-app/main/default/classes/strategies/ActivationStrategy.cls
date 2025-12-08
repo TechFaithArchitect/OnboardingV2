@@ -9,4 +9,3 @@ public interface ActivationStrategy {
      */
     void activate(Id recordId);
 }
-

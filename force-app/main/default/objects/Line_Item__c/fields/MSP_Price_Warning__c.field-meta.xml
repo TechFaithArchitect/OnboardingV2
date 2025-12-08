@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MSP_Price_Warning__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( Price__c &lt; MSP__c,
+IMAGE(&quot;/img/samples/flag_red.gif&quot;,&quot;red&quot;, 20, 20)+&quot; Part is below MSP &quot;,
+IF( Price__c &gt; MSP__c,
+IMAGE(&quot;/img/samples/flag_green.gif&quot;, &quot;yellow&quot;, 20, 20)+&quot; Part not below MSP &quot;,
+IMAGE(&quot;/img/samples/flag_yellow.gif&quot;, &quot;green&quot;, 20, 20)+&quot; Part is same as MSP &quot;
+))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>MSP Price Warning</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -669,4 +669,3 @@ public with sharing class OnboardingRequirementSetService {
         return PicklistHelper.getPicklistValues('Onboarding__c', fieldApiName);
     }
 }
-

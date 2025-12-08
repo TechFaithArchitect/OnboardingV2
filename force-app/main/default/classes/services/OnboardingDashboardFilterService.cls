@@ -141,4 +141,3 @@ public with sharing class OnboardingDashboardFilterService {
         return String.join(clauses, ' AND ');
     }
 }
-

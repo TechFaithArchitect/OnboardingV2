@@ -278,4 +278,3 @@ public with sharing class FollowUpFatigueService {
         update followUp;
     }
 }
-

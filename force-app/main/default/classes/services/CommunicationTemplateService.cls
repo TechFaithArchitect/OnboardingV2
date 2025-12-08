@@ -25,4 +25,3 @@ public with sharing class CommunicationTemplateService {
         VendorOnboardingWizardRepository.linkCommunicationTemplate(vendorProgramId, templateId);
     }
 }
-

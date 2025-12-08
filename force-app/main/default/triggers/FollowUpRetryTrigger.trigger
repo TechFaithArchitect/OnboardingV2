@@ -5,5 +5,3 @@
 trigger FollowUpRetryTrigger on FollowUpRetryTrigger__e (after insert) {
     FollowUpRetryHandler.handleRetry(Trigger.new);
 }
-
-

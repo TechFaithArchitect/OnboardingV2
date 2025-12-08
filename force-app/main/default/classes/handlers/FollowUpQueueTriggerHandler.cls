@@ -111,4 +111,3 @@ public with sharing class FollowUpQueueTriggerHandler {
         return now.addHours(delayHours);
     }
 }
-

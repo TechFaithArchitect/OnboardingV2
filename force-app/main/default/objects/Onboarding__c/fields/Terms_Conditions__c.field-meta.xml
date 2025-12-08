@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Terms_Conditions__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
     <label>Terms &amp; Conditions</label>
     <referenceTo>Net_Terms__c</referenceTo>
     <relationshipLabel>Onboarding (Terms &amp; Conditions)</relationshipLabel>

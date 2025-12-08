@@ -119,4 +119,3 @@ public with sharing class RecipientGroupService {
         return VendorOnboardingWizardRepository.insertVendorProgramRecipientGroup(link);
     }
 }
-

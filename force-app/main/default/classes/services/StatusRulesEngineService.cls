@@ -82,4 +82,3 @@ public with sharing class StatusRulesEngineService {
         return VendorOnboardingWizardRepository.searchStatusRules(nameSearchText);
     }
 }
-

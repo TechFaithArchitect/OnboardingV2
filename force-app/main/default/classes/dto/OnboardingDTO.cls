@@ -39,4 +39,3 @@ public virtual class OnboardingDTO {
         this.RecordUrl = '/' + ob.Id;
     }
 }
-

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Status</label>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>New Claim</fullName>
+                <default>true</default>
+                <label>New Claim</label>
+            </value>
+            <value>
+                <fullName>Denied</fullName>
+                <default>false</default>
+                <label>Denied</label>
+            </value>
+            <value>
+                <fullName>Closed</fullName>
+                <default>false</default>
+                <label>Closed</label>
+            </value>
+            <value>
+                <fullName>GL Claim Filed (Installer)</fullName>
+                <default>false</default>
+                <label>GL Claim Filed (Installer)</label>
+            </value>
+            <value>
+                <fullName>Investigating - Insurance Action Required</fullName>
+                <default>false</default>
+                <label>Investigating - Insurance Action Required</label>
+            </value>
+            <value>
+                <fullName>Investigating - Member Action Required</fullName>
+                <default>false</default>
+                <label>Investigating - Member Action Required</label>
+            </value>
+            <value>
+                <fullName>Investigating - Company Action Required</fullName>
+                <default>false</default>
+                <label>Investigating - Company Action Required</label>
+            </value>
+            <value>
+                <fullName>OEM</fullName>
+                <default>false</default>
+                <label>OEM</label>
+            </value>
+            <value>
+                <fullName>LOI</fullName>
+                <default>false</default>
+                <label>LOI</label>
+            </value>
+            <value>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>In Progress</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -14,4 +14,3 @@ public with sharing class GenericActivationStrategy implements ActivationStrateg
         OnboardingAppActivationService.activateRecord(objectApiName, recordId);
     }
 }
-

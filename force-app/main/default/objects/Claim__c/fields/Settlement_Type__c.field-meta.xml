@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Settlement_Type__c</fullName>
+    <externalId>false</externalId>
+    <label>Settlement Type</label>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Insurance Claim</fullName>
+                <default>false</default>
+                <label>Insurance Claim</label>
+            </value>
+            <value>
+                <fullName>Installer Paid</fullName>
+                <default>false</default>
+                <label>Installer Paid</label>
+            </value>
+            <value>
+                <fullName>DCC Paid</fullName>
+                <default>false</default>
+                <label>DCC Paid</label>
+            </value>
+            <value>
+                <fullName>50/50</fullName>
+                <default>false</default>
+                <label>50/50</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

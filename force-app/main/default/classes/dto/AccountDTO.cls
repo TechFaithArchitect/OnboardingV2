@@ -14,4 +14,3 @@ public class AccountDTO {
         this.EligibleVendorCount = 0;
     }
 }
-

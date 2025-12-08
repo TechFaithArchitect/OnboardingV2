@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PV_URL_Patch__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>PV URL to patch requests. Replace &quot;mydomain&quot; with the domain of the org
+
+https://mydomain.my.salesforce.com/services/data/v53.0/composite/sobjects</inlineHelpText>
+    <label>PV URL Patch</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

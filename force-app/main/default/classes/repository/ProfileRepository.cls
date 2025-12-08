@@ -24,4 +24,3 @@ public with sharing class ProfileRepository {
         return profiles.isEmpty() ? '' : profiles[0].Name;
     }
 }
-
