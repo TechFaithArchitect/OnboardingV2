@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-10-17T18:25:20.000Z" hostname="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com" tests="60" failures="5"  errors="0"  time="110.70">
+        <properties>
+            <property name="outcome" value="Failed"/>
+            <property name="testsRan" value="60"/>
+            <property name="passing" value="55"/>
+            <property name="failing" value="5"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="92%"/>
+            <property name="failRate" value="8%"/>
+            <property name="testStartTime" value="Fri Oct 17 2025 2:25:20 PM"/>
+            <property name="testSetupTimeInMs" value="74"/>
+            <property name="testExecutionTime" value="110.70 s"/>
+            <property name="testTotalTime" value="110.78 s"/>
+            <property name="commandTime" value="0.21 s"/>
+            <property name="hostname" value="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DRL00000HQXWP2A5"/>
+            <property name="username" value="jason.murray@perfect-vision.com.onboardv2"/>
+            <property name="testRunId" value="707RL000010H9cU"/>
+            <property name="userId" value="005Qq000000pBRFIA2"/>
+            <property name="coveredLines" value="701"/>
+            <property name="testRunCoverage" value="78%"/>
+            <property name="orgWideCoverage" value="7%"/>
+        </properties>
+        <testcase name="testAutoCorrectsActiveDrafts" classname="VersioningTriggerHandlerTest" time="0.23">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutParent_isAllowed" classname="VersioningTriggerHandlerTest" time="0.08">
+        </testcase>
+        <testcase name="testSingleActivePerParentEnforced" classname="VersioningTriggerHandlerTest" time="0.09">
+        </testcase>
+        <testcase name="testAlreadyActive" classname="VendorProgramActivationServiceTest" time="0.23">
+        </testcase>
+        <testcase name="testFlowAction" classname="VendorProgramActivationServiceTest" time="0.13">
+        </testcase>
+        <testcase name="testMultipleActiveChildrenInSameLineage_shouldFail" classname="VendorProgramActivationServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testNonDraftWithNoParentOrChildren_shouldStayNull" classname="VendorProgramActivationServiceTest" time="0.06">
+        </testcase>
+        <testcase name="testNullIdThrows" classname="VendorProgramActivationServiceTest" time="0.01">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutChildren_isAllowed" classname="VendorProgramActivationServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testSiblingDeactivation" classname="VendorProgramActivationServiceTest" time="0.17">
+        </testcase>
+        <testcase name="testCreateAndUpdateLog" classname="UtilitiesSyncLogHelperTest" time="0.11">
+        </testcase>
+        <testcase name="testMarkFailed" classname="UtilitiesSyncLogHelperTest" time="0.05">
+        </testcase>
+        <testcase name="testActivationDependencies" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.48">
+        </testcase>
+        <testcase name="testNonDraftVersionMustHaveParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.22">
+        </testcase>
+        <testcase name="testOneActiveVersionPerParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.26">
+        </testcase>
+        <testcase name="testValidRecordInsertsSuccessfully" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.25">
+        </testcase>
+        <testcase name="testRunFullSync_createsAndUpdates" classname="OrgWideEmailSyncServiceTest" time="0.10">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="OrgWideEmailSyncControllerTest" time="0.31">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="OrgWideEmailSyncOrchestratorTest" time="0.19">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="OrgWideEmailSyncOrchestratorTest" time="0.14">
+        </testcase>
+        <testcase name="testNonDraftMustHaveParent" classname="VendorProgramTriggerHandlerTest" time="0.15">
+            <failure message="System.AssertException: Assertion Failed: Insert should fail without Previous_Version__c."><![CDATA[Class.VendorProgramTriggerHandlerTest.testNonDraftMustHaveParent: line 77, column 1]]></failure>
+        </testcase>
+        <testcase name="testOnlyOneActivePerParent" classname="VendorProgramTriggerHandlerTest" time="0.13">
+        </testcase>
+        <testcase name="testValidInsert" classname="VendorProgramTriggerHandlerTest" time="0.10">
+        </testcase>
+        <testcase name="testAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="12.67">
+        </testcase>
+        <testcase name="testBackgroundCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="4.92">
+        </testcase>
+        <testcase name="testChuzoAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.71">
+        </testcase>
+        <testcase name="testClearingHouseTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.61">
+        </testcase>
+        <testcase name="testComplianceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.78">
+        </testcase>
+        <testcase name="testCreditCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.65">
+        </testcase>
+        <testcase name="testDriversLicenseStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.70">
+        </testcase>
+        <testcase name="testERPSetupStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.84">
+        </testcase>
+        <testcase name="testInsuranceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.49">
+        </testcase>
+        <testcase name="testLaborFormStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.64">
+        </testcase>
+        <testcase name="testLearnUponContactEnrollmentStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="4.84">
+        </testcase>
+        <testcase name="testNetTermsStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.84">
+        </testcase>
+        <testcase name="testOnboardingStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.30">
+        </testcase>
+        <testcase name="testPersonalGuaranteeStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.19">
+        </testcase>
+        <testcase name="testVendorOrderEntryPlatformStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.95">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="EmailTemplateSyncControllerTest" time="8.53">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="EmailTemplateSyncOrchestratorTest" time="0.16">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="EmailTemplateSyncOrchestratorTest" time="0.13">
+        </testcase>
+        <testcase name="testSyncAllTemplates_handlesEmpty" classname="EmailTemplateSyncServiceTest" time="0.04">
+        </testcase>
+        <testcase name="testSyncAllTemplates_success" classname="EmailTemplateSyncServiceTest" time="0.06">
+        </testcase>
+        <testcase name="testRunManualSync" classname="ManualEmailSyncActionTest" time="8.02">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_empty" classname="EmailTemplateRepositoryTest" time="0.08">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_withData" classname="EmailTemplateRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testGetAll_withMock" classname="OrgWideEmailRepositoryTest" time="0.03">
+        </testcase>
+        <testcase name="testUpsertEmails_insertAndUpdate" classname="OrgWideEmailRepositoryTest" time="0.10">
+        </testcase>
+        <testcase name="testBuildCMDT" classname="OrgWideEmailCMDTRepositoryTest" time="0.05">
+        </testcase>
+        <testcase name="testSetMockCatalogs_andGetAll" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertCMDTs_inTestContext_skipsDeployment" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertTemplates" classname="CommunicationTemplateRepositoryTest" time="0.08">
+        </testcase>
+        <testcase name="testBuildAndDeployCMDT" classname="EmailCatalogCMDTRepositoryTest" time="0.04">
+        </testcase>
+        <testcase name="testUpsertCMDTs" classname="EmailCatalogCMDTRepositoryTest" time="0.02">
+        </testcase>
+        <testcase name="testExecuteSinglePayload" classname="EmailCommBatchSendActionTest" time="18.08">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: MALFORMED_ID, Onboarding: id value of incorrect type: a0B000000000000000: [Onboarding__c]"><![CDATA[Class.EmailCommLoggerService.logImmediately: line 20, column 1
+Class.EmailCommOrchestrator.orchestrateSendAndLog: line 5, column 1
+Class.EmailCommBatchSendAction.execute: line 7, column 1
+Class.EmailCommBatchSendActionTest.testExecuteSinglePayload: line 8, column 1]]></failure>
+        </testcase>
+        <testcase name="testQueueableCreatesLog" classname="EmailCommLoggerQueueableTest" time="3.67">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: MALFORMED_ID, Onboarding: id value of incorrect type: a0B000000000000000: [Onboarding__c]"><![CDATA[Class.EmailCommLoggerQueueable.execute: line 26, column 1]]></failure>
+        </testcase>
+        <testcase name="testIsDuplicateIgnoresOldLogs" classname="EmailCommDedupeUtilTest" time="3.87">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: MALFORMED_ID, Onboarding: id value of incorrect type: a0B000000000000000: [Onboarding__c]"><![CDATA[Class.PV_TestDataFactory.maybeInsert: line 9, column 1
+Class.PV_TestDataFactory.createEmailCommLog: line 272, column 1
+Class.EmailCommDedupeUtilTest.testIsDuplicateIgnoresOldLogs: line 30, column 1]]></failure>
+        </testcase>
+        <testcase name="testIsDuplicateReturnsFalseWhenNoMatch" classname="EmailCommDedupeUtilTest" time="1.65">
+        </testcase>
+        <testcase name="testIsDuplicateReturnsTrueWhenMatchExists" classname="EmailCommDedupeUtilTest" time="2.36">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: MALFORMED_ID, Onboarding: id value of incorrect type: a0B000000000000000: [Onboarding__c]"><![CDATA[Class.PV_TestDataFactory.maybeInsert: line 9, column 1
+Class.PV_TestDataFactory.createEmailCommLog: line 272, column 1
+Class.EmailCommDedupeUtilTest.testIsDuplicateReturnsTrueWhenMatchExists: line 18, column 1]]></failure>
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-10-20T13:42:30.000Z" hostname="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com" tests="66" failures="2"  errors="0"  time="102.02">
+        <properties>
+            <property name="outcome" value="Failed"/>
+            <property name="testsRan" value="66"/>
+            <property name="passing" value="64"/>
+            <property name="failing" value="2"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="97%"/>
+            <property name="failRate" value="3%"/>
+            <property name="testStartTime" value="Mon Oct 20 2025 9:42:30 AM"/>
+            <property name="testSetupTimeInMs" value="57"/>
+            <property name="testExecutionTime" value="102.02 s"/>
+            <property name="testTotalTime" value="102.07 s"/>
+            <property name="commandTime" value="985.30 s"/>
+            <property name="hostname" value="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DRL00000HQXWP2A5"/>
+            <property name="username" value="jason.murray@perfect-vision.com.onboardv2"/>
+            <property name="testRunId" value="707RL000010UNoJ"/>
+            <property name="userId" value="005Qq000000pBRFIA2"/>
+        </properties>
+        <testcase name="testOrchestrateBulk" classname="EmailCommOrchestratorTest" time="4.77">
+        </testcase>
+        <testcase name="testOrchestrateSendAndLog_asyncLogging" classname="EmailCommOrchestratorTest" time="2.24">
+        </testcase>
+        <testcase name="testOrchestrateSendAndLog_syncLogging" classname="EmailCommOrchestratorTest" time="2.23">
+        </testcase>
+        <testcase name="testCreateAndUpdateLog" classname="UtilitiesSyncLogHelperTest" time="0.14">
+        </testcase>
+        <testcase name="testMarkFailed" classname="UtilitiesSyncLogHelperTest" time="0.04">
+        </testcase>
+        <testcase name="testActivationDependencies" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.26">
+        </testcase>
+        <testcase name="testNonDraftVersionMustHaveParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.14">
+        </testcase>
+        <testcase name="testOneActiveVersionPerParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.17">
+        </testcase>
+        <testcase name="testValidRecordInsertsSuccessfully" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.15">
+        </testcase>
+        <testcase name="testAlreadyActive" classname="VendorProgramActivationServiceTest" time="0.30">
+        </testcase>
+        <testcase name="testFlowAction" classname="VendorProgramActivationServiceTest" time="0.14">
+        </testcase>
+        <testcase name="testMultipleActiveChildrenInSameLineage_shouldFail" classname="VendorProgramActivationServiceTest" time="0.07">
+        </testcase>
+        <testcase name="testNonDraftWithNoParentOrChildren_shouldStayNull" classname="VendorProgramActivationServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testNullIdThrows" classname="VendorProgramActivationServiceTest" time="0.01">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutChildren_isAllowed" classname="VendorProgramActivationServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testSiblingDeactivation" classname="VendorProgramActivationServiceTest" time="0.22">
+        </testcase>
+        <testcase name="testNonDraftMustHaveParent" classname="VendorProgramTriggerHandlerTest" time="0.07">
+        </testcase>
+        <testcase name="testOnlyOneActivePerParent" classname="VendorProgramTriggerHandlerTest" time="0.08">
+        </testcase>
+        <testcase name="testValidInsert" classname="VendorProgramTriggerHandlerTest" time="0.06">
+        </testcase>
+        <testcase name="testAutoCorrectsActiveDrafts" classname="VersioningTriggerHandlerTest" time="0.14">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutParent_isAllowed" classname="VersioningTriggerHandlerTest" time="0.05">
+        </testcase>
+        <testcase name="testSingleActivePerParentEnforced" classname="VersioningTriggerHandlerTest" time="0.06">
+        </testcase>
+        <testcase name="testAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="9.01">
+        </testcase>
+        <testcase name="testBackgroundCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.36">
+        </testcase>
+        <testcase name="testChuzoAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.04">
+        </testcase>
+        <testcase name="testClearingHouseTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.10">
+        </testcase>
+        <testcase name="testComplianceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.12">
+        </testcase>
+        <testcase name="testCreditCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.85">
+        </testcase>
+        <testcase name="testDriversLicenseStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.87">
+        </testcase>
+        <testcase name="testERPSetupStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.24">
+        </testcase>
+        <testcase name="testInsuranceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.64">
+        </testcase>
+        <testcase name="testLaborFormStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.88">
+        </testcase>
+        <testcase name="testLearnUponContactEnrollmentStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="4.03">
+        </testcase>
+        <testcase name="testNetTermsStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.10">
+        </testcase>
+        <testcase name="testOnboardingStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.64">
+        </testcase>
+        <testcase name="testPersonalGuaranteeStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.54">
+        </testcase>
+        <testcase name="testVendorOrderEntryPlatformStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.18">
+        </testcase>
+        <testcase name="testRunFullSync_createsAndUpdates" classname="OrgWideEmailSyncServiceTest" time="0.14">
+        </testcase>
+        <testcase name="testGenerateDeveloperName" classname="OrgWideEmailDTOTest" time="0.01">
+        </testcase>
+        <testcase name="testHasChanges" classname="OrgWideEmailDTOTest" time="0.00">
+        </testcase>
+        <testcase name="testGetAll_withMock" classname="OrgWideEmailRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertEmails_insertAndUpdate" classname="OrgWideEmailRepositoryTest" time="0.07">
+        </testcase>
+        <testcase name="testBuildCMDT" classname="OrgWideEmailCMDTRepositoryTest" time="0.03">
+        </testcase>
+        <testcase name="testSetMockCatalogs_andGetAll" classname="OrgWideEmailCMDTRepositoryTest" time="0.02">
+        </testcase>
+        <testcase name="testUpsertCMDTs_inTestContext_skipsDeployment" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="OrgWideEmailSyncControllerTest" time="0.13">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="OrgWideEmailSyncOrchestratorTest" time="0.17">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="OrgWideEmailSyncOrchestratorTest" time="0.08">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="EmailTemplateSyncOrchestratorTest" time="0.16">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="EmailTemplateSyncOrchestratorTest" time="0.10">
+        </testcase>
+        <testcase name="testSyncAllTemplates_handlesEmpty" classname="EmailTemplateSyncServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testSyncAllTemplates_success" classname="EmailTemplateSyncServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testRunManualSync" classname="ManualEmailSyncActionTest" time="7.38">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_empty" classname="EmailTemplateRepositoryTest" time="0.03">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_withData" classname="EmailTemplateRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertTemplates" classname="CommunicationTemplateRepositoryTest" time="0.13">
+        </testcase>
+        <testcase name="testBuildAndDeployCMDT" classname="EmailCatalogCMDTRepositoryTest" time="0.02">
+        </testcase>
+        <testcase name="testUpsertCMDTs" classname="EmailCatalogCMDTRepositoryTest" time="0.03">
+        </testcase>
+        <testcase name="testExecuteSinglePayload" classname="EmailCommBatchSendActionTest" time="6.48">
+        </testcase>
+        <testcase name="testQueueableCreatesLog" classname="EmailCommLoggerQueueableTest" time="4.56">
+        </testcase>
+        <testcase name="testIsDuplicateIgnoresOldLogs" classname="EmailCommDedupeUtilTest" time="6.78">
+        </testcase>
+        <testcase name="testIsDuplicateReturnsFalseWhenNoMatch" classname="EmailCommDedupeUtilTest" time="2.78">
+        </testcase>
+        <testcase name="testIsDuplicateReturnsTrueWhenMatchExists" classname="EmailCommDedupeUtilTest" time="2.81">
+        </testcase>
+        <testcase name="testBulkRequests" classname="EmailCommSendActionTest" time="11.73">
+            <failure message="System.AssertException: Assertion Failed: Expected: Success, Actual: Exception"><![CDATA[Class.EmailCommSendActionTest.testBulkRequests: line 60, column 1]]></failure>
+        </testcase>
+        <testcase name="testSingleRequestSuccess" classname="EmailCommSendActionTest" time="2.57">
+            <failure message="System.AssertException: Assertion Failed: Expected: Success, Actual: Exception"><![CDATA[Class.EmailCommSendActionTest.testSingleRequestSuccess: line 31, column 1]]></failure>
+        </testcase>
+    </testsuite>
+</testsuites>

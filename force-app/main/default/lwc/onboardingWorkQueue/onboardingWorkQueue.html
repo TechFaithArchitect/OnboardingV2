@@ -1,0 +1,18 @@
+<template>
+    <template if:true={processedRecords.length}>
+        <lightning-datatable
+            key-field="Id"
+            data={processedRecords}
+            columns={tableColumns}
+            onrowaction={handleRowAction}
+            hide-checkbox-column
+            show-row-number-column>
+        </lightning-datatable>
+    </template>
+    <template if:false={processedRecords.length}>
+        <div class="slds-text-align_center slds-p-around_large">
+            <p class="slds-text-body_regular">No records found.</p>
+        </div>
+    </template>
+</template>
+

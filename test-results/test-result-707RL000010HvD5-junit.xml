@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-10-17T20:46:49.000Z" hostname="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com" tests="45" failures="2"  errors="0"  time="79.49">
+        <properties>
+            <property name="outcome" value="Failed"/>
+            <property name="testsRan" value="45"/>
+            <property name="passing" value="43"/>
+            <property name="failing" value="2"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="96%"/>
+            <property name="failRate" value="4%"/>
+            <property name="testStartTime" value="Fri Oct 17 2025 4:46:49 PM"/>
+            <property name="testSetupTimeInMs" value="95"/>
+            <property name="testExecutionTime" value="79.49 s"/>
+            <property name="testTotalTime" value="79.58 s"/>
+            <property name="commandTime" value="0.23 s"/>
+            <property name="hostname" value="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DRL00000HQXWP2A5"/>
+            <property name="username" value="jason.murray@perfect-vision.com.onboardv2"/>
+            <property name="testRunId" value="707RL000010HvD5"/>
+            <property name="userId" value="005Qq000000pBRFIA2"/>
+            <property name="coveredLines" value="598"/>
+            <property name="testRunCoverage" value="77%"/>
+            <property name="orgWideCoverage" value="7%"/>
+        </properties>
+        <testcase name="testAutoCorrectsActiveDrafts" classname="VersioningTriggerHandlerTest" time="0.16">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutParent_isAllowed" classname="VersioningTriggerHandlerTest" time="0.07">
+        </testcase>
+        <testcase name="testSingleActivePerParentEnforced" classname="VersioningTriggerHandlerTest" time="0.07">
+        </testcase>
+        <testcase name="testAlreadyActive" classname="VendorProgramActivationServiceTest" time="0.22">
+        </testcase>
+        <testcase name="testFlowAction" classname="VendorProgramActivationServiceTest" time="0.15">
+        </testcase>
+        <testcase name="testMultipleActiveChildrenInSameLineage_shouldFail" classname="VendorProgramActivationServiceTest" time="0.06">
+        </testcase>
+        <testcase name="testNonDraftWithNoParentOrChildren_shouldStayNull" classname="VendorProgramActivationServiceTest" time="0.06">
+        </testcase>
+        <testcase name="testNullIdThrows" classname="VendorProgramActivationServiceTest" time="0.01">
+        </testcase>
+        <testcase name="testRootActiveVersionWithoutChildren_isAllowed" classname="VendorProgramActivationServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testSiblingDeactivation" classname="VendorProgramActivationServiceTest" time="0.20">
+        </testcase>
+        <testcase name="testCreateAndUpdateLog" classname="UtilitiesSyncLogHelperTest" time="0.24">
+        </testcase>
+        <testcase name="testMarkFailed" classname="UtilitiesSyncLogHelperTest" time="0.05">
+        </testcase>
+        <testcase name="testActivationDependencies" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.33">
+        </testcase>
+        <testcase name="testNonDraftVersionMustHaveParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.12">
+        </testcase>
+        <testcase name="testOneActiveVersionPerParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.16">
+        </testcase>
+        <testcase name="testValidRecordInsertsSuccessfully" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.15">
+        </testcase>
+        <testcase name="testRunFullSync_createsAndUpdates" classname="OrgWideEmailSyncServiceTest" time="0.23">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="OrgWideEmailSyncControllerTest" time="0.22">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="OrgWideEmailSyncOrchestratorTest" time="0.13">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="OrgWideEmailSyncOrchestratorTest" time="0.09">
+        </testcase>
+        <testcase name="testNonDraftMustHaveParent" classname="VendorProgramTriggerHandlerTest" time="0.11">
+        </testcase>
+        <testcase name="testOnlyOneActivePerParent" classname="VendorProgramTriggerHandlerTest" time="0.12">
+        </testcase>
+        <testcase name="testValidInsert" classname="VendorProgramTriggerHandlerTest" time="0.08">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="EmailTemplateSyncControllerTest" time="8.45">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="EmailTemplateSyncOrchestratorTest" time="0.11">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="EmailTemplateSyncOrchestratorTest" time="0.07">
+        </testcase>
+        <testcase name="testSyncAllTemplates_handlesEmpty" classname="EmailTemplateSyncServiceTest" time="0.04">
+        </testcase>
+        <testcase name="testSyncAllTemplates_success" classname="EmailTemplateSyncServiceTest" time="0.05">
+        </testcase>
+        <testcase name="testRunManualSync" classname="ManualEmailSyncActionTest" time="6.62">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_empty" classname="EmailTemplateRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_withData" classname="EmailTemplateRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testGetAll_withMock" classname="OrgWideEmailRepositoryTest" time="0.02">
+        </testcase>
+        <testcase name="testUpsertEmails_insertAndUpdate" classname="OrgWideEmailRepositoryTest" time="0.08">
+        </testcase>
+        <testcase name="testBuildCMDT" classname="OrgWideEmailCMDTRepositoryTest" time="0.03">
+            <failure message="System.StringException: Invalid id: 0D200000000000AA"><![CDATA[Class.OrgWideEmailCMDTRepositoryTest.buildTestDTO: line 9, column 1
+Class.OrgWideEmailCMDTRepositoryTest.testBuildCMDT: line 42, column 1]]></failure>
+        </testcase>
+        <testcase name="testSetMockCatalogs_andGetAll" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertCMDTs_inTestContext_skipsDeployment" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+            <failure message="System.StringException: Invalid id: 0D200000000000AA"><![CDATA[Class.OrgWideEmailCMDTRepositoryTest.buildTestDTO: line 9, column 1
+Class.OrgWideEmailCMDTRepositoryTest.testUpsertCMDTs_inTestContext_skipsDeployment: line 64, column 1]]></failure>
+        </testcase>
+        <testcase name="testUpsertTemplates" classname="CommunicationTemplateRepositoryTest" time="0.19">
+        </testcase>
+        <testcase name="testBuildAndDeployCMDT" classname="EmailCatalogCMDTRepositoryTest" time="0.08">
+        </testcase>
+        <testcase name="testUpsertCMDTs" classname="EmailCatalogCMDTRepositoryTest" time="0.03">
+        </testcase>
+        <testcase name="testExecuteSinglePayload" classname="EmailCommBatchSendActionTest" time="16.58">
+        </testcase>
+        <testcase name="testQueueableCreatesLog" classname="EmailCommLoggerQueueableTest" time="19.62">
+        </testcase>
+        <testcase name="testIsDuplicateIgnoresOldLogs" classname="EmailCommDedupeUtilTest" time="18.05">
+        </testcase>
+        <testcase name="testIsDuplicateReturnsFalseWhenNoMatch" classname="EmailCommDedupeUtilTest" time="3.18">
+        </testcase>
+        <testcase name="testIsDuplicateReturnsTrueWhenMatchExists" classname="EmailCommDedupeUtilTest" time="3.18">
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,12 @@
+.blocked-row {
+    border-left: 4px solid #c23934;
+}
+
+.at-risk-row {
+    border-left: 4px solid #ffb75d;
+}
+
+.normal-row {
+    border-left: 4px solid #0176d3;
+}
+

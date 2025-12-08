@@ -1,0 +1,131 @@
+@isTest
+private class OnboardingRequirementsPanelCtlrTest {
+
+    @isTest
+    static void testGetRequirements() {
+        // Arrange
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true);
+        Account account = TestAccountFactory.create('Test Account', true);
+        Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorProgram, true);
+        Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
+        Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(true, onboarding, vpr);
+        req.Status__c = 'In Process';
+        update req;
+        
+        // Act
+        Test.startTest();
+        List<OnboardingApplicationService.RequirementDTO> result = 
+            OnboardingRequirementsPanelController.getRequirements(onboarding.Id);
+        Test.stopTest();
+        
+        // Assert
+        System.assert(result != null, 'Result should not be null');
+        System.assert(result.size() > 0, 'Should return requirements');
+        System.assertEquals(req.Id, result[0].Id, 'Should return correct requirement');
+        System.assertEquals('In Process', result[0].Status, 'Status should match');
+    }
+
+    @isTest
+    static void testGetRequirements_Empty() {
+        // Arrange
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true);
+        Account account = TestAccountFactory.create('Test Account', true);
+        Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorProgram, true);
+        
+        // Act
+        Test.startTest();
+        List<OnboardingApplicationService.RequirementDTO> result = 
+            OnboardingRequirementsPanelController.getRequirements(onboarding.Id);
+        Test.stopTest();
+        
+        // Assert
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(0, result.size(), 'Should return empty list');
+    }
+
+    @isTest
+    static void testUpdateRequirementStatuses() {
+        // Arrange
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true);
+        Account account = TestAccountFactory.create('Test Account', true);
+        Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorProgram, true);
+        Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
+        Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(true, onboarding, vpr);
+        req.Status__c = 'New';
+        update req;
+        
+        List<OnboardingApplicationService.RequirementDTO> updates = 
+            new List<OnboardingApplicationService.RequirementDTO>();
+        OnboardingApplicationService.RequirementDTO dto = 
+            new OnboardingApplicationService.RequirementDTO(req);
+        dto.Status = 'Complete';
+        updates.add(dto);
+        
+        // Act
+        Test.startTest();
+        OnboardingRequirementsPanelController.updateRequirementStatuses(updates);
+        Test.stopTest();
+        
+        // Assert
+        Onboarding_Requirement__c updated = [SELECT Id, Status__c FROM Onboarding_Requirement__c WHERE Id = :req.Id];
+        System.assertEquals('Complete', updated.Status__c, 'Status should be updated');
+    }
+
+    @isTest
+    static void testUpdateRequirementStatuses_NullList() {
+        // Act
+        Test.startTest();
+        OnboardingRequirementsPanelController.updateRequirementStatuses(null);
+        Test.stopTest();
+        
+        // Assert - Verify no exception thrown
+        System.assert(true, 'Should handle null list gracefully');
+    }
+
+    @isTest
+    static void testUpdateRequirementStatuses_EmptyList() {
+        // Act
+        Test.startTest();
+        OnboardingRequirementsPanelController.updateRequirementStatuses(new List<OnboardingApplicationService.RequirementDTO>());
+        Test.stopTest();
+        
+        // Assert - Verify no exception thrown
+        System.assert(true, 'Should handle empty list gracefully');
+    }
+
+    @isTest
+    static void testRunRuleEvaluation() {
+        // Arrange
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true);
+        Account account = TestAccountFactory.create('Test Account', true);
+        Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorProgram, true);
+        
+        // Act
+        Test.startTest();
+        OnboardingRequirementsPanelController.runRuleEvaluation(onboarding.Id);
+        Test.stopTest();
+        
+        // Assert - Verify no exception thrown
+        System.assert(true, 'Rule evaluation should complete successfully');
+    }
+
+    @isTest
+    static void testRunRuleEvaluation_NullId() {
+        // Act
+        Test.startTest();
+        OnboardingRequirementsPanelController.runRuleEvaluation(null);
+        Test.stopTest();
+        
+        // Assert - Verify no exception thrown
+        System.assert(true, 'Should handle null ID gracefully');
+    }
+}
+

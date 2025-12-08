@@ -1,0 +1,92 @@
+
+
+=== Test Results
+TEST NAME                                                                              OUTCOME  MESSAGE  RUNTIME (MS)
+─────────────────────────────────────────────────────────────────────────────────────  ───────  ───────  ────────────
+EmailCommOrchestratorTest.testOrchestrateBulk                                          Pass              9969        
+EmailCommOrchestratorTest.testOrchestrateSendAndLog_asyncLogging                       Pass              3226        
+EmailCommOrchestratorTest.testOrchestrateSendAndLog_syncLogging                        Pass              2885        
+UtilitiesSyncLogHelperTest.testCreateAndUpdateLog                                      Pass              104         
+UtilitiesSyncLogHelperTest.testMarkFailed                                              Pass              40          
+VendorProgramRecipientGrpTriggerHdlrTest.testActivationDependencies                    Pass              347         
+VendorProgramRecipientGrpTriggerHdlrTest.testNonDraftVersionMustHaveParent             Pass              148         
+VendorProgramRecipientGrpTriggerHdlrTest.testOneActiveVersionPerParent                 Pass              196         
+VendorProgramRecipientGrpTriggerHdlrTest.testValidRecordInsertsSuccessfully            Pass              172         
+VendorProgramActivationServiceTest.testAlreadyActive                                   Pass              477         
+VendorProgramActivationServiceTest.testFlowAction                                      Pass              96          
+VendorProgramActivationServiceTest.testMultipleActiveChildrenInSameLineage_shouldFail  Pass              52          
+VendorProgramActivationServiceTest.testNonDraftWithNoParentOrChildren_shouldStayNull   Pass              41          
+VendorProgramActivationServiceTest.testNullIdThrows                                    Pass              3           
+VendorProgramActivationServiceTest.testRootActiveVersionWithoutChildren_isAllowed      Pass              44          
+VendorProgramActivationServiceTest.testSiblingDeactivation                             Pass              165         
+VendorProgramTriggerHandlerTest.testNonDraftMustHaveParent                             Pass              78          
+VendorProgramTriggerHandlerTest.testOnlyOneActivePerParent                             Pass              70          
+VendorProgramTriggerHandlerTest.testValidInsert                                        Pass              51          
+VersioningTriggerHandlerTest.testAutoCorrectsActiveDrafts                              Pass              133         
+VersioningTriggerHandlerTest.testRootActiveVersionWithoutParent_isAllowed              Pass              58          
+VersioningTriggerHandlerTest.testSingleActivePerParentEnforced                         Pass              65          
+OnboardingStatusTrackerHandlerTest.testAgreementStatusTrigger                          Pass              14928       
+OnboardingStatusTrackerHandlerTest.testBackgroundCheckStatusTrigger                    Pass              3579        
+OnboardingStatusTrackerHandlerTest.testChuzoAgreementStatusTrigger                     Pass              2497        
+OnboardingStatusTrackerHandlerTest.testClearingHouseTrigger                            Pass              2140        
+OnboardingStatusTrackerHandlerTest.testComplianceStatusTrigger                         Pass              2195        
+OnboardingStatusTrackerHandlerTest.testCreditCheckStatusTrigger                        Pass              3004        
+OnboardingStatusTrackerHandlerTest.testDriversLicenseStatusTrigger                     Pass              3156        
+OnboardingStatusTrackerHandlerTest.testERPSetupStatusTrigger                           Pass              2212        
+OnboardingStatusTrackerHandlerTest.testInsuranceStatusTrigger                          Pass              2685        
+OnboardingStatusTrackerHandlerTest.testLaborFormStatusTrigger                          Pass              2985        
+OnboardingStatusTrackerHandlerTest.testLearnUponContactEnrollmentStatusTrigger         Pass              4180        
+OnboardingStatusTrackerHandlerTest.testNetTermsStatusTrigger                           Pass              2058        
+OnboardingStatusTrackerHandlerTest.testOnboardingStatusTrigger                         Pass              2744        
+OnboardingStatusTrackerHandlerTest.testPersonalGuaranteeStatusTrigger                  Pass              2605        
+OnboardingStatusTrackerHandlerTest.testVendorOrderEntryPlatformStatusTrigger           Pass              2262        
+OrgWideEmailSyncServiceTest.testRunFullSync_createsAndUpdates                          Pass              98          
+OrgWideEmailDTOTest.testGenerateDeveloperName                                          Pass              62          
+OrgWideEmailDTOTest.testHasChanges                                                     Pass              6           
+OrgWideEmailRepositoryTest.testGetAll_withMock                                         Pass              27          
+OrgWideEmailRepositoryTest.testUpsertEmails_insertAndUpdate                            Pass              190         
+OrgWideEmailCMDTRepositoryTest.testBuildCMDT                                           Pass              41          
+OrgWideEmailCMDTRepositoryTest.testSetMockCatalogs_andGetAll                           Pass              188         
+OrgWideEmailCMDTRepositoryTest.testUpsertCMDTs_inTestContext_skipsDeployment           Pass              13          
+OrgWideEmailSyncControllerTest.testScheduledExecution                                  Pass              256         
+OrgWideEmailSyncOrchestratorTest.testRunFullSync_failure                               Pass              121         
+OrgWideEmailSyncOrchestratorTest.testRunFullSync_success                               Pass              85          
+EmailTemplateSyncOrchestratorTest.testRunFullSync_failure                              Pass              182         
+EmailTemplateSyncOrchestratorTest.testRunFullSync_success                              Pass              96          
+EmailTemplateSyncServiceTest.testSyncAllTemplates_handlesEmpty                         Pass              38          
+EmailTemplateSyncServiceTest.testSyncAllTemplates_success                              Pass              46          
+ManualEmailSyncActionTest.testRunManualSync                                            Pass              7128        
+EmailTemplateRepositoryTest.testGetAllActiveTemplates_empty                            Pass              37          
+EmailTemplateRepositoryTest.testGetAllActiveTemplates_withData                         Pass              5           
+CommunicationTemplateRepositoryTest.testUpsertTemplates                                Pass              146         
+EmailCatalogCMDTRepositoryTest.testBuildAndDeployCMDT                                  Pass              38          
+EmailCatalogCMDTRepositoryTest.testUpsertCMDTs                                         Pass              48          
+EmailCommBatchSendActionTest.testExecuteSinglePayload                                  Pass              13478       
+EmailCommLoggerQueueableTest.testQueueableCreatesLog                                   Pass              12281       
+EmailCommDedupeUtilTest.testIsDuplicateIgnoresOldLogs                                  Pass              12285       
+EmailCommDedupeUtilTest.testIsDuplicateReturnsFalseWhenNoMatch                         Pass              2818        
+EmailCommDedupeUtilTest.testIsDuplicateReturnsTrueWhenMatchExists                      Pass              3243        
+EmailCommSendActionTest.testBulkRequests                                               Pass              17429       
+EmailCommSendActionTest.testSingleRequestSuccess                                       Pass              2322        
+
+
+=== Test Setup Time by Test Class for Run 707RL000010Vkip
+TEST SETUP METHOD NAME                     SETUP TIME
+─────────────────────────────────────────  ──────────
+VendorProgramTriggerHandlerTest.setupData  364       
+
+
+=== Test Summary
+NAME                 VALUE                                    
+───────────────────  ─────────────────────────────────────────
+Outcome              Passed                                   
+Tests Ran            66                                       
+Pass Rate            100%                                     
+Fail Rate            0%                                       
+Skip Rate            0%                                       
+Test Run Id          707RL000010Vkip                          
+Test Setup Time      364 ms                                   
+Test Execution Time  143987 ms                                
+Test Total Time      144351 ms                                
+Org Id               00DRL00000HQXWP2A5                       
+Username             jason.murray@perfect-vision.com.onboardv2

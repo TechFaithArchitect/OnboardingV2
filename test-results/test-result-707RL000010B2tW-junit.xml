@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-10-16T17:12:23.000Z" hostname="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com" tests="52" failures="8"  errors="0"  time="67.17">
+        <properties>
+            <property name="outcome" value="Failed"/>
+            <property name="testsRan" value="52"/>
+            <property name="passing" value="44"/>
+            <property name="failing" value="8"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="85%"/>
+            <property name="failRate" value="15%"/>
+            <property name="testStartTime" value="Thu Oct 16 2025 1:12:23 PM"/>
+            <property name="testSetupTimeInMs" value="286"/>
+            <property name="testExecutionTime" value="67.17 s"/>
+            <property name="testTotalTime" value="67.45 s"/>
+            <property name="commandTime" value="0.17 s"/>
+            <property name="hostname" value="https://perfectvisionpoe--onboardv2.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DRL00000HQXWP2A5"/>
+            <property name="username" value="jason.murray@perfect-vision.com.onboardv2"/>
+            <property name="testRunId" value="707RL000010B2tW"/>
+            <property name="userId" value="005Qq000000pBRFIA2"/>
+        </properties>
+        <testcase name="testCreateAndUpdateLog" classname="UtilitiesSyncLogHelperTest" time="0.11">
+        </testcase>
+        <testcase name="testMarkFailed" classname="UtilitiesSyncLogHelperTest" time="0.04">
+        </testcase>
+        <testcase name="testActivationDependencies" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.16">
+        </testcase>
+        <testcase name="testNonDraftVersionMustHaveParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.01">
+            <failure message="System.QueryException: List has no rows for assignment to SObject"><![CDATA[Class.VendorProgramRecipientGrpTriggerHdlrTest.testNonDraftVersionMustHaveParent: line 124, column 1]]></failure>
+        </testcase>
+        <testcase name="testOneActiveVersionPerParent" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.01">
+            <failure message="System.QueryException: List has no rows for assignment to SObject"><![CDATA[Class.VendorProgramRecipientGrpTriggerHdlrTest.testOneActiveVersionPerParent: line 78, column 1]]></failure>
+        </testcase>
+        <testcase name="testValidRecordInsertsSuccessfully" classname="VendorProgramRecipientGrpTriggerHdlrTest" time="0.01">
+            <failure message="System.QueryException: List has no rows for assignment to SObject"><![CDATA[Class.VendorProgramRecipientGrpTriggerHdlrTest.testValidRecordInsertsSuccessfully: line 45, column 1]]></failure>
+        </testcase>
+        <testcase name="testAlreadyActive" classname="VendorProgramActivationServiceTest" time="0.05">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY, VersioningTrigger: execution of BeforeInsert
+
+caused by: System.QueryException: Variable does not exist: record.Id
+
+Class.VersioningTriggerHandler.enforceVersionLinkage: line 73, column 1
+Class.VersioningTriggerHandler.run: line 10, column 1
+Trigger.VersioningTrigger: line 2, column 1: []"><![CDATA[Class.VendorProgramActivationServiceTest.testAlreadyActive: line 44, column 1]]></failure>
+        </testcase>
+        <testcase name="testFlowAction" classname="VendorProgramActivationServiceTest" time="0.07">
+            <failure message="System.DmlException: Update failed. First exception on row 0 with id aDFRL000000l3AX4AY; first error: CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY, VersioningTrigger: execution of BeforeUpdate
+
+caused by: System.QueryException: Variable does not exist: record.Id
+
+Class.VersioningTriggerHandler.enforceVersionLinkage: line 73, column 1
+Class.VersioningTriggerHandler.run: line 10, column 1
+Trigger.VersioningTrigger: line 2, column 1: []"><![CDATA[Class.VendorProgramActivationService.activate: line 20, column 1
+Class.OnboardingAppActivationOrchestrator.activate: line 12, column 1
+Class.OnboardingAppActivationAction.activate: line 9, column 1
+Class.VendorProgramActivationServiceTest.testFlowAction: line 22, column 1]]></failure>
+        </testcase>
+        <testcase name="testNullIdThrows" classname="VendorProgramActivationServiceTest" time="0.01">
+            <failure message="System.AssertException: Assertion Failed"><![CDATA[Class.VendorProgramActivationServiceTest.testNullIdThrows: line 122, column 1]]></failure>
+        </testcase>
+        <testcase name="testSiblingDeactivation" classname="VendorProgramActivationServiceTest" time="0.02">
+            <failure message="System.DmlException: Insert failed. First exception on row 0; first error: CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY, VersioningTrigger: execution of BeforeInsert
+
+caused by: System.QueryException: Variable does not exist: record.Id
+
+Class.VersioningTriggerHandler.enforceVersionLinkage: line 73, column 1
+Class.VersioningTriggerHandler.run: line 10, column 1
+Trigger.VersioningTrigger: line 2, column 1: []"><![CDATA[Class.VendorProgramActivationServiceTest.testSiblingDeactivation: line 69, column 1]]></failure>
+        </testcase>
+        <testcase name="testRunFullSync_createsAndUpdates" classname="OrgWideEmailSyncServiceTest" time="0.16">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="OrgWideEmailSyncOrchestratorTest" time="0.20">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="OrgWideEmailSyncOrchestratorTest" time="0.10">
+        </testcase>
+        <testcase name="testNonDraftMustHaveParent" classname="VendorProgramTriggerHandlerTest" time="0.12">
+            <failure message="System.AssertException: Assertion Failed: Expected parent version required error."><![CDATA[Class.VendorProgramTriggerHandlerTest.testNonDraftMustHaveParent: line 93, column 1]]></failure>
+        </testcase>
+        <testcase name="testOnlyOneActivePerParent" classname="VendorProgramTriggerHandlerTest" time="0.14">
+        </testcase>
+        <testcase name="testValidInsert" classname="VendorProgramTriggerHandlerTest" time="0.07">
+        </testcase>
+        <testcase name="testAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="16.14">
+        </testcase>
+        <testcase name="testBackgroundCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="4.20">
+        </testcase>
+        <testcase name="testChuzoAgreementStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.93">
+        </testcase>
+        <testcase name="testClearingHouseTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.88">
+        </testcase>
+        <testcase name="testComplianceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.80">
+        </testcase>
+        <testcase name="testCreditCheckStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.42">
+        </testcase>
+        <testcase name="testDriversLicenseStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.62">
+        </testcase>
+        <testcase name="testERPSetupStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.86">
+        </testcase>
+        <testcase name="testInsuranceStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.27">
+        </testcase>
+        <testcase name="testLaborFormStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.46">
+        </testcase>
+        <testcase name="testLearnUponContactEnrollmentStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="3.57">
+        </testcase>
+        <testcase name="testNetTermsStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.76">
+        </testcase>
+        <testcase name="testOnboardingStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.17">
+        </testcase>
+        <testcase name="testPersonalGuaranteeStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="2.11">
+        </testcase>
+        <testcase name="testVendorOrderEntryPlatformStatusTrigger" classname="OnboardingStatusTrackerHandlerTest" time="1.83">
+        </testcase>
+        <testcase name="testSyncAllTemplates_handlesEmpty" classname="EmailTemplateSyncServiceTest" time="0.08">
+        </testcase>
+        <testcase name="testSyncAllTemplates_success" classname="EmailTemplateSyncServiceTest" time="0.03">
+        </testcase>
+        <testcase name="testRunManualSync" classname="ManualEmailSyncActionTest" time="9.01">
+        </testcase>
+        <testcase name="testGenerateDeveloperName" classname="OrgWideEmailDTOTest" time="0.01">
+        </testcase>
+        <testcase name="testHasChanges" classname="OrgWideEmailDTOTest" time="0.01">
+        </testcase>
+        <testcase name="testGetAll_withMock" classname="OrgWideEmailRepositoryTest" time="0.04">
+        </testcase>
+        <testcase name="testUpsertEmails_insertAndUpdate" classname="OrgWideEmailRepositoryTest" time="0.18">
+        </testcase>
+        <testcase name="testBuildCMDT" classname="OrgWideEmailCMDTRepositoryTest" time="0.30">
+        </testcase>
+        <testcase name="testSetMockCatalogs_andGetAll" classname="OrgWideEmailCMDTRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertCMDTs_inTestContext_skipsDeployment" classname="OrgWideEmailCMDTRepositoryTest" time="0.02">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="OrgWideEmailSyncControllerTest" time="0.35">
+        </testcase>
+        <testcase name="testScheduledExecution" classname="EmailTemplateSyncControllerTest" time="6.95">
+        </testcase>
+        <testcase name="testRunFullSync_failure" classname="EmailTemplateSyncOrchestratorTest" time="0.14">
+        </testcase>
+        <testcase name="testRunFullSync_success" classname="EmailTemplateSyncOrchestratorTest" time="0.14">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_empty" classname="EmailTemplateRepositoryTest" time="0.07">
+        </testcase>
+        <testcase name="testGetAllActiveTemplates_withData" classname="EmailTemplateRepositoryTest" time="0.01">
+        </testcase>
+        <testcase name="testUpsertTemplates" classname="CommunicationTemplateRepositoryTest" time="0.15">
+        </testcase>
+        <testcase name="testBuildAndDeployCMDT" classname="EmailCatalogCMDTRepositoryTest" time="0.07">
+        </testcase>
+        <testcase name="testUpsertCMDTs" classname="EmailCatalogCMDTRepositoryTest" time="0.04">
+        </testcase>
+    </testsuite>
+</testsuites>

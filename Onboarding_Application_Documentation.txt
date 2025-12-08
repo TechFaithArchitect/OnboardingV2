@@ -1,0 +1,98 @@
+
+🎯 Onboarding Application Framework
+
+A metadata-driven Lightning Web Component (LWC) onboarding engine designed to guide users through structured onboarding flows, such as Vendor Program onboarding. Built for configurability, auditability, and dynamic rendering of components based on admin-defined processes.
+
+📐 Architecture Overview
+
+This framework replaces hardcoded onboarding flows with configurable records using Custom Objects. Admins define:
+- What components to show
+- In what order
+- Whether each stage is required
+- What happens after each stage
+
+Users are then dynamically walked through those stages. Progress is saved and auditable.
+
+🔁 Use Case: Vendor Program Onboarding
+
+For each Vendor Program, users are guided through a dynamic onboarding flow like:
+1. Select Vendor
+2. Choose/Create Program
+3. Assign Program Group
+4. Assign Requirement Group
+5. Finalize Program
+6. Choose Recipient Group
+7. Add Members
+
+Each of these is a standalone LWC, orchestrated via metadata.
+
+🧩 Components
+
+onboardingFlowEngine
+- Main controller. Dynamically loads each onboarding stage (LWC) based on metadata.
+
+onboardingStageRenderer
+- Wraps the dynamic instantiation of stage components based on their API name.
+
+vendorProgramOnboardingFlow
+- Vendor-specific wrapper that:
+  - Accepts recordId (Vendor Program)
+  - Queries for onboarding process via Apex
+  - Injects processId into the engine
+
+⚙️ Apex Service
+
+OnboardingApplicationService.cls
+- Fetches process/stage metadata
+- Saves user progress
+- Logs completed stages
+- Resolves process assignment for a vendor program
+
+🗃️ Data Model
+
+Object | Purpose
+-------|---------
+Onboarding_Application_Process__c | Defines a reusable onboarding flow
+Onboarding_Application_Stage__c | Defines a stage in a process
+Onboarding_Component_Library__c | Maps LWCs to metadata
+Onboarding_Application_Progress__c | Tracks user progress per Vendor Program
+Onboarding_Application_Stage_Completion__c | Audit log of completed stages
+
+🔧 File Structure
+
+force-app
+└── main
+    └── default
+        ├── classes/
+        │   └── OnboardingApplicationService.cls
+        └── lwc/
+            ├── onboardingFlowEngine/
+            ├── onboardingStageRenderer/
+            ├── vendorProgramOnboardingFlow/
+            └── [All stage-specific LWCs...]
+
+🔜 Roadmap
+
+Feature | Status
+--------|--------
+Dynamic rendering | ✅ Complete
+Process metadata | ✅ Complete
+Progress tracking | ✅ Complete
+Stage audit logging | ✅ Complete
+Process versioning | 🛠️ In design
+Admin flow builder UI | 🛠️ In planning
+Branching logic support | 🛠️ In planning
+
+🚀 Deploy & Use
+
+1. Deploy metadata & Apex
+2. Configure your onboarding process (via tabs)
+3. Assign a process to a Vendor Program
+4. Add vendorProgramOnboardingFlow to a Lightning Record Page
+5. Done 🎉
+
+🙋 Support
+
+For questions, ideas, or bug reports, contact the development team or create an issue in this repo.
+
+

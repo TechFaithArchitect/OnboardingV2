@@ -1,0 +1,38 @@
+<template>
+    <lightning-card title="Onboarding Status Rules Engine" icon-name="standard:rules">
+        <div class="slds-p-around_medium">
+
+            <!-- Filters -->
+            <lightning-combobox
+                label="Vendor Program Group"
+                value={selectedVendorProgramGroup}
+                options={vendorProgramGroupOptions}
+                onchange={handleVendorProgramGroupChange}>
+            </lightning-combobox>
+
+            <lightning-combobox
+                label="Requirement Group"
+                value={selectedRequirementGroup}
+                options={requirementGroupOptions}
+                onchange={handleRequirementGroupChange}>
+            </lightning-combobox>
+
+            <lightning-button 
+                label="Load Rules" 
+                onclick={loadRules} 
+                class="slds-m-top_medium">
+            </lightning-button>
+
+            <template if:true={rules.length}>
+                <lightning-datatable
+                    key-field="Id"
+                    data={rules}
+                    columns={columns}
+                    onsave={handleSave}
+                    draft-values={draftValues}
+                    hide-checkbox-column>
+                </lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>

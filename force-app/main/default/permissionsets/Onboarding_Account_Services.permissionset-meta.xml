@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Onboarding_Account_Services</fullName>
+    <label>Onboarding Account Services</label>
+    <description>Permissions for Account Services team members</description>
+    <apiVersion>65.0</apiVersion>
+    <status>Active</status>
+</PermissionSet>

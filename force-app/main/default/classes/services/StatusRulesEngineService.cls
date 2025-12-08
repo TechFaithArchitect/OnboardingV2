@@ -1,0 +1,85 @@
+/**
+ * Service for Status Rules Engine domain operations
+ * Handles all business logic related to Onboarding_Status_Rules_Engine__c and Onboarding_Status_Rule__c records
+ */
+public with sharing class StatusRulesEngineService {
+    
+    /**
+     * Searches for status rules engines
+     * @param onboardingStatusRulesEngine The search text
+     * @return List of matching status rules engines
+     */
+    public static List<Onboarding_Status_Rules_Engine__c> searchStatusRulesEngines(String onboardingStatusRulesEngine) {
+        return VendorOnboardingWizardRepository.searchStatusRulesEngines(onboardingStatusRulesEngine);
+    }
+    
+    /**
+     * Gets a status rules engine by ID
+     * @param engineId The engine ID
+     * @return The status rules engine record, or null if not found
+     */
+    public static Onboarding_Status_Rules_Engine__c getStatusRulesEngineById(Id engineId) {
+        if (engineId == null) {
+            return null;
+        }
+        return VendorOnboardingWizardRepository.getStatusRulesEngineById(engineId);
+    }
+    
+    /**
+     * Creates a new status rules engine
+     * @param onboardingStatusRulesEngine The rules engine record to create
+     * @return The ID of the created rules engine
+     * @throws AuraHandledException if rules engine is null or name is blank
+     */
+    public static Id createOnboardingStatusRulesEngine(Onboarding_Status_Rules_Engine__c onboardingStatusRulesEngine) {
+        ValidationHelper.requireRecord(onboardingStatusRulesEngine, 'Onboarding Status Rules Engine');
+        ValidationHelper.requireField(onboardingStatusRulesEngine.Name, 'Name');
+        
+        // Apply default values
+        DefaultValueHelper.applyStatusRulesEngineDefaults(onboardingStatusRulesEngine);
+        
+        // Set additional defaults if not provided
+        if (String.isBlank(onboardingStatusRulesEngine.Evaluation_Logic__c)) {
+            onboardingStatusRulesEngine.Evaluation_Logic__c = 'ALL'; // Default evaluation logic
+        }
+        if (String.isBlank(onboardingStatusRulesEngine.Required_Status__c)) {
+            onboardingStatusRulesEngine.Required_Status__c = 'New'; // Default required status
+        }
+        if (String.isBlank(onboardingStatusRulesEngine.Target_Onboarding_Status__c)) {
+            onboardingStatusRulesEngine.Target_Onboarding_Status__c = 'In Process'; // Default target status
+        }
+        
+        return VendorOnboardingWizardRepository.insertOnboardingStatusRulesEngine(onboardingStatusRulesEngine);
+    }
+    
+    /**
+     * Creates a new status rule
+     * @param rule The status rule record to create
+     * @return The ID of the created rule
+     * @throws AuraHandledException if rule is null or name is blank
+     */
+    public static Id createStatusRule(Onboarding_Status_Rule__c rule) {
+        ValidationHelper.requireRecord(rule, 'Status Rule');
+        ValidationHelper.requireField(rule.Name, 'Name');
+        
+        // Set default values for required fields if not provided
+        if (String.isBlank(rule.Expected_Status__c)) {
+            rule.Expected_Status__c = 'New'; // Default expected status
+        }
+        if (rule.Rule_Number__c == null || rule.Rule_Number__c == 0) {
+            rule.Rule_Number__c = 1; // Default rule number
+        }
+        
+        return VendorOnboardingWizardRepository.insertStatusRule(rule);
+    }
+    
+    /**
+     * Searches for status rules
+     * @param nameSearchText The search text
+     * @return List of matching status rules
+     */
+    public static List<Onboarding_Status_Rule__c> searchStatusRules(String nameSearchText) {
+        return VendorOnboardingWizardRepository.searchStatusRules(nameSearchText);
+    }
+}
+
