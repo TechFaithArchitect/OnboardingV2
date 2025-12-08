@@ -127,5 +127,45 @@ private class OnboardingRequirementsPanelCtlrTest {
         // Assert - Verify no exception thrown
         System.assert(true, 'Should handle null ID gracefully');
     }
-}
 
+    @isTest
+    static void testGetInvalidFieldValuesAndRerunValidation() {
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true);
+        Account account = TestAccountFactory.create('Test Account', true);
+        Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorProgram, true);
+        Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
+        Onboarding_Requirement__c requirement = TestOnboardingRequirementFactory.create(true, onboarding, vpr);
+
+        Requirement_Field__c fieldDef = new Requirement_Field__c(
+            Name = 'Email',
+            Field_API_Name__c = 'Email__c',
+            Required__c = true,
+            Vendor_Program_Requirement__c = vpr.Id,
+            Field_Type__c = 'Text',
+            Validation_Type__c = 'Format'
+        );
+        insert fieldDef;
+
+        Requirement_Field_Value__c fv = new Requirement_Field_Value__c(
+            Onboarding_Requirement__c = requirement.Id,
+            Requirement_Field__c = fieldDef.Id,
+            Value__c = 'bad',
+            Validation_Status__c = 'Invalid',
+            Validation_Error_Message__c = 'Invalid email'
+        );
+        insert fv;
+
+        Test.startTest();
+        List<OnboardingRequirementsPanelController.InvalidFieldDTO> invalids =
+            OnboardingRequirementsPanelController.getInvalidFieldValues(onboarding.Id);
+        OnboardingRequirementsPanelController.rerunValidation(new List<Id>{ fv.Id });
+        Test.stopTest();
+
+        System.assertEquals(1, invalids.size(), 'Should return the invalid field');
+        System.assertEquals('Invalid', invalids[0].status);
+        System.assertEquals('Email', invalids[0].fieldName);
+        System.assertEquals('Invalid email', invalids[0].message);
+    }
+}

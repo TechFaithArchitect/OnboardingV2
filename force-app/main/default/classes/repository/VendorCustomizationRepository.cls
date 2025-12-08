@@ -33,6 +33,34 @@ public with sharing class VendorCustomizationRepository {
             WHERE Id IN :recordIds
         ];
     }
+
+    /**
+     * Fetches active Vendor_Customization__c records for eligibility checks.
+     * @param vendorIds Optional vendor filter
+     * @param programIds Optional program filter
+     * @return List of active Vendor_Customization__c records
+     */
+    public static List<Vendor_Customization__c> getActiveVendorPrograms(
+        List<Id> vendorIds,
+        List<Id> programIds
+    ) {
+        List<String> conditions = new List<String>{
+            'Active__c = true'
+        };
+
+        if (vendorIds != null && !vendorIds.isEmpty()) {
+            conditions.add('Vendor__c IN :vendorIds');
+        }
+
+        if (programIds != null && !programIds.isEmpty()) {
+            conditions.add('Id IN :programIds');
+        }
+
+        String whereClause = String.join(conditions, ' AND ');
+        String query = 'SELECT Id, Vendor__c FROM Vendor_Customization__c WHERE ' + whereClause;
+
+        return Database.query(query);
+    }
     
     /**
      * Fetches active sibling records by parent version ID.
@@ -123,4 +151,3 @@ public with sharing class VendorCustomizationRepository {
         return records.isEmpty() ? null : records[0];
     }
 }
-

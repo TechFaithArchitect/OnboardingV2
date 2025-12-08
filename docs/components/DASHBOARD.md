@@ -51,7 +51,7 @@ Displays accounts that can start new onboarding processes:
 - Row actions: Start Onboarding, View Account
 
 **How Eligibility is Determined:**
-- Uses `VendorOnboardingService.getEligibleVendors()` to check each account
+- Uses `OnboardingEligibilityService.getEligibleVendorCountsByAccount()` to check each account
 - Returns accounts with active vendor programs that haven't been onboarded yet
 - Respects prerequisite requirements and existing onboarding records
 
@@ -264,12 +264,12 @@ Child Components:
 ### No Data Showing
 - Verify user has access to Account records
 - Check that onboarding records exist and were created by the user (for "My" views)
-- Ensure VendorOnboardingService is accessible for eligible accounts check
+- Ensure `OnboardingEligibilityService` is accessible for eligible accounts check
 
 ### Eligible Accounts Empty
 - Verify accounts exist
 - Check that active vendor programs exist
-- Ensure VendorOnboardingService can access required objects
+- Ensure `OnboardingEligibilityService` can access required objects
 
 ### Performance Issues
 - Review result set limits
@@ -358,4 +358,3 @@ Potential improvements:
 - Custom date range picker
 - Real-time updates via Platform Events
 - Bulk actions on work queues
-

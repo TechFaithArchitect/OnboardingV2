@@ -185,7 +185,7 @@ Used by `OnboardingHomeDashboardController` for identifying blocked/at-risk reco
   - Includes Total count
 
 - `getEligibleAccounts(timeFilter, vendorIds, programIds)` - Returns accounts that can start new onboarding
-  - Uses `VendorOnboardingService.getEligibleVendors()` to determine eligibility
+  - Uses `OnboardingEligibilityService.getEligibleVendorCountsByAccount()` to determine eligibility
   - Returns accounts that have eligible vendor programs not yet onboarded
   - Includes Account details (Name, Territory, Region) and eligible vendor count
   - Returns as `List<AccountDTO>`

@@ -2200,6 +2200,59 @@ public class PlatformEventVolumeMonitor {
 
 ---
 
+# 📆 Execution Status & Success Criteria
+
+## Phase-by-Phase Status (snapshot)
+- **Phase 0 – Foundation**: ✅ Complete (relationships, sharing, admin app, fatigue baseline, retries, cleanup, utilities)
+- **Phase 1 – Field-Level Validation & Corrections**: ✅ Built & enabled (CMDT-driven rules, async/sync validators, correction UX surfaces invalid fields only, validation failures + rule tester in admin console)
+- **Phase 2 – Automated Follow-Ups (Messaging)**: ⏳ Planned (flow + messaging orchestration, fatigue rules refinement)
+- **Phase 3 – Adobe Integration**: ⏳ Planned (REST→PE bridge, mapping, retry telemetry)
+- **Phase 4 – External Override (Axapta)**: ⏳ Planned (REST endpoint, override flags, audit)
+
+## Phase 1 – Success Criteria
+- Field-level validation service live with immediate + async pathways
+- Platform Event + Queueable fallback handling volume > 100 validations/hour
+- LWC/Flow correction UX surfaces only invalid fields; no full-form restarts (onboarding requirements panel now lists invalid field values with error messages and offers re-run validation)
+- Validation_Failure__c populated with rule name, message, and correlation IDs
+- Shield-encrypted storage used for sensitive values; FLS enforced via utility
+- 90%+ coverage for validation services, event handlers, and queueables
+
+## Phase 2 – Success Criteria
+- Follow_Up_Rule__mdt drives detection, escalation, and messaging templates
+- Follow_Up_Queue__c populated via events/flow with accurate timezone-aware Next_Attempt_Date__c
+- Salesforce Messaging (MessagingSession/Delivery) used for SMS; failures logged and retried
+- Fatigue suppression honors Max_Attempts_Per_Window__c and Suppression__mdt
+- Admin console shows fatigue/suppression reasons and allows manual retry
+- SLA: <30s send for SMS; <5% delivery failure rate with alerting
+
+## Phase 3 – Success Criteria
+- Adobe webhook → REST handler → Platform Event bridge in place
+- Form_Data_Staging__c stores payloads; FormMappingRule__mdt drives field mapping
+- AdobeSyncFailure__c captures failures with retry/backoff; retry job schedulable
+- Round-trip (prefill → sign → sync back) completed for at least one form type in UAT
+- Auditability: document IDs, template IDs, and sync timestamps persisted
+
+## Phase 4 – Success Criteria
+- REST override API secured via Named Credential; rejects unauthenticated calls
+- Override flags/fields on Onboarding__c persisted with audit log entries
+- Status evaluator and trigger flow respect override (bypass normal blocking)
+- Allowed programs enforced in UI/validation; non-allowed programs blocked
+- Reset-and-restart path works (requirements reset to Not Started when requested)
+
+## Near-Term Implementation Order
+1) **Phase 1**: Build validation service + LWC/Flow UX; wire Platform Event/Queueable handlers; log to Validation_Failure__c; add tests.  
+2) **Phase 2**: Wire Follow_Up_Rule__mdt to Flow + Messaging; finalize fatigue logic + suppression UX; add delivery telemetry and retries.  
+3) **Phase 3**: Stand up webhook → PE bridge; implement mapping + retries; expose admin/reporting views.  
+4) **Phase 4**: Ship override API + service + audit; update status evaluator + UI filtering.  
+
+## Risks & Mitigations
+- **Messaging limits or channel gaps**: Cache channel IDs in metadata; add backpressure via Next_Attempt_Date__c throttling.
+- **Adobe webhook variability**: Strong schema validation + quarantine to staging object; retries with exponential backoff.
+- **Override misuse**: Permission sets + validation rules requiring reason/program list; full audit log.
+- **Sensitive data**: Enforce Shield encryption for SSN-like fields; never log plaintext; FLS utility required for all accesses.
+
+---
+
 # 🔄 Data Migration Strategy
 
 ## Migration Steps
@@ -2532,5 +2585,3 @@ public class PlatformEventVolumeMonitor {
 
 **Score: 10/10**  
 This plan is production-ready and aligns with Salesforce enterprise architecture best practices. All gaps have been addressed, and the plan now leverages your existing Salesforce Messaging infrastructure for a simpler, more maintainable solution. The addition of external system override capability enables seamless integration with Axapta for re-onboarding terminated dealers.
-
-

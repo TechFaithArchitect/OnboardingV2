@@ -54,6 +54,32 @@ public with sharing class RequirementFieldValueController {
 
             upsert fieldValue;
 
+            // Run synchronous validation for this field value
+            try {
+                RequirementFieldValidationService.validateAndUpdate(new Set<Id>{ fieldValue.Id });
+            } catch (Exception validationEx) {
+                // Surface validation error in the response but do not block persistence
+                result.message = 'Field saved, but validation failed: ' + validationEx.getMessage();
+            }
+
+            // For Cross-Field or External types, enqueue async validation for further checks
+            try {
+                if (String.isNotBlank(requirementFieldId)) {
+                    Requirement_Field__c reqField = [
+                        SELECT Validation_Type__c
+                        FROM Requirement_Field__c
+                        WHERE Id = :requirementFieldId
+                        LIMIT 1
+                    ];
+                    if (reqField.Validation_Type__c == 'Cross-Field' || reqField.Validation_Type__c == 'External') {
+                        RequirementFieldAsyncValidator.enqueue(new Set<Id>{ fieldValue.Id });
+                    }
+                }
+            } catch (Exception asyncEx) {
+                // Do not block save if async enqueue fails
+                System.debug('Async validation enqueue failed: ' + asyncEx.getMessage());
+            }
+
             // Update Onboarding_Requirement__c status
             updateRequirementStatus(onboardingRequirementId);
 
@@ -151,4 +177,3 @@ public with sharing class RequirementFieldValueController {
         @AuraEnabled public String message;
     }
 }
-

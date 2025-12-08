@@ -22,13 +22,58 @@ public with sharing class RecipientGroupResolver {
         }
 
         // Step 2: Get users from the linked recipient groups
-        for (Recipient_Group_Member__c member : [
-            SELECT Recipient_User__c
-            FROM Recipient_Group_Member__c
-            WHERE Recipient_Group__c IN :groupIds
-            AND Recipient_User__c != null
-        ]) {
-            userIds.add(member.Recipient_User__c);
+        Set<Id> relatedGroupIds = new Set<Id>();
+        Set<Id> territoryRoleAssignmentIds = new Set<Id>();
+
+        // Build dynamic field list to stay compatible if optional lookups are absent.
+        Map<String, Schema.SObjectField> memberFields = Recipient_Group_Member__c.SObjectType.getDescribe().fields.getMap();
+        List<String> memberSelectFields = new List<String>{ 'Recipient_User__c', 'OwnerId' };
+        Boolean hasTerritoryRoleLookup = memberFields.containsKey('Role_Assignment__c');
+        if (hasTerritoryRoleLookup) {
+            memberSelectFields.add('Role_Assignment__c');
+        }
+
+        String memberQuery = 'SELECT ' + String.join(memberSelectFields, ', ') +
+            ' FROM Recipient_Group_Member__c WHERE Recipient_Group__c IN :groupIds';
+
+        for (Recipient_Group_Member__c member : Database.query(memberQuery)) {
+            if (member.Recipient_User__c != null) {
+                userIds.add(member.Recipient_User__c);
+            }
+            // OwnerId can be a User or Group. Collect Groups to resolve nested members.
+            if (member.OwnerId != null && String.valueOf(member.OwnerId).startsWith('00G')) {
+                relatedGroupIds.add(member.OwnerId);
+            }
+            if (hasTerritoryRoleLookup && member.get('Role_Assignment__c') != null) {
+                Id territoryRoleId = (Id) member.get('Role_Assignment__c');
+                territoryRoleAssignmentIds.add(territoryRoleId);
+            }
+        }
+
+        // Resolve public groups/queues to users
+        if (!relatedGroupIds.isEmpty()) {
+            for (GroupMember gm : [
+                SELECT UserOrGroupId, Group.Type
+                FROM GroupMember
+                WHERE GroupId IN :relatedGroupIds
+            ]) {
+                if (gm.UserOrGroupId != null && String.valueOf(gm.UserOrGroupId).startsWith('005')) {
+                    userIds.add(gm.UserOrGroupId);
+                }
+            }
+        }
+
+        // Resolve territory role assignments to users (active only)
+        if (!territoryRoleAssignmentIds.isEmpty()) {
+            for (Territory_Role_Assignment__c roleAssignment : [
+                SELECT User__c, Active__c
+                FROM Territory_Role_Assignment__c
+                WHERE Id IN :territoryRoleAssignmentIds
+            ]) {
+                if (roleAssignment.Active__c == true && roleAssignment.User__c != null) {
+                    userIds.add(roleAssignment.User__c);
+                }
+            }
         }
 
         if (userIds.isEmpty()) {
@@ -43,12 +88,5 @@ public with sharing class RecipientGroupResolver {
             AND Email != null
             LIMIT 1000
         ];
-
-        // In RecipientGroupResolver
-        // Optionally resolve additional user sources like:
-
-        // TODO: Add logic to resolve Group__c → Users
-        // TODO: Add logic to resolve Territory_Role_Assignment__c → Users
-        // TODO: Add logic to resolve Public Group or Queue members
     }
 }

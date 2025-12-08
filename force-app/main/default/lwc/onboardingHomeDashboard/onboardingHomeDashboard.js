@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import hasAdminPermission from '@salesforce/customPermission/OnboardingAppAdmin';
 import getMyActiveOnboarding from '@salesforce/apex/OnboardingHomeDashboardController.getMyActiveOnboarding';
 import getOnboardingSummary from '@salesforce/apex/OnboardingHomeDashboardController.getOnboardingSummary';
 import getEligibleAccounts from '@salesforce/apex/OnboardingHomeDashboardController.getEligibleAccounts';
@@ -667,10 +668,41 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
     }
 
     get showAdminSection() {
-        // Check if user has admin permissions
-        // For now, return false - can be enhanced with permission checks
-        // TODO: Check for custom permission or permission set
-        return false;
+        return hasAdminPermission === true;
+    }
+
+    // Admin quick links to list views
+    navigateToValidationFailuresList() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Validation_Failure__c',
+                actionName: 'list'
+            },
+            state: { filterName: 'Recent' }
+        });
+    }
+
+    navigateToMessagingIssuesList() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Follow_Up_Queue__c',
+                actionName: 'list'
+            },
+            state: { filterName: 'Recent' }
+        });
+    }
+
+    navigateToOverrideAuditList() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Onboarding_External_Override_Log__c',
+                actionName: 'list'
+            },
+            state: { filterName: 'Recent' }
+        });
     }
 
     // Admin navigation handlers
@@ -1095,4 +1127,3 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
         }
     }
 }
-

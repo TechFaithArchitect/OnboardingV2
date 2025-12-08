@@ -217,7 +217,7 @@ Add to a Vendor Program record page:
 
 **Dependencies:**
 - `OnboardingHomeDashboardController` - Apex controller for dashboard data
-- `VendorOnboardingService` - Service for determining eligible vendors (used indirectly)
+- `OnboardingEligibilityService` - Service for determining eligible vendors (used indirectly)
 
 **Usage:**
 1. Create a Lightning Home Page in Setup → Lightning App Builder
@@ -1930,4 +1930,3 @@ classes/
 - [LWC Components](./lwc-components.md)
 - [API Reference](../api/apex-api.md)
 - [Architecture Overview](../architecture/overview.md)
-

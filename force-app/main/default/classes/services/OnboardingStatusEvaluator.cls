@@ -73,6 +73,11 @@ public with sharing class OnboardingStatusEvaluator {
             if (fullOnboardingRecord == null) {
                 fullOnboardingRecord = onboarding; // Fallback to provided record
             }
+
+            // If override is enabled, skip status evaluation to honor external override
+            if (Boolean.valueOf(fullOnboardingRecord.get('External_Override_Enabled__c'))) {
+                continue;
+            }
             
             String newStatus = null;
             for (Id groupId : groupIds) {

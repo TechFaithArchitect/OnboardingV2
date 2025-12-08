@@ -133,4 +133,47 @@ private class VendorCustomizationRepositoryTest {
         // If no exceptions occur, test passes
         System.assert(true, 'Null and empty update inputs handled safely');
     }
+
+    @isTest
+    static void testGetActiveVendorPrograms() {
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor__c vendor2 = TestDataFactory.createVendor(true);
+
+        Vendor_Customization__c activeProgram = TestDataFactory.createVendorCustomization(
+            vendor,
+            'Active',
+            true,
+            null,
+            true
+        );
+        Vendor_Customization__c filteredOutProgram = TestDataFactory.createVendorCustomization(
+            vendor2,
+            'Active',
+            true,
+            null,
+            true
+        );
+
+        Test.startTest();
+        List<Vendor_Customization__c> allActive = VendorCustomizationRepository.getActiveVendorPrograms(null, null);
+        List<Vendor_Customization__c> filteredByVendor = VendorCustomizationRepository.getActiveVendorPrograms(
+            new List<Id>{ vendor.Id },
+            null
+        );
+        List<Vendor_Customization__c> filteredByProgram = VendorCustomizationRepository.getActiveVendorPrograms(
+            null,
+            new List<Id>{ activeProgram.Id }
+        );
+        Test.stopTest();
+
+        System.assert(!allActive.isEmpty(), 'Should return active programs when they exist');
+        System.assertEquals(1, filteredByVendor.size(), 'Vendor filter should return only matching vendor programs');
+        System.assertEquals(activeProgram.Id, filteredByVendor[0].Id);
+        System.assertEquals(1, filteredByProgram.size(), 'Program filter should return only matching program');
+        System.assertEquals(activeProgram.Id, filteredByProgram[0].Id);
+        System.assert(
+            !filteredByVendor.isEmpty() && filteredByVendor[0].Vendor__c == vendor.Id,
+            'Returned program should belong to requested vendor'
+        );
+    }
 }

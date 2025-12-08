@@ -159,7 +159,34 @@
             <!-- Admin Configuration Shortcuts -->
             <template if:true={showAdminSection}>
                 <div class="slds-p-horizontal_medium slds-m-top_large">
-                    <lightning-card title="Configuration" icon-name="utility:settings">
+                    <lightning-card title="Admin Tools" icon-name="utility:settings">
+                        <lightning-tabset class="slds-m-bottom_medium">
+                            <lightning-tab label="Validation Failures" value="validation-failures">
+                                <div class="slds-m-bottom_small slds-text-align_right">
+                                    <lightning-button variant="neutral" label="Open List" icon-name="utility:list" onclick={navigateToValidationFailuresList}></lightning-button>
+                                </div>
+                                <c-validation-failures-panel></c-validation-failures-panel>
+                            </lightning-tab>
+                            <lightning-tab label="Messaging Issues" value="messaging-issues">
+                                <div class="slds-m-bottom_small slds-text-align_right">
+                                    <lightning-button variant="neutral" label="Open List" icon-name="utility:list" onclick={navigateToMessagingIssuesList}></lightning-button>
+                                </div>
+                                <c-messaging-issues-panel></c-messaging-issues-panel>
+                            </lightning-tab>
+                            <lightning-tab label="Rule Tester" value="rule-tester">
+                                <c-validation-rule-tester></c-validation-rule-tester>
+                            </lightning-tab>
+                            <lightning-tab label="Override Audit" value="override-audit">
+                                <div class="slds-m-bottom_small slds-text-align_right">
+                                    <lightning-button variant="neutral" label="Open List" icon-name="utility:list" onclick={navigateToOverrideAuditList}></lightning-button>
+                                </div>
+                                <c-override-audit-panel></c-override-audit-panel>
+                            </lightning-tab>
+                            <lightning-tab label="Rule Builder" value="rule-builder">
+                                <c-requirement-rule-builder></c-requirement-rule-builder>
+                            </lightning-tab>
+                        </lightning-tabset>
+
                         <div class="slds-grid slds-wrap slds-gutters_medium">
                             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-large-size_1-of-5">
                                 <div class="slds-box slds-text-align_center admin-card" onclick={handleManageRequirements}>
@@ -540,4 +567,3 @@
         </c-vendor-program-onboarding-wizard-modal>
     </template>
 </template>
-

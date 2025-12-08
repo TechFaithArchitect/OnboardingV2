@@ -102,18 +102,8 @@ deactivateSiblings(record);
    ```
    - **Note:** Should be added before `deactivateSiblings()` call
 
-2. **⚠️ Empty Post-Activation Hook**
-   - **Issue:** `postActivate()` method is empty
-   - **Recommendation:** Document what should go here or remove if not needed:
-   ```apex
-   private static void postActivate(Vendor_Customization__c record) {
-       // TODO: Implement vendor-specific post-activation logic
-       // Examples:
-       // - Create related records
-       // - Send notifications
-       // - Update related objects
-   }
-   ```
+2. **✅ Post-Activation Hook Implemented**
+   - `postActivate()` now stamps activation metadata when fields are present (`Activation_Date__c`, `Activated_By__c`, `Activation_Status__c`) and saves the record.
 
 3. **✅ Good:** Type-specific implementation allows for vendor-specific business logic
 
@@ -716,15 +706,8 @@ if (willBeActive && p != null && count > 1) {
    - **Issue:** Uses string concatenation for SOQL
    - **Recommendation:** Validate object name or use static queries per object type
 
-3. **⚠️ Incomplete enforceRootRecordAllowance**
-   - **Issue:** Method exists but doesn't do anything
-   - **Recommendation:** Implement or remove:
-   ```apex
-   private static void enforceRootRecordAllowance(List<SObject> newList) {
-       // TODO: Implement root record validation
-       // OR remove if not needed
-   }
-   ```
+3. **ℹ️ Root Record Validation**
+   - `enforceRootRecordAllowance` hook referenced in earlier drafts is not present; root/lineage integrity is handled by existing versioning triggers and single-active-sibling enforcement.
 
 4. **✅ Good:** Generic handler works for any versioned object
 
@@ -940,4 +923,3 @@ public static void activate(Id recordId, String objectApiName) {
 - [Security Model](./security-model.md)
 - [Apex Patterns](../architecture/apex-patterns.md)
 - [Apex Classes](../components/apex-classes.md)
-

@@ -1,163 +1,37 @@
 <template>
-    <lightning-card title="Validation Rule Tester" icon-name="utility:test">
-        <div class="slds-m-around_medium">
-            <!-- Rule Selection -->
-            <div class="slds-grid slds-gutters slds-m-bottom_medium">
-                <div class="slds-col slds-size_1-of-2">
+    <lightning-card>
+        <div class="slds-p-horizontal_small slds-p-vertical_small">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="6">
                     <lightning-combobox
-                        label="Select Validation Rule"
-                        value={selectedRuleId}
-                        options={ruleOptions}
-                        onchange={handleRuleSelection}
-                        placeholder="Select a rule to test">
+                        label="Requirement Field"
+                        value={selectedField}
+                        options={fieldOptions}
+                        onchange={handleFieldChange}
+                        placeholder="Select field">
                     </lightning-combobox>
-                </div>
-                <div class="slds-col slds-size_1-of-2">
-                    <lightning-combobox
-                        label="Load Saved Test Case"
-                        value={selectedTestCase}
-                        options={testCaseOptions}
-                        onchange={handleLoadTestCase}
-                        placeholder="Select a saved test case">
-                    </lightning-combobox>
-                </div>
-            </div>
-
-            <!-- Mode Toggles -->
-            <div class="slds-grid slds-gutters slds-m-bottom_medium">
-                <div class="slds-col">
+                </lightning-layout-item>
+                <lightning-layout-item size="6">
                     <lightning-input
-                        type="checkbox"
-                        label="Simulation Mode (Preview without saving)"
-                        checked={isSimulationMode}
-                        onchange={handleToggleSimulationMode}>
+                        label="Test Value"
+                        value={testValue}
+                        onchange={handleValueChange}>
                     </lightning-input>
-                </div>
-                <div class="slds-col">
-                    <lightning-input
-                        type="checkbox"
-                        label="Comparison Mode (Compare multiple rules)"
-                        checked={comparisonMode}
-                        onchange={handleToggleComparisonMode}>
-                    </lightning-input>
-                </div>
-            </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" class="slds-m-top_small">
+                    <lightning-button variant="brand" label="Run Test" onclick={handleTest} disabled={isTesting}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
 
-            <!-- Test Values Form -->
-            <template if:true={selectedRule}>
-                <div class="slds-box slds-theme_shade slds-m-bottom_medium">
-                    <h3 class="slds-text-heading_small slds-m-bottom_small">Test Values</h3>
-                    <div class="slds-grid slds-gutters">
-                        <template for:each={fieldInputs} for:item="field">
-                            <div key={field.apiName} class="slds-col slds-size_1-of-2">
-                                <lightning-input
-                                    label={field.label}
-                                    type={field.type}
-                                    value={field.value}
-                                    data-field={field.apiName}
-                                    onchange={handleTestValueChange}
-                                    required={field.required}>
-                                </lightning-input>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="slds-grid slds-gutters slds-m-bottom_medium">
-                    <div class="slds-col">
-                        <lightning-button
-                            label="Run Test"
-                            variant="brand"
-                            onclick={handleRunTest}
-                            disabled={isLoading}>
-                        </lightning-button>
-                        <template if:true={comparisonMode}>
-                            <lightning-button
-                                label="Compare Rules"
-                                variant="neutral"
-                                onclick={handleCompareRules}
-                                class="slds-m-left_small"
-                                disabled={isLoading}>
-                            </lightning-button>
-                        </template>
-                    </div>
-                    <div class="slds-col slds-align_absolute-center">
-                        <lightning-input
-                            label="Test Case Name"
-                            value={testCaseName}
-                            onchange={handleTestCaseNameChange}
-                            placeholder="Enter name to save test case">
-                        </lightning-input>
-                        <lightning-button
-                            label="Save Test Case"
-                            variant="neutral"
-                            onclick={handleSaveTestCase}
-                            class="slds-m-left_small"
-                            disabled={isLoading}>
-                        </lightning-button>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Test Results -->
-            <template if:true={hasTestResults}>
-                <div class="slds-box slds-m-top_medium">
-                    <h3 class="slds-text-heading_small slds-m-bottom_small">Test Results</h3>
-                    <template for:each={testResults} for:item="result">
-                        <div key={result.id} class="slds-m-bottom_small">
-                            <div class="slds-grid slds-gutters">
-                                <div class="slds-col slds-size_1-of-4">
-                                    <lightning-icon
-                                        icon-name={result.iconName}
-                                        size="small"
-                                        class={result.iconClass}>
-                                    </lightning-icon>
-                                    <span class="slds-m-left_x-small">
-                                        {result.statusText}
-                                    </span>
-                                </div>
-                                <div class="slds-col slds-size_1-of-4">
-                                    <span class="slds-text-body_small">Rule: {result.ruleName}</span>
-                                </div>
-                                <div class="slds-col slds-size_1-of-4">
-                                    <span class="slds-text-body_small">Execution Time: {result.executionTime}ms</span>
-                                </div>
-                            </div>
-                            <template if:false={result.isValid}>
-                                <div class="slds-m-top_small">
-                                    <lightning-formatted-text
-                                        value={result.errorMessage}
-                                        class="slds-text-color_error">
-                                    </lightning-formatted-text>
-                                </div>
-                            </template>
-                            <template if:true={result.ruleDetails}>
-                                <div class="slds-m-top_small">
-                                    <lightning-formatted-text
-                                        value={result.ruleDetails}
-                                        class="slds-text-body_small">
-                                    </lightning-formatted-text>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Loading Spinner -->
-            <template if:true={isLoading}>
-                <lightning-spinner alternative-text="Running test" size="medium"></lightning-spinner>
-            </template>
-
-            <!-- Empty State -->
-            <template if:false={selectedRule}>
-                <div class="slds-text-align_center slds-p-around_large">
-                    <lightning-icon icon-name="utility:info" size="large" class="slds-m-bottom_small"></lightning-icon>
-                    <p class="slds-text-heading_small">Select a validation rule to begin testing</p>
+            <template if:true={result}>
+                <div class="slds-m-top_small slds-box">
+                    <div class="slds-text-heading_small">Result: {result.status}</div>
+                    <div class="slds-m-top_x-small">{result.message}</div>
                 </div>
             </template>
         </div>
+        <template if:true={isTesting}>
+            <lightning-spinner alternative-text="Testing" size="small"></lightning-spinner>
+        </template>
     </lightning-card>
 </template>
-

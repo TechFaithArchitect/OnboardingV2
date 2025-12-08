@@ -174,7 +174,10 @@ public with sharing class OnboardingRulesRepository {
         // SObject.get() will work for custom fields even if not explicitly queried
         // This avoids governor limit issues while still allowing dynamic field access
         return [
-            SELECT Id, Vendor_Customization__c, Onboarding_Status__c
+            SELECT Id, Vendor_Customization__c, Onboarding_Status__c,
+                   External_Override_Enabled__c, External_Override_Programs__c,
+                   External_Override_Source__c, External_Override_Request_ID__c,
+                   External_Override_Date__c, Previous_Status_Before_Override__c
             FROM Onboarding__c
             WHERE Id IN :onboardingIds
         ];
@@ -307,4 +310,3 @@ public with sharing class OnboardingRulesRepository {
         upsert conditions;
     }
 }
-

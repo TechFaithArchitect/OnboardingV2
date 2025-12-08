@@ -132,27 +132,25 @@ public with sharing class OnboardingAdminDashboardController {
      */
     @AuraEnabled(cacheable=false)
     public static List<ValidationFailureDTO> getValidationFailures(String groupBy, Map<String, Object> filters) {
-        // TODO: Query Validation_Failure__c when object is created in Phase 1
-        // For now, return empty list
         List<ValidationFailureDTO> failures = new List<ValidationFailureDTO>();
         
-        /*
         DateTime startDate = getStartDateForFilter((String)filters.get('dateRange'));
         
-        String query = 'SELECT Id, Name, Rule_Name__c, Requirement_Field__c, Status__c, ' +
-                      'Error_Message__c, CreatedDate, Retry_Count__c, ' +
-                      'Requirement_Field__r.Name, CreatedBy.Name ' +
+        String query = 'SELECT Id, Name, Rule_Name__c, Requirement_Field__c, Validation_Result__c, ' +
+                      'Message__c, Validated_On__c, CreatedDate, CreatedBy.Name ' +
                       'FROM Validation_Failure__c ' +
-                      'WHERE Status__c = \'Failed\' ' +
-                      'AND CreatedDate >= :startDate ' +
-                      'ORDER BY CreatedDate DESC ' +
-                      'LIMIT 1000';
+                      'WHERE CreatedDate >= :startDate ';
+        
+        if (filters != null && filters.containsKey('validationType') && filters.get('validationType') != null) {
+            query += 'AND Validation_Type__c = :filters.get(\'validationType\') ';
+        }
+        
+        query += 'ORDER BY CreatedDate DESC LIMIT 1000';
         
         List<Validation_Failure__c> records = Database.query(query);
         for (Validation_Failure__c failure : records) {
             failures.add(new ValidationFailureDTO(failure));
         }
-        */
         
         return failures;
     }
@@ -203,29 +201,30 @@ public with sharing class OnboardingAdminDashboardController {
      */
     public class ValidationFailureDTO {
         @AuraEnabled public String id;
+        @AuraEnabled public String name;
         @AuraEnabled public String ruleName;
-        @AuraEnabled public String requirementFieldName;
-        @AuraEnabled public String status;
-        @AuraEnabled public String errorMessage;
+        @AuraEnabled public String requirementFieldApiName;
+        @AuraEnabled public String result;
+        @AuraEnabled public String message;
+        @AuraEnabled public String createdBy;
         @AuraEnabled public DateTime createdDate;
-        @AuraEnabled public Integer retryCount;
+        @AuraEnabled public DateTime validatedOn;
 
         public ValidationFailureDTO() {
             // Default constructor for AuraEnabled
         }
 
-        // TODO: Add constructor that takes Validation_Failure__c when object is created
-        /*
         public ValidationFailureDTO(Validation_Failure__c failure) {
             this.id = failure.Id;
+            this.name = failure.Name;
             this.ruleName = failure.Rule_Name__c;
-            this.requirementFieldName = failure.Requirement_Field__r?.Name;
-            this.status = failure.Status__c;
-            this.errorMessage = failure.Error_Message__c;
+            this.requirementFieldApiName = failure.Requirement_Field__c;
+            this.result = failure.Validation_Result__c;
+            this.message = failure.Message__c;
+            this.createdBy = failure.CreatedBy != null ? failure.CreatedBy.Name : null;
             this.createdDate = failure.CreatedDate;
-            this.retryCount = failure.Retry_Count__c != null ? failure.Retry_Count__c.intValue() : 0;
+            this.validatedOn = failure.Validated_On__c;
         }
-        */
     }
 
     /**
@@ -462,4 +461,3 @@ public with sharing class OnboardingAdminDashboardController {
         */
     }
 }
-

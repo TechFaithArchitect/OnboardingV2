@@ -46,7 +46,7 @@
 - ✅ Moved `OnboardingDTO` to `dto/OnboardingDTO.cls`
 - ✅ Moved `AccountDTO` to `dto/AccountDTO.cls`
 - ✅ Refactored all controller methods to use repositories
-- ⚠️ **TODO**: Replace unpackaged `VendorOnboardingService` reference (documented with TODO comments)
+- ✅ Replaced unpackaged `VendorOnboardingService` reference with packaged `OnboardingEligibilityService`
 
 ---
 
@@ -88,9 +88,7 @@ Created `ProfileRepository` with:
 6. ✅ DTOs - Moved to `dto/` directory
 
 ### Remaining TODO:
-1. ⚠️ **Replace unpackaged VendorOnboardingService** - Documented in code with TODO comments
-   - Consider creating `OnboardingEligibilityService` in main/default
-   - Or migrate `VendorOnboardingService` from unpackaged to main/default
+- None — unpackaged service reference has been replaced with `OnboardingEligibilityService` in `main/default`
 
 ---
 
@@ -103,5 +101,4 @@ Created `ProfileRepository` with:
 - [x] All data access through repositories ✅
 - [x] Services delegate to repositories ✅
 - [x] Controllers delegate to repositories ✅
-- [ ] No references to unpackaged classes from main/default ⚠️ (VendorOnboardingService - documented TODO)
-
+- [x] No references to unpackaged classes from main/default ✅

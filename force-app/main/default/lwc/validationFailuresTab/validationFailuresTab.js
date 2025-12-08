@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { refreshApex } from '@salesforce/apex';
 import getValidationFailures from '@salesforce/apex/OnboardingAdminDashboardController.getValidationFailures';
 import retryValidation from '@salesforce/apex/OnboardingAdminDashboardController.retryValidation';
 
@@ -15,6 +16,7 @@ export default class ValidationFailuresTab extends NavigationMixin(LightningElem
         user: null,
         dateRange: 'LAST_24_HOURS'
     };
+    wiredFailuresResult;
 
     columns = [
         { label: 'Rule Name', fieldName: 'ruleName', type: 'text', sortable: true },
@@ -46,6 +48,7 @@ export default class ValidationFailuresTab extends NavigationMixin(LightningElem
         filters: '$filters'
     })
     wiredFailures({ error, data }) {
+        this.wiredFailuresResult = { error, data };
         this.isLoading = false;
         if (data) {
             this.failures = data;
@@ -124,8 +127,15 @@ export default class ValidationFailuresTab extends NavigationMixin(LightningElem
     }
 
     handleDismiss(row) {
-        // TODO: Implement dismiss logic
-        this.showInfo('Dismiss functionality to be implemented');
+        if (!row || !row.id) {
+            this.showWarning('Unable to dismiss: missing record id');
+            return;
+        }
+
+        this.failures = this.failures.filter(item => item.id !== row.id);
+        this.filteredFailures = this.filteredFailures.filter(item => item.id !== row.id);
+        this.selectedRows = this.selectedRows.filter(item => item.id !== row.id);
+        this.showSuccess('Validation failure dismissed from view');
     }
 
     handleGroupByChange(event) {
@@ -153,19 +163,38 @@ export default class ValidationFailuresTab extends NavigationMixin(LightningElem
         this.isLoading = true;
         const failureIds = this.selectedRows.map(row => row.id);
         
-        // TODO: Implement bulk retry
-        this.showInfo('Bulk retry functionality to be implemented');
-        this.isLoading = false;
+        Promise.all(failureIds.map(id => retryValidation({ failureId: id })))
+            .then(() => {
+                this.showSuccess('Bulk retry initiated');
+                return this.refreshData();
+            })
+            .catch(error => {
+                const message = error && error.body && error.body.message ? error.body.message : 'Unknown error';
+                this.showError('Failed to retry validations: ' + message);
+                this.isLoading = false;
+            });
     }
 
     handleExport() {
-        // TODO: Implement CSV export
-        this.showInfo('Export functionality to be implemented');
+        if (!this.filteredFailures || this.filteredFailures.length === 0) {
+            this.showWarning('No records to export');
+            return;
+        }
+
+        const csv = this.buildCsv(this.filteredFailures);
+        this.downloadCsv(csv, 'validation-failures.csv');
+        this.showSuccess('Export started');
     }
 
     refreshData() {
         this.isLoading = true;
-        // Wire adapter will automatically refresh
+        if (this.wiredFailuresResult) {
+            return refreshApex(this.wiredFailuresResult).finally(() => {
+                this.isLoading = false;
+            });
+        }
+        this.isLoading = false;
+        return Promise.resolve();
     }
 
     showError(message) {
@@ -199,5 +228,38 @@ export default class ValidationFailuresTab extends NavigationMixin(LightningElem
             variant: 'info'
         }));
     }
-}
 
+    buildCsv(rows) {
+        const headers = ['Rule Name', 'Requirement Field', 'Status', 'Error Message', 'Created Date', 'Retry Count'];
+        const keys = ['ruleName', 'requirementFieldName', 'status', 'errorMessage', 'createdDate', 'retryCount'];
+
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        rows.forEach(row => {
+            const values = keys.map(key => {
+                let val = row[key] === undefined || row[key] === null ? '' : row[key];
+                if (val instanceof Date) {
+                    val = val.toISOString();
+                }
+                const stringVal = String(val).replace(/"/g, '""');
+                return `"${stringVal}"`;
+            });
+            csvRows.push(values.join(','));
+        });
+
+        return csvRows.join('\n');
+    }
+
+    downloadCsv(csvContent, filename) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+}

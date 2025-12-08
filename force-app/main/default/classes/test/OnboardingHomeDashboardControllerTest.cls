@@ -128,15 +128,16 @@ private class OnboardingHomeDashboardControllerTest {
 
     @isTest
     static void testGetEligibleAccounts() {
-        // This test may need to be adjusted based on your VendorOnboardingService implementation
         Test.startTest();
         List<AccountDTO> results = 
             OnboardingHomeDashboardController.getEligibleAccounts('LAST_90_DAYS', null, null);
         Test.stopTest();
 
         System.assertNotEquals(null, results, 'Results should not be null');
-        // Note: This may return empty if no accounts have eligible vendors
-        // That's okay for a basic test
+        System.assert(!results.isEmpty(), 'Should return accounts when active vendor programs exist');
+        for (AccountDTO dto : results) {
+            System.assert(dto.EligibleVendorCount > 0, 'Eligible vendor count should be positive');
+        }
     }
 
     @isTest
@@ -291,4 +292,3 @@ private class OnboardingHomeDashboardControllerTest {
         System.assertEquals(5, dto.EligibleVendorCount, 'DTO should have correct count');
     }
 }
-

@@ -89,8 +89,6 @@ public with sharing class OnboardingHomeDashboardController {
 
     /**
      * Get eligible accounts that can start new onboarding
-     * TODO: Replace unpackaged VendorOnboardingService with main/default service
-     * Currently references unpackaged service - should be refactored
      * 
      * @param timeFilter Time range filter (optional, not currently used for eligible accounts)
      * @param vendorIds List of vendor IDs to filter by (optional)
@@ -109,37 +107,29 @@ public with sharing class OnboardingHomeDashboardController {
         List<Account> accounts = AccountRepository.getAccountsForOnboarding(50);
         
         // For each account, check if there are eligible vendors
-        Set<Id> accountIds = new Set<Id>();
+        List<Id> accountIds = new List<Id>();
         for (Account acc : accounts) {
             accountIds.add(acc.Id);
         }
         
-        // TODO: Replace with main/default service when available
-        // Currently using unpackaged VendorOnboardingService - needs refactoring
         if (!accountIds.isEmpty()) {
             try {
-                // Note: This references unpackaged class - should be refactored
-                // Consider creating OnboardingEligibilityService in main/default
-                List<List<VendorOptionDTO>> eligibleVendorsResults = VendorOnboardingService.getEligibleVendors(new List<Id>(accountIds));
-                
-                // Create a map of account ID to eligible vendor count
-                Map<Id, Integer> accountToVendorCount = new Map<Id, Integer>();
-                for (Integer i = 0; i < accounts.size() && i < eligibleVendorsResults.size(); i++) {
-                    List<VendorOptionDTO> vendors = eligibleVendorsResults[i];
-                    if (vendors != null && !vendors.isEmpty()) {
-                        accountToVendorCount.put(accounts[i].Id, vendors.size());
-                    }
-                }
+                Map<Id, Integer> accountToVendorCount = OnboardingEligibilityService.getEligibleVendorCountsByAccount(
+                    accountIds,
+                    vendorIds,
+                    programIds
+                );
                 
                 // Build DTOs for accounts with eligible vendors
                 for (Account acc : accounts) {
-                    if (accountToVendorCount.containsKey(acc.Id)) {
+                    Integer eligibleCount = accountToVendorCount.get(acc.Id);
+                    if (eligibleCount != null && eligibleCount > 0) {
                         AccountDTO dto = new AccountDTO();
                         dto.Id = acc.Id;
                         dto.Name = acc.Name;
                         dto.Territory = acc.Territory__c;
                         dto.Region = acc.Region__c;
-                        dto.EligibleVendorCount = accountToVendorCount.get(acc.Id);
+                        dto.EligibleVendorCount = eligibleCount;
                         dto.RecordUrl = '/' + acc.Id;
                         results.add(dto);
                     }

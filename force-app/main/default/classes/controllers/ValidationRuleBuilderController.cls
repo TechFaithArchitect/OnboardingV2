@@ -163,9 +163,12 @@ public with sharing class ValidationRuleBuilderController {
             String ruleName = (String)ruleData.get('name');
             String expression = (String)ruleData.get('expression');
             String errorMessage = (String)ruleData.get('errorMessage');
+            String requirementField = (String)ruleData.get('requirementField');
+            Object isActiveObj = ruleData.get('isActive');
+            Boolean isActive = isActiveObj == null ? true : (Boolean)isActiveObj;
             
-            if (String.isBlank(ruleName) || String.isBlank(expression) || String.isBlank(errorMessage)) {
-                throw new AuraHandledException('Name, Expression, and Error Message are required');
+            if (String.isBlank(ruleName) || String.isBlank(expression) || String.isBlank(errorMessage) || String.isBlank(requirementField)) {
+                throw new AuraHandledException('Name, Requirement Field, Expression, and Error Message are required');
             }
             
             // Build Custom Metadata record
@@ -182,7 +185,9 @@ public with sharing class ValidationRuleBuilderController {
             addMetadataValue(customMetadata, 'Error_Message__c', errorMessage);
             addMetadataValue(customMetadata, 'Validation_Mode__c', ruleData.get('validationMode'));
             addMetadataValue(customMetadata, 'External_Service__c', ruleData.get('externalServiceId'));
-            addMetadataValue(customMetadata, 'Is_Active__c', true);
+            addMetadataValue(customMetadata, 'Requirement_Field__c', requirementField);
+            addMetadataValue(customMetadata, 'Sequence__c', ruleData.get('sequence'));
+            addMetadataValue(customMetadata, 'Is_Active__c', isActive);
             
             // Deploy metadata
             Metadata.DeployContainer container = new Metadata.DeployContainer();
@@ -202,6 +207,37 @@ public with sharing class ValidationRuleBuilderController {
         }
         
         return result;
+    }
+
+    /**
+     * Get existing validation rules from CMDT for display/edit.
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<RuleDTO> getValidationRules() {
+        List<RuleDTO> rules = new List<RuleDTO>();
+        for (Requirement_Field_Validation_Rule__mdt rule : [
+            SELECT DeveloperName, MasterLabel, Requirement_Field__c, Validation_Type__c,
+                   Validation_Expression__c, Error_Message__c, Is_Active__c,
+                   Validation_Mode__c, External_Service__c, Sequence__c, Description__c
+            FROM Requirement_Field_Validation_Rule__mdt
+            ORDER BY Sequence__c ASC NULLS LAST, MasterLabel ASC
+            LIMIT 200
+        ]) {
+            RuleDTO dto = new RuleDTO();
+            dto.developerName = rule.DeveloperName;
+            dto.label = rule.MasterLabel;
+            dto.requirementField = rule.Requirement_Field__c;
+            dto.validationType = rule.Validation_Type__c;
+            dto.validationExpression = rule.Validation_Expression__c;
+            dto.errorMessage = rule.Error_Message__c;
+            dto.isActive = rule.Is_Active__c;
+            dto.validationMode = rule.Validation_Mode__c;
+            dto.externalService = rule.External_Service__c;
+            dto.sequence = rule.Sequence__c;
+            dto.description = rule.Description__c;
+            rules.add(dto);
+        }
+        return rules;
     }
 
     /**
@@ -277,5 +313,18 @@ public with sharing class ValidationRuleBuilderController {
         @AuraEnabled public String id;
         @AuraEnabled public String message;
     }
-}
 
+    public class RuleDTO {
+        @AuraEnabled public String developerName;
+        @AuraEnabled public String label;
+        @AuraEnabled public String requirementField;
+        @AuraEnabled public String validationType;
+        @AuraEnabled public String validationExpression;
+        @AuraEnabled public String errorMessage;
+        @AuraEnabled public Boolean isActive;
+        @AuraEnabled public String validationMode;
+        @AuraEnabled public String externalService;
+        @AuraEnabled public Decimal sequence;
+        @AuraEnabled public String description;
+    }
+}

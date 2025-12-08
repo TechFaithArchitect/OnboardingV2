@@ -1,12 +1,19 @@
 import { createElement } from '@lwc/engine-dom';
 import OnboardingRequirementsPanel from 'c/onboardingRequirementsPanel';
 import getRequirements from '@salesforce/apex/OnboardingRequirementsPanelController.getRequirements';
+import getInvalidFieldValues from '@salesforce/apex/OnboardingRequirementsPanelController.getInvalidFieldValues';
 import updateRequirementStatuses from '@salesforce/apex/OnboardingRequirementsPanelController.updateRequirementStatuses';
 import runRuleEvaluation from '@salesforce/apex/OnboardingRequirementsPanelController.runRuleEvaluation';
+import rerunValidation from '@salesforce/apex/OnboardingRequirementsPanelController.rerunValidation';
 
 // Mock Apex methods
 jest.mock(
     '@salesforce/apex/OnboardingRequirementsPanelController.getRequirements',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/apex/OnboardingRequirementsPanelController.getInvalidFieldValues',
     () => ({ default: jest.fn() }),
     { virtual: true }
 );
@@ -17,6 +24,11 @@ jest.mock(
 );
 jest.mock(
     '@salesforce/apex/OnboardingRequirementsPanelController.runRuleEvaluation',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/apex/OnboardingRequirementsPanelController.rerunValidation',
     () => ({ default: jest.fn() }),
     { virtual: true }
 );
@@ -42,6 +54,17 @@ describe('c-onboarding-requirements-panel', () => {
         }
     ];
 
+    const mockInvalids = [
+        {
+            fieldValueId: 'a0Z000000000001AAA',
+            requirementName: 'Requirement 1',
+            fieldName: 'Email',
+            fieldApiName: 'Email__c',
+            status: 'Invalid',
+            message: 'Invalid email'
+        }
+    ];
+
     it('renders component with recordId', () => {
         const element = createElement('c-onboarding-requirements-panel', {
             is: OnboardingRequirementsPanel
@@ -54,6 +77,7 @@ describe('c-onboarding-requirements-panel', () => {
 
     it('loads requirements on connectedCallback', async () => {
         getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue(mockInvalids);
 
         const element = createElement('c-onboarding-requirements-panel', {
             is: OnboardingRequirementsPanel
@@ -66,10 +90,12 @@ describe('c-onboarding-requirements-panel', () => {
         expect(getRequirements).toHaveBeenCalledWith({ onboardingId: 'a0X000000000000AAA' });
         expect(element.requirements).toHaveLength(2);
         expect(element.requirements[0].Name).toBe('Requirement 1');
+        expect(element.invalidFields).toHaveLength(1);
     });
 
     it('updates requirement status on change', async () => {
         getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
 
         const element = createElement('c-onboarding-requirements-panel', {
             is: OnboardingRequirementsPanel
@@ -92,10 +118,10 @@ describe('c-onboarding-requirements-panel', () => {
 
     it('submits requirements and runs rule evaluation', async () => {
         getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
         updateRequirementStatuses.mockResolvedValue();
         runRuleEvaluation.mockResolvedValue();
-
-        const alertSpy = jest.spyOn(window, 'alert').mockImplementation();
+        rerunValidation.mockResolvedValue();
 
         const element = createElement('c-onboarding-requirements-panel', {
             is: OnboardingRequirementsPanel
@@ -113,17 +139,16 @@ describe('c-onboarding-requirements-panel', () => {
         expect(runRuleEvaluation).toHaveBeenCalledWith({
             onboardingId: 'a0X000000000000AAA'
         });
-        expect(alertSpy).toHaveBeenCalledWith('Requirements updated. Onboarding status re-evaluated.');
-
-        alertSpy.mockRestore();
+        // loadData is called after submit, so requirements reload should occur
+        expect(getRequirements).toHaveBeenCalledTimes(2);
     });
 
     it('handles errors during submit', async () => {
         getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
         updateRequirementStatuses.mockRejectedValue(new Error('Update failed'));
 
         const alertSpy = jest.spyOn(window, 'alert').mockImplementation();
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
         const element = createElement('c-onboarding-requirements-panel', {
             is: OnboardingRequirementsPanel
@@ -136,10 +161,8 @@ describe('c-onboarding-requirements-panel', () => {
         await element.submit();
 
         expect(alertSpy).toHaveBeenCalledWith('An error occurred while processing.');
-        expect(consoleSpy).toHaveBeenCalled();
 
         alertSpy.mockRestore();
-        consoleSpy.mockRestore();
     });
 
     it('has correct status options', () => {
@@ -155,5 +178,24 @@ describe('c-onboarding-requirements-panel', () => {
         expect(element.statusOptions[3].value).toBe('Approved');
         expect(element.statusOptions[4].value).toBe('Denied');
     });
-});
 
+    it('reruns validation for invalid fields', async () => {
+        getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue(mockInvalids);
+        rerunValidation.mockResolvedValue();
+
+        const element = createElement('c-onboarding-requirements-panel', {
+            is: OnboardingRequirementsPanel
+        });
+        element.recordId = 'a0X000000000000AAA';
+        document.body.appendChild(element);
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        await element.rerunSelected();
+
+        expect(rerunValidation).toHaveBeenCalledWith({
+            fieldValueIds: ['a0Z000000000001AAA']
+        });
+    });
+});

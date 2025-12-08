@@ -111,6 +111,32 @@ public with sharing class VendorProgramActivationService {
     }
 
     private static void postActivate(Vendor_Customization__c record) {
-        // Vendor-specific business rules after activation
+        // Vendor-specific business rules after activation.
+        if (record == null) {
+            return;
+        }
+
+        // Update activation metadata if fields exist.
+        Map<String, Schema.SObjectField> fields = Vendor_Customization__c.SObjectType.getDescribe().fields.getMap();
+        Boolean shouldUpdate = false;
+
+        if (fields.containsKey('Activation_Date__c') && record.get('Activation_Date__c') == null) {
+            record.put('Activation_Date__c', Date.today());
+            shouldUpdate = true;
+        }
+
+        if (fields.containsKey('Activated_By__c') && record.get('Activated_By__c') == null) {
+            record.put('Activated_By__c', UserInfo.getUserId());
+            shouldUpdate = true;
+        }
+
+        if (fields.containsKey('Activation_Status__c')) {
+            record.put('Activation_Status__c', 'Activated');
+            shouldUpdate = true;
+        }
+
+        if (shouldUpdate) {
+            VendorCustomizationRepository.updateRecord(record);
+        }
     }
 }
