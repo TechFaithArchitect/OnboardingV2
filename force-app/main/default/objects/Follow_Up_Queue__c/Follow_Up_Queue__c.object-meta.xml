@@ -161,6 +161,79 @@
     </nameField>
     <pluralLabel>Follow Up Queues</pluralLabel>
     <searchLayouts></searchLayouts>
+    <listViews>
+        <fullName>Pending</fullName>
+        <label>Pending</label>
+        <filterScope>Everything</filterScope>
+        <columns>NAME</columns>
+        <columns>Follow_Up_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Next_Attempt_Date__c</columns>
+        <columns>Attempt_Count__c</columns>
+        <columns>Last_Attempt_Date__c</columns>
+        <columns>Onboarding__c</columns>
+        <filter>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Pending</value>
+        </filter>
+    </listViews>
+    <listViews>
+        <fullName>Failed</fullName>
+        <label>Failed</label>
+        <filterScope>Everything</filterScope>
+        <columns>NAME</columns>
+        <columns>Follow_Up_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Next_Attempt_Date__c</columns>
+        <columns>Attempt_Count__c</columns>
+        <columns>Last_Attempt_Date__c</columns>
+        <columns>Error_Message__c</columns>
+        <columns>Onboarding__c</columns>
+        <filter>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Failed</value>
+        </filter>
+    </listViews>
+    <listViews>
+        <fullName>Pending_Retry</fullName>
+        <label>Pending Retry</label>
+        <filterScope>Everything</filterScope>
+        <columns>NAME</columns>
+        <columns>Follow_Up_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Next_Attempt_Date__c</columns>
+        <columns>Attempt_Count__c</columns>
+        <columns>Last_Attempt_Date__c</columns>
+        <columns>Onboarding__c</columns>
+        <filter>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Pending Retry</value>
+        </filter>
+    </listViews>
+    <listViews>
+        <fullName>Due_Today</fullName>
+        <label>Due Today</label>
+        <filterScope>Everything</filterScope>
+        <columns>NAME</columns>
+        <columns>Follow_Up_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Next_Attempt_Date__c</columns>
+        <columns>Attempt_Count__c</columns>
+        <columns>Onboarding__c</columns>
+        <filter>
+            <field>Status__c</field>
+            <operation>in</operation>
+            <value>Pending;Pending Retry</value>
+        </filter>
+        <filter>
+            <field>Next_Attempt_Date__c</field>
+            <operation>lessOrEqual</operation>
+            <value>TODAY</value>
+        </filter>
+    </listViews>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
