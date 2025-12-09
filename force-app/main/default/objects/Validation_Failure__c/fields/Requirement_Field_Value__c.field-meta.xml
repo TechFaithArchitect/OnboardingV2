@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Requirement_Field_Value__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Reference to the field value that failed validation.</description>
     <label>Requirement Field Value</label>
     <referenceTo>Requirement_Field_Value__c</referenceTo>
     <relationshipLabel>Validation Failure</relationshipLabel>

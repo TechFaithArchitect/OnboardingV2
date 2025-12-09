@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Is_Target__c</fullName>
+    <description>Marks the target program in the group (versus prerequisite/inherited programs).</description>
     <defaultValue>true</defaultValue>
-    <externalId>false</externalId>
     <label>Is Target</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

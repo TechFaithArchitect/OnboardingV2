@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Vendor_Program_Requirement__c</fullName>
-    <externalId>false</externalId>
+    <description>Parent vendor program requirement that owns this field group.</description>
     <label>Vendor Program Requirement</label>
     <referenceTo>Vendor_Program_Requirement__c</referenceTo>
     <relationshipLabel>Requirement Field Groups</relationshipLabel>

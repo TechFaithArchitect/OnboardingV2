@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Previous_Version__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Reference to the prior version of this rule for audit/version tracking.</description>
     <label>Previous Version</label>
     <referenceTo>Onboarding_Status_Rule__c</referenceTo>
     <relationshipLabel>Onboarding Status Rules</relationshipLabel>

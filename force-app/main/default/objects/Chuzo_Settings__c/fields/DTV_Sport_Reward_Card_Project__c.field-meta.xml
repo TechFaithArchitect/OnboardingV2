@@ -3,7 +3,6 @@
     <fullName>DTV_Sport_Reward_Card_Project__c</fullName>
     <defaultValue>false</defaultValue>
     <description>Sports Request Reward Card [PER-5008]</description>
-    <externalId>false</externalId>
     <label>DTV Sport Reward Card Project</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

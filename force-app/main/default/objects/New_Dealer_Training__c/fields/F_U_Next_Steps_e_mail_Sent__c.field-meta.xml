@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>F_U_Next_Steps_e_mail_Sent__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>F/U &amp; Next Steps e-mail Sent</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

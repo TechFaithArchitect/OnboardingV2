@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Claim_Date__c</fullName>
     <description>PVFSL-466</description>
-    <externalId>false</externalId>
     <label>Claim Date</label>
     <required>true</required>
     <trackHistory>false</trackHistory>

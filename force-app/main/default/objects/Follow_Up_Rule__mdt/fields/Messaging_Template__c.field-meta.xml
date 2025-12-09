@@ -3,10 +3,10 @@
     <fullName>Messaging_Template__c</fullName>
     <description>MessagingTemplate Id/identifier to use for sends.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Messaging Template</label>
     <length>255</length>
     <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>

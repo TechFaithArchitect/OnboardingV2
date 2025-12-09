@@ -143,6 +143,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <description>Defines member stages participating in onboarding stage dependency rules.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -156,7 +157,7 @@
     <label>Onboarding App Stage Dependency Member</label>
     <nameField>
         <displayFormat>OASDM-{000000}</displayFormat>
-        <label>Onboarding App Stage Dependency Member Name</label>
+        <label>Onboarding App Stage Dependency Member N</label>
         <trackHistory>false</trackHistory>
         <type>AutoNumber</type>
     </nameField>

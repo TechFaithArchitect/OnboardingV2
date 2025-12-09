@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Book_Marketing_Call_via_Calendar_Link__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Book Marketing Call via Calendar Link</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

@@ -2205,7 +2205,7 @@ public class PlatformEventVolumeMonitor {
 ## Phase-by-Phase Status (snapshot)
 - **Phase 0 – Foundation**: ✅ Complete (relationships, sharing, admin app, fatigue baseline, retries, cleanup, utilities)
 - **Phase 1 – Field-Level Validation & Corrections**: ✅ Built & enabled (CMDT-driven rules, async/sync validators, correction UX surfaces invalid fields only, validation failures + rule tester in admin console)
-- **Phase 2 – Automated Follow-Ups (Messaging)**: ⏳ Planned (flow + messaging orchestration, fatigue rules refinement)
+- **Phase 2 – Automated Follow-Ups (Messaging)**: ✅ Built (follow-up queue object, rules CMDT, suppression CMDT, detection trigger, execution with SMS/email templates, fatigue/suppression, retries, escalation scheduling; schedule `FollowUpProcessorScheduler` in org; dashboard links to follow-up list views)
 - **Phase 3 – Adobe Integration**: ⏳ Planned (REST→PE bridge, mapping, retry telemetry)
 - **Phase 4 – External Override (Axapta)**: ⏳ Planned (REST endpoint, override flags, audit)
 
@@ -2218,12 +2218,12 @@ public class PlatformEventVolumeMonitor {
 - 90%+ coverage for validation services, event handlers, and queueables
 
 ## Phase 2 – Success Criteria
-- Follow_Up_Rule__mdt drives detection, escalation, and messaging templates
-- Follow_Up_Queue__c populated via events/flow with accurate timezone-aware Next_Attempt_Date__c
-- Salesforce Messaging (MessagingSession/Delivery) used for SMS; failures logged and retried
-- Fatigue suppression honors Max_Attempts_Per_Window__c and Suppression__mdt
-- Admin console shows fatigue/suppression reasons and allows manual retry
-- SLA: <30s send for SMS; <5% delivery failure rate with alerting
+- Follow_Up_Rule__mdt drives detection, escalation, and messaging templates (SMS/email via Communication_Template__c)
+- Follow_Up_Queue__c populated via trigger with Next_Attempt_Date__c + escalation schedule
+- FollowUpExecutionService handles SMS/Email, retries, and logs errors to queue
+- Fatigue suppression honors rule metadata and suppression CMDT; retry/backoff via processor/scheduler
+- Admin console shows messaging issues with retry/dismiss and list views (Pending/Failed/Pending Retry/Due Today)
+- SLA: <30s send for SMS; <5% delivery failure rate with alerting (monitor via messaging issues)
 
 ## Phase 3 – Success Criteria
 - Adobe webhook → REST handler → Platform Event bridge in place

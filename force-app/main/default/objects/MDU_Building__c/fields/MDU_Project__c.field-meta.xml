@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>MDU_Project__c</fullName>
     <description>MDU Project associated to this building. (PVFSL-891)</description>
-    <externalId>false</externalId>
     <label>MDU Project</label>
     <referenceTo>MDU_Project__c</referenceTo>
     <relationshipLabel>MDU Buildings</relationshipLabel>

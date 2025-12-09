@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Work_Order__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Work Order</label>
     <referenceTo>WorkOrder</referenceTo>
     <relationshipLabel>Audit Responses</relationshipLabel>

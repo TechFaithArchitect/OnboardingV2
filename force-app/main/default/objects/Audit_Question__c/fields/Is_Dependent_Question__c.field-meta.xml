@@ -3,7 +3,6 @@
     <fullName>Is_Dependent_Question__c</fullName>
     <defaultValue>false</defaultValue>
     <description>Dependent question or not</description>
-    <externalId>false</externalId>
     <label>Is Dependent Question</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

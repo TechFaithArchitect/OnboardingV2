@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Verified_Welcome_Email__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Verified Welcome Email</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

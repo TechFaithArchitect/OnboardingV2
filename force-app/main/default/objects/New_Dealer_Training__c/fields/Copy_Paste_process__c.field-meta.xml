@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Copy_Paste_process__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Copy &amp; Paste Process</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

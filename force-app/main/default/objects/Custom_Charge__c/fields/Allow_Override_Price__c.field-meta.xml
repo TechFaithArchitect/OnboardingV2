@@ -3,7 +3,6 @@
     <fullName>Allow_Override_Price__c</fullName>
     <defaultValue>false</defaultValue>
     <description>PVFSL-266</description>
-    <externalId>false</externalId>
     <inlineHelpText>When this is checked users in the mobile app can manually update the price.</inlineHelpText>
     <label>Allow Override Price</label>
     <trackTrending>false</trackTrending>

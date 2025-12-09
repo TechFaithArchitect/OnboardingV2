@@ -3,7 +3,6 @@
     <fullName>Account__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Optional; denormalized from Contact</description>
-    <externalId>false</externalId>
     <label>Account</label>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>Email Communication Logs</relationshipLabel>

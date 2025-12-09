@@ -3,7 +3,6 @@
     <fullName>Active__c</fullName>
     <defaultValue>true</defaultValue>
     <description>Indicates if the template is currently in use</description>
-    <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Active</label>
     <type>Checkbox</type>

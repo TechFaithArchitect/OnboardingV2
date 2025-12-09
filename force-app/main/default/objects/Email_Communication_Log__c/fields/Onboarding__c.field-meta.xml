@@ -3,7 +3,6 @@
     <fullName>Onboarding__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Ties this log to the onboarding flow</description>
-    <externalId>false</externalId>
     <label>Onboarding</label>
     <referenceTo>Onboarding__c</referenceTo>
     <relationshipLabel>Email Communication Logs</relationshipLabel>

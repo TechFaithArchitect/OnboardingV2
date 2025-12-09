@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Discuss_PV_Sales_and_Support_Structure__c</fullName>
-    <externalId>false</externalId>
     <label>Discuss PV Sales and Support Structure</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

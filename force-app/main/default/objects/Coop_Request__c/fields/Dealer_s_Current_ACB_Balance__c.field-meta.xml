@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Dealer_s_Current_ACB_Balance__c</fullName>
     <description>Current balance in ACB for the dealer</description>
-    <externalId>false</externalId>
     <label>Dealers Current Coop Balance</label>
     <precision>12</precision>
     <required>false</required>

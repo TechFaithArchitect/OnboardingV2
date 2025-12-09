@@ -143,7 +143,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>This object specifically watches onboarding records to make sure they follow all validation rules and logs errors when they do not.</description>
+    <description>Logs onboarding validation failures with rule name, message, correlation IDs, and retry context.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>

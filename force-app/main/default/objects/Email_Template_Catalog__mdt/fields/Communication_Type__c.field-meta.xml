@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Communication_Type__c</fullName>
     <description>Used to filter templates by type</description>
-    <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Communication Type</label>
     <required>false</required>

@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Required__c</fullName>
     <defaultValue>true</defaultValue>
-    <externalId>false</externalId>
+    <description>Indicates if this dependency is mandatory.</description>
     <label>Required</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

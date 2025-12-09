@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Onboarding_Requirement_Set__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Lookup to the onboarding requirement set grouped under this vendor program set.</description>
     <label>Onboarding Requirement Set</label>
     <referenceTo>Onboarding_Requirement_Set__c</referenceTo>
     <relationshipLabel>Vendor Program Requirement Sets</relationshipLabel>

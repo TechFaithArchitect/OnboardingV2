@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>How_will_DLR_Sell_Marketing_funds__c</fullName>
-    <externalId>false</externalId>
     <label>How will DLR Sell/Marketing funds</label>
     <length>32768</length>
     <trackFeedHistory>false</trackFeedHistory>

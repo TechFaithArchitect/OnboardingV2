@@ -3,7 +3,6 @@
     <fullName>Order__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Order linked to the current buyflow. (PER-2784)</description>
-    <externalId>false</externalId>
     <label>Order</label>
     <referenceTo>Order</referenceTo>
     <relationshipLabel>Self Service Statistics</relationshipLabel>

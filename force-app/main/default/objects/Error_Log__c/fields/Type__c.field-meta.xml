@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type__c</fullName>
     <description>Determines if the error is coming from an API or if it is internal. (PER-2431)</description>
-    <externalId>false</externalId>
     <label>Type</label>
     <required>true</required>
     <trackTrending>false</trackTrending>

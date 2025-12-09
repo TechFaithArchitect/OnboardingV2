@@ -3,7 +3,6 @@
     <fullName>Active__c</fullName>
     <defaultValue>false</defaultValue>
     <description>The form is only available if this checkbox is TRUE. (PVFSL-603)</description>
-    <externalId>false</externalId>
     <inlineHelpText>The form is only available if this checkbox is TRUE.</inlineHelpText>
     <label>Active</label>
     <trackTrending>false</trackTrending>

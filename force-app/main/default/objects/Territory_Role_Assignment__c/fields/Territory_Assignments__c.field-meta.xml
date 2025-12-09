@@ -3,7 +3,6 @@
     <fullName>Territory_Assignments__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
     <description>Required. The parent assignment record</description>
-    <externalId>false</externalId>
     <label>Territory Assignments</label>
     <referenceTo>Territory_Assignments__c</referenceTo>
     <relationshipLabel>Territory Role Assignments</relationshipLabel>

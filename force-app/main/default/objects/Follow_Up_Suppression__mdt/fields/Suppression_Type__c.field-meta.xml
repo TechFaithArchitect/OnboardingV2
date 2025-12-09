@@ -2,16 +2,17 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Suppression_Type__c</fullName>
     <description>Type of suppression (Holiday, Fatigue, Manual, System).</description>
-    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Suppression Type</label>
     <required>false</required>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
                 <fullName>Holiday</fullName>
-                <default>false</default>
+                <default>true</default>
                 <label>Holiday</label>
             </value>
             <value>
@@ -30,6 +31,5 @@
                 <label>System</label>
             </value>
         </valueSetDefinition>
-        <valueSetName/>
     </valueSet>
 </CustomField>

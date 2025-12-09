@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fatigue_Suppressed__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
+    <description>Indicates the follow-up is paused due to fatigue or suppression window.</description>
     <label>Fatigue Suppressed</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

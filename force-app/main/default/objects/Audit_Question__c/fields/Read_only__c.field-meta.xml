@@ -3,7 +3,6 @@
     <fullName>Read_only__c</fullName>
     <defaultValue>false</defaultValue>
     <description>Read only  after saving the data</description>
-    <externalId>false</externalId>
     <inlineHelpText>Read only  after saving the data</inlineHelpText>
     <label>Read only</label>
     <trackTrending>false</trackTrending>

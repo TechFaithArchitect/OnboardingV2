@@ -3,7 +3,6 @@
     <fullName>Contact__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Who the email was sent to</description>
-    <externalId>false</externalId>
     <label>Contact</label>
     <referenceTo>Contact</referenceTo>
     <relationshipLabel>Email Communication Logs</relationshipLabel>

@@ -3,7 +3,6 @@
     <fullName>Store__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Used by Account Services to save the store. [PER-3343]</description>
-    <externalId>false</externalId>
     <label>Store</label>
     <referenceTo>POE_Retail_Store__c</referenceTo>
     <relationshipLabel>ACI Statistics</relationshipLabel>

@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Override_Status__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
+    <description>If populated, forces onboarding status to this value when the engine evaluates as true.</description>
     <label>Override Status</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

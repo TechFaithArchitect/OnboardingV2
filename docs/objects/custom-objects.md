@@ -25,19 +25,20 @@
 - `APP_Onboarding` - Main orchestration
 - `Onboarding_Record_Trigger_Update_Onboarding_Status` - Status evaluation
 
-### Vendor_Program__c
+### Vendor Program (Vendor_Customization__c)
 
-**Purpose**: Represents a vendor program configuration.
+**Important**: The object label is **Vendor Program**, but the API name is **Vendor_Customization__c**. `Vendor_Program__c` does not exist and should not be referenced.
+
+**Purpose**: Stores the selected program customization that onboarding, rules, and requirement sets roll up to.
 
 **Key Fields:**
-- `Name` (Text) - Program name
+- `Name` (Text) - Program customization name
 - `Active__c` (Checkbox) - Active status
 - `Vendor__c` (Lookup to Account) - Vendor account
 
 **Relationships:**
 - Has many Vendor_Program_Group__c
-- Has many Vendor_Customization__c
-- Has many Onboarding__c (via Vendor_Customization__c)
+- Drives Onboarding__c records via the selected customization
 
 ### Vendor_Program_Group__c
 
@@ -450,3 +451,83 @@
 - [Data Model](../architecture/data-model.md)
 - [Onboarding Process](../processes/onboarding-process.md)
 - [Status Evaluation](../processes/status-evaluation.md)
+
+## Messaging & Follow-Up Objects
+
+### Follow_Up_Queue__c
+**Purpose**: Tracks pending/failed onboarding follow-ups (SMS/Email) with status, attempts, next attempt date, and error details.
+
+**Key Fields:**
+- `Follow_Up_Type__c` (Picklist) – SMS, Email, etc.
+- `Status__c` (Picklist) – Pending, Pending Retry, Sent, Failed, Suppressed.
+- `Next_Attempt_Date__c` (DateTime) – When the next send should occur (supports escalation).
+- `Attempt_Count__c` / `Consecutive_Failures__c` (Number) – Send attempt tracking.
+- `Error_Message__c` (Long Text) – Latest send error.
+- `Follow_Up_Rule__c` (Text) – DeveloperName of the generating rule.
+- `Onboarding__c`, `Onboarding_Requirement__c` (Lookups) – Context.
+
+### Follow_Up_Rule__mdt
+**Purpose**: Custom metadata defining follow-up triggers, channel/template, delays, escalation schedule, and fatigue limits.
+
+**Key Fields:**
+- `Follow_Up_Type__c` (Picklist) – SMS/Email/In-App/Phone.
+- `Trigger_Condition__c` (Text) – When to enqueue.
+- `Initial_Delay_Days__c` (Number) – Delay before first send.
+- `Escalation_Schedule__c` (Long Text, JSON) – Day offsets/steps for escalation.
+- `Messaging_Channel__c`, `Messaging_Template__c` (Text) – Channel/template IDs.
+- `Max_Attempts_Per_Window__c`, `Fatigue_Window_Days__c`, `Fatigue_Suppression_Enabled__c` – Fatigue controls.
+- `Active__c` (Checkbox).
+
+### Follow_Up_Suppression__mdt
+**Purpose**: Custom metadata defining suppression windows (holiday/fatigue/manual/system) with optional timezone awareness.
+
+**Key Fields:**
+- `Start_Date__c`, `End_Date__c` (Date) – Suppression window.
+- `Suppression_Type__c` (Picklist) – Holiday, Fatigue, Manual, System.
+- `Timezone_Aware__c` (Checkbox).
+- `Fatigue_Rule_Reference__c` (Text) – Rule reference (optional).
+- `Active__c` (Checkbox).
+
+### Communication_Template__c
+**Purpose**: Unified template registry for onboarding communications (Email/SMS) with channel/template IDs and message body.
+
+**Key Fields:**
+- `Communication_Type__c` (Picklist) – Email/SMS.
+- `Email_Template_Id__c`, `Email_Subject__c` (Text) – Email metadata.
+- `Messaging_Template_Id__c`, `Messaging_Channel_Id__c` (Text) – SMS metadata.
+- `Message_Body__c` (Long Text) – SMS/plain-text body when not using a Messaging Template.
+- `Active__c`, `DeveloperName__c` (Text).
+
+## Validation & Override Objects
+
+### Requirement_Field__c
+**Purpose**: Metadata for individual requirement fields; captures API name, data type, required flag, grouping, and validation linkage.
+
+### Requirement_Field_Value__c
+**Purpose**: Captured value and validation status/error for a Requirement_Field__c tied to an onboarding requirement.
+
+### Requirement_Field_Group__c
+**Purpose**: Logical grouping of requirement fields for UI display and batch validation.
+
+### Requirement_Field_Validation_Rule__mdt
+**Purpose**: Custom metadata for reusable validation rules (format, cross-field, external) for requirement fields.
+
+### Validation_Failure__c
+**Purpose**: Logs onboarding validation failures with rule name, message, correlation IDs, and retry context.
+
+### Onboarding_External_Override_Log__c
+**Purpose**: Audit log for external override operations on Onboarding__c (source, reason, request, status changes).
+
+## Program Template & Dependency Objects
+
+### Vendor_Program_Requirement_Set__c
+**Purpose**: Groups vendor program requirements into sets for onboarding; bundles templates per program/stage.
+
+### Requirement_Set_Template__c
+**Purpose**: Template library of requirement sets reusable across vendor programs.
+
+### Onboarding_App_Stage_Dependency_Member__c
+**Purpose**: Defines member stages participating in onboarding stage dependency rules.
+
+### Onboarding_Application_Stage_Dependency__c
+**Purpose**: Dependency rule between onboarding application stages (e.g., stage Y requires stage X).

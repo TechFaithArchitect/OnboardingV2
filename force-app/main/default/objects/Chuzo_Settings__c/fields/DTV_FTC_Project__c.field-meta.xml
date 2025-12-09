@@ -3,7 +3,6 @@
     <fullName>DTV_FTC_Project__c</fullName>
     <defaultValue>false</defaultValue>
     <description>[PER-4934]</description>
-    <externalId>false</externalId>
     <label>DTV FTC Project</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

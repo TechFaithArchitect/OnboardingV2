@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>UniqueKey__c</fullName>
+    <fullName>Messaging_Template_Id__c</fullName>
+    <description>Messaging Template Id for SMS sends.</description>
     <externalId>false</externalId>
-    <label>Unique Key</label>
+    <label>Messaging Template Id</label>
     <length>255</length>
     <required>false</required>
     <trackTrending>false</trackTrending>

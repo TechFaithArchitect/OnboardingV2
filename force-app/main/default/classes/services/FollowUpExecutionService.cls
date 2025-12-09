@@ -36,8 +36,9 @@ public with sharing class FollowUpExecutionService {
         }
 
         Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
+        Communication_Template__c commTemplate = getCommTemplate(rule);
 
-        Id messagingChannelId = getIdIfValid(rule != null ? rule.Messaging_Channel__c : null);
+        Id messagingChannelId = getIdIfValid(commTemplate != null ? commTemplate.Messaging_Channel_Id__c : rule != null ? rule.Messaging_Channel__c : null);
         if (messagingChannelId == null) {
             markFollowUpFailed(followUpQueueId, 'No messaging channel configured');
             return;
@@ -51,14 +52,14 @@ public with sharing class FollowUpExecutionService {
 
         try {
             // Get message content
-            String messageContent = getMessageContent(followUp, rule);
+            String messageContent = getMessageContent(followUp, rule, commTemplate);
 
             // Send SMS
             String smsId = FollowUpMessagingService.sendSMS(
                 dealerContact.Id,
                 messageContent,
                 messagingChannelId,
-                getIdIfValid(rule != null ? rule.Messaging_Template__c : null)
+                getIdIfValid(commTemplate != null ? commTemplate.Messaging_Template_Id__c : rule != null ? rule.Messaging_Template__c : null)
             );
 
             // Update Follow_Up_Queue__c
@@ -92,14 +93,46 @@ public with sharing class FollowUpExecutionService {
 
         Follow_Up_Queue__c followUp = [
             SELECT Id, Onboarding__c, Onboarding__r.Account__c,
-                   Follow_Up_Type__c, Status__c
+                   Follow_Up_Type__c, Status__c, Follow_Up_Rule__c
             FROM Follow_Up_Queue__c
             WHERE Id = :followUpQueueId
             LIMIT 1
         ];
 
-        // Placeholder: implement actual email logic when EmailCommSenderService or Messaging Email is available
-        markFollowUpFailed(followUpQueueId, 'Email follow-up not yet implemented');
+        Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
+        Communication_Template__c commTemplate = getCommTemplate(rule);
+
+        Contact dealerContact = FollowUpMessagingService.getPrimaryContact(followUp.Onboarding__r.Account__c);
+        if (dealerContact == null || String.isBlank(dealerContact.Email)) {
+            markFollowUpFailed(followUpQueueId, 'No contact email available for onboarding account');
+            return;
+        }
+
+        // Build email request from communication template
+        EmailCommSendRequestDTO req = new EmailCommSendRequestDTO();
+        req.communicationTemplateId = commTemplate != null ? commTemplate.Id : null;
+        req.emailTemplateId = commTemplate != null ? commTemplate.Email_Template_Id__c : null;
+        req.subject = commTemplate != null ? commTemplate.Email_Subject__c : 'Onboarding Follow-Up';
+        req.toAddress = dealerContact.Email;
+        req.recipientId = dealerContact.Id;
+        req.relatedRecordId = followUp.Onboarding__c;
+        req.logSync = true;
+
+        EmailCommSendResultDTO result = EmailCommSenderService.sendEmail(req);
+        if (result == null || result.status != 'Success') {
+            String errorMsg = result != null ? result.errorMessage : 'Unknown error';
+            markFollowUpFailed(followUpQueueId, 'Email send failed: ' + errorMsg);
+            return;
+        }
+
+        // Update follow-up on success
+        followUp.Status__c = 'Sent';
+        followUp.Last_Attempt_Date__c = DateTime.now();
+        followUp.Attempt_Count__c = (followUp.Attempt_Count__c == null ? 0 : followUp.Attempt_Count__c) + 1;
+        followUp.Consecutive_Failures__c = 0;
+        update followUp;
+
+        FollowUpFatigueService.updateAttemptTracking(followUpQueueId, true);
     }
 
     /**
@@ -145,9 +178,9 @@ public with sharing class FollowUpExecutionService {
      * @param followUpQueueId Follow_Up_Queue__c record ID
      * @param errorMessage Error message
      */
-    private static void markFollowUpFailed(Id followUpQueueId, String errorMessage) {
+    public static void markFollowUpFailed(Id followUpQueueId, String errorMessage) {
         Follow_Up_Queue__c followUp = [
-            SELECT Id, Status__c, Consecutive_Failures__c, Attempt_Count__c, Last_Attempt_Date__c
+            SELECT Id, Status__c, Consecutive_Failures__c, Attempt_Count__c, Last_Attempt_Date__c, Error_Message__c
             FROM Follow_Up_Queue__c
             WHERE Id = :followUpQueueId
             LIMIT 1
@@ -157,9 +190,7 @@ public with sharing class FollowUpExecutionService {
         followUp.Consecutive_Failures__c = (followUp.Consecutive_Failures__c == null ? 0 : followUp.Consecutive_Failures__c) + 1;
         followUp.Attempt_Count__c = (followUp.Attempt_Count__c == null ? 0 : followUp.Attempt_Count__c) + 1;
         followUp.Last_Attempt_Date__c = DateTime.now();
-        
-        // TODO: Store error message if field exists
-        // followUp.Error_Message__c = errorMessage;
+        followUp.Error_Message__c = errorMessage;
         
         update followUp;
     }
@@ -170,8 +201,10 @@ public with sharing class FollowUpExecutionService {
      * @param followUp Follow_Up_Queue__c record
      * @return Message content string
      */
-    private static String getMessageContent(Follow_Up_Queue__c followUp, Follow_Up_Rule__mdt rule) {
-        // If using templates, this would render template content; for now use rule metadata as source
+    private static String getMessageContent(Follow_Up_Queue__c followUp, Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+        if (commTemplate != null && !String.isBlank(commTemplate.Message_Body__c)) {
+            return commTemplate.Message_Body__c;
+        }
         if (rule != null && !String.isBlank(rule.Trigger_Condition__c)) {
             return 'Reminder: ' + rule.Trigger_Condition__c;
         }
@@ -209,5 +242,20 @@ public with sharing class FollowUpExecutionService {
             LIMIT 1
         ];
         return rules.isEmpty() ? null : rules[0];
+    }
+
+    private static Communication_Template__c getCommTemplate(Follow_Up_Rule__mdt rule) {
+        if (rule == null || String.isBlank(rule.Messaging_Template__c)) {
+            return null;
+        }
+        List<Communication_Template__c> comms = [
+            SELECT Id, Name, Communication_Type__c,
+                   Email_Subject__c, Email_Template_Id__c,
+                   Messaging_Template_Id__c, Messaging_Channel_Id__c, Message_Body__c
+            FROM Communication_Template__c
+            WHERE Id = :rule.Messaging_Template__c
+            LIMIT 1
+        ];
+        return comms.isEmpty() ? null : comms[0];
     }
 }

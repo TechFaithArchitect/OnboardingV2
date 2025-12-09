@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Product_del__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Product</label>
     <referenceTo>Product2</referenceTo>
     <relationshipName>Exception_Products_del</relationshipName>

@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Required_Stage__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Stage that must be completed (or one of) for the dependency to pass.</description>
     <label>Required Stage</label>
     <referenceTo>Onboarding_Application_Stage__c</referenceTo>
     <relationshipLabel>Onboarding Application Stage Dependency (Required Stage)</relationshipLabel>

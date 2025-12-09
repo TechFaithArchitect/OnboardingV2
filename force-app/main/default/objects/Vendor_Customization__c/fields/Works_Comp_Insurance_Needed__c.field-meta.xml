@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Works_Comp_Insurance_Needed__c</fullName>
+    <description>Indicates workers’ compensation coverage is required for this program.</description>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Work&apos;s Comp Insurance Needed</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

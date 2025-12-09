@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Error__c</fullName>
     <description>If internal, this is the error message from the exception + the line number, if API call, then it is the response. (PER-2431)</description>
-    <externalId>false</externalId>
     <label>Error</label>
     <length>130000</length>
     <trackTrending>false</trackTrending>

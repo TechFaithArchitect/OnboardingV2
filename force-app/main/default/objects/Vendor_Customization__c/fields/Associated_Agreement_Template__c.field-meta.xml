@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Associated_Agreement_Template__c</fullName>
+    <description>Agreement template tied to this vendor program customization.</description>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Associated Agreement Template</label>
     <referenceTo>echosign_dev1__Agreement_Template__c</referenceTo>
     <relationshipName>Vendor_Customizations</relationshipName>

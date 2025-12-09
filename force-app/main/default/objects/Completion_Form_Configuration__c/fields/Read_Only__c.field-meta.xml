@@ -3,7 +3,6 @@
     <fullName>Read_Only__c</fullName>
     <defaultValue>false</defaultValue>
     <description>(PVFSL-603)</description>
-    <externalId>false</externalId>
     <label>Read Only</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

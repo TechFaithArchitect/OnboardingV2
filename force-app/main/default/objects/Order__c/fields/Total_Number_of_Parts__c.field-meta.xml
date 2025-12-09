@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Total_Number_of_Parts__c</fullName>
-    <externalId>false</externalId>
     <label>Total Number of Parts</label>
     <summaryForeignKey>Line_Item__c.Order__c</summaryForeignKey>
     <summaryOperation>count</summaryOperation>

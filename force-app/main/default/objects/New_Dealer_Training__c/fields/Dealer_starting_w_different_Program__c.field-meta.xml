@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Dealer_starting_w_different_Program__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>DLR starting w/ different Program</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

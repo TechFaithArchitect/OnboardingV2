@@ -3,7 +3,6 @@
     <fullName>User__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Required. The assigned user</description>
-    <externalId>false</externalId>
     <label>User</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Territory_Role_Assignments</relationshipName>

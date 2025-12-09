@@ -3,7 +3,6 @@
     <fullName>Available_In_Self_Service__c</fullName>
     <defaultValue>true</defaultValue>
     <description>PER-2745</description>
-    <externalId>false</externalId>
     <inlineHelpText>If true, the program will be available in Self Service site for this zipcode.</inlineHelpText>
     <label>Available In Self Service</label>
     <trackTrending>false</trackTrending>

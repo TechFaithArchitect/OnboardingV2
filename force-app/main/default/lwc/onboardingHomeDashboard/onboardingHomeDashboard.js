@@ -694,6 +694,33 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
         });
     }
 
+    navigateToFollowUpList(filterName) {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Follow_Up_Queue__c',
+                actionName: 'list'
+            },
+            state: { filterName }
+        });
+    }
+
+    handleViewPending() {
+        this.navigateToFollowUpList('Pending');
+    }
+
+    handleViewPendingRetry() {
+        this.navigateToFollowUpList('Pending_Retry');
+    }
+
+    handleViewFailed() {
+        this.navigateToFollowUpList('Failed');
+    }
+
+    handleViewDueToday() {
+        this.navigateToFollowUpList('Due_Today');
+    }
+
     navigateToOverrideAuditList() {
         this[NavigationMixin.Navigate]({
             type: 'standard__objectPage',

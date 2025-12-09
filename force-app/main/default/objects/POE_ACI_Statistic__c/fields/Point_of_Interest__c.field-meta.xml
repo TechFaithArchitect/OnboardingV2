@@ -3,7 +3,6 @@
     <fullName>Point_of_Interest__c</fullName>
     <description>the location where the metric is expected to be captured.</description>
     <displayLocationInDecimal>false</displayLocationInDecimal>
-    <externalId>false</externalId>
     <label>Point of Interest</label>
     <required>false</required>
     <scale>10</scale>

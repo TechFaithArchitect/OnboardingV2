@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Disable_Pop_up_Blocker__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Disable Pop-up Blocker</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

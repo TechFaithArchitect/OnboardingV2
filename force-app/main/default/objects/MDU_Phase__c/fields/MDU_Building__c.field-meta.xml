@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>MDU_Building__c</fullName>
     <description>Building for this phase. (PVFSL-891)</description>
-    <externalId>false</externalId>
     <label>MDU Building</label>
     <referenceTo>MDU_Building__c</referenceTo>
     <relationshipLabel>MDU Phases</relationshipLabel>

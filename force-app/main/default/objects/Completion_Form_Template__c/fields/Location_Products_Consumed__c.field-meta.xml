@@ -3,7 +3,6 @@
     <fullName>Location_Products_Consumed__c</fullName>
     <defaultValue>false</defaultValue>
     <description>If true, then the location field will be available when adding products consumed. (PVFSL-603)</description>
-    <externalId>false</externalId>
     <inlineHelpText>If true, then the location field will be available when adding products consumed.</inlineHelpText>
     <label>Location on Products Consumed</label>
     <trackTrending>false</trackTrending>

@@ -157,7 +157,7 @@
     <label>Vendor Program Requirement Group Member</label>
     <nameField>
         <displayFormat>VPRGM-{00000}</displayFormat>
-        <label>Vendor Program Requirement Group Member Number</label>
+        <label>Vendor Program Requirement Group Member</label>
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Vendor Program Requirement Group Members</pluralLabel>

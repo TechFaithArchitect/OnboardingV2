@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Discuss_Current_Dealer_Comp_SPIFs__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Discuss Current Dealer Comp/SPIFs</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

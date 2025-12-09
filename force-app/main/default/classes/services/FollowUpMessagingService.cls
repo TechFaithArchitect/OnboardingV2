@@ -81,7 +81,7 @@ public with sharing class FollowUpMessagingService {
 
         // Query Contact - use standard fields only
         List<Contact> contacts = [
-            SELECT Id, Name, Phone, MobilePhone
+            SELECT Id, Name, Phone, MobilePhone, Email
             FROM Contact
             WHERE AccountId = :accountId
             ORDER BY CreatedDate ASC

@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fraud_Validation_Rules__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Fraud Validation Rules</label>
     <referenceTo>Fraud_Validation_Rules__c</referenceTo>
     <relationshipLabel>Fraud Validation Statistics</relationshipLabel>

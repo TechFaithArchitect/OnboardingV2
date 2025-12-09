@@ -3,7 +3,6 @@
     <fullName>Active__c</fullName>
     <defaultValue>true</defaultValue>
     <description>Whether the role assignment is active</description>
-    <externalId>false</externalId>
     <label>Active</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

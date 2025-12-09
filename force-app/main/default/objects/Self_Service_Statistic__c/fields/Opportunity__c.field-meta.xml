@@ -3,7 +3,6 @@
     <fullName>Opportunity__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Opportunity linked to the current buyflow. (PER-2784)</description>
-    <externalId>false</externalId>
     <label>Opportunity</label>
     <referenceTo>Opportunity</referenceTo>
     <relationshipLabel>Self Service Statistics</relationshipLabel>

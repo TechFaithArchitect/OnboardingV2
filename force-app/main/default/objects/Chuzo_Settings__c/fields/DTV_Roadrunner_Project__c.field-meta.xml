@@ -3,7 +3,6 @@
     <fullName>DTV_Roadrunner_Project__c</fullName>
     <defaultValue>false</defaultValue>
     <description>[PER-4278] Activates Roadrunner project for the DTV Flow</description>
-    <externalId>false</externalId>
     <label>DTV Roadrunner Project</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

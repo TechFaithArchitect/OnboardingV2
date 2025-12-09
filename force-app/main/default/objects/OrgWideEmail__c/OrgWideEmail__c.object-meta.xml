@@ -143,7 +143,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>This is a read only object that is synced with the org wide send email addresses via Apex so the email sending address can be synced for selection during setup for a Vendor Program.</description>
+    <description>Read-only cache of org-wide email addresses synchronized via Apex so onboarding/Vendor Program setup can reference a valid From address.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>

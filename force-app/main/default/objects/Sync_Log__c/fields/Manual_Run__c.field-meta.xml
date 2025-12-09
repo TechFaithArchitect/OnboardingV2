@@ -3,7 +3,6 @@
     <fullName>Manual_Run__c</fullName>
     <defaultValue>false</defaultValue>
     <description>Indicates if the job was manually triggered.</description>
-    <externalId>false</externalId>
     <label>Manual Run</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

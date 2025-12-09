@@ -2,8 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Sync_Job__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <description>The sync job record that last modified this Communication Template.</description>
-    <externalId>false</externalId>
+    <description>Tracks the job/run that synced this template from the source system.</description>
     <label>Sync Job</label>
     <referenceTo>Sync_Log__c</referenceTo>
     <relationshipLabel>Communication Templates</relationshipLabel>

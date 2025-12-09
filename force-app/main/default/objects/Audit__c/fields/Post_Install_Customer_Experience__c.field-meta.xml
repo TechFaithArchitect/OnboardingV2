@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Post_Install_Customer_Experience__c</fullName>
-    <externalId>false</externalId>
     <inlineHelpText>Did the technician perform the Post-Install Customer Experience procedures properly?</inlineHelpText>
     <label>Post-Install Customer Experience</label>
     <required>false</required>

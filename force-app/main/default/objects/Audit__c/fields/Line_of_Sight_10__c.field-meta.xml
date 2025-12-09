@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Line_of_Sight_10__c</fullName>
-    <externalId>false</externalId>
     <label>Line of Sight (+/- 10*)</label>
     <required>false</required>
     <trackHistory>true</trackHistory>

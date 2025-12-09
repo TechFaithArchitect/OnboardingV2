@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Personal_Guarantee__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Personal Guarantee</label>
     <referenceTo>Personal_Guarantee__c</referenceTo>
     <relationshipLabel>Onboarding</relationshipLabel>

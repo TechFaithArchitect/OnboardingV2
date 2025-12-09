@@ -3,7 +3,6 @@
     <fullName>P10_Account__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>P10 Account</description>
-    <externalId>false</externalId>
     <label>Account Name</label>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>L&amp;I Informations</relationshipLabel>

@@ -17,7 +17,8 @@ public with sharing class CommunicationTemplateRepository {
 
         for (Communication_Template__c rec : [
             SELECT Id, Name, DeveloperName__c, Email_Subject__c, Folder_Name__c,
-                   Communication_Type__c, Active__c
+                   Communication_Type__c, Active__c,
+                   Email_Template_Id__c, Messaging_Template_Id__c, Messaging_Channel_Id__c, Message_Body__c
             FROM Communication_Template__c
         ]) {
             if (String.isNotBlank(rec.DeveloperName__c)) {

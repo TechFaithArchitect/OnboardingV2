@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Requires_Files__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
+    <description>Indicates supporting files must be uploaded before the requirement can be completed.</description>
     <label>Requires Files</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

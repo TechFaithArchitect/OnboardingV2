@@ -3,7 +3,6 @@
     <fullName>Communication_Template__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>The config template driving the send</description>
-    <externalId>false</externalId>
     <label>Communication Template</label>
     <referenceTo>Communication_Template__c</referenceTo>
     <relationshipLabel>Email Communication Logs</relationshipLabel>

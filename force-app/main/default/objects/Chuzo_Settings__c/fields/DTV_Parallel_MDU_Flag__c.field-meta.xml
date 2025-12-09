@@ -3,7 +3,6 @@
     <fullName>DTV_Parallel_MDU_Flag__c</fullName>
     <defaultValue>false</defaultValue>
     <description>PER-4779</description>
-    <externalId>false</externalId>
     <label>DTV Parallel MDU Flag</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

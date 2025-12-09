@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Verify_Affiliate_ID__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Verify Affiliate ID</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

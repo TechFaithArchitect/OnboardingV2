@@ -3,7 +3,6 @@
     <fullName>Opportunity__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Opportunity related to the buyflow that failed. (PER-2431)</description>
-    <externalId>false</externalId>
     <label>Opportunity</label>
     <referenceTo>Opportunity</referenceTo>
     <relationshipName>Error_Logs</relationshipName>

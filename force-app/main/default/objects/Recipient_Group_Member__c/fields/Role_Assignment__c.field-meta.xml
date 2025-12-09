@@ -3,7 +3,6 @@
     <fullName>Role_Assignment__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>To support Territory Model roles</description>
-    <externalId>false</externalId>
     <inlineHelpText>Used only when Member Type is &quot;Territory Role Assignment.&quot; Leave blank for all other member types.</inlineHelpText>
     <label>Role Assignment</label>
     <referenceTo>Territory_Role_Assignment__c</referenceTo>

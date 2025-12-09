@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Vendor_Program__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Vendor program associated to this communication template (for scoping templates).</description>
     <label>Vendor Program</label>
     <referenceTo>Vendor_Customization__c</referenceTo>
     <relationshipName>Onboarding_Communication_Templates</relationshipName>

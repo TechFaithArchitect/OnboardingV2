@@ -3,7 +3,6 @@
     <fullName>Work_Type__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Lookup to the work type that the question is associated to. (PVFSL-879)</description>
-    <externalId>false</externalId>
     <label>Work Type</label>
     <referenceTo>WorkType</referenceTo>
     <relationshipLabel>Site Survey Questions</relationshipLabel>

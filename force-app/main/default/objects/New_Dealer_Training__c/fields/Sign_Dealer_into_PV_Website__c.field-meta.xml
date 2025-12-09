@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Sign_Dealer_into_PV_Website__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Sign Dealer into PV Website</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

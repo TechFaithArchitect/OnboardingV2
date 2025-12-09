@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ReCaptcha_Minimum_Acceptable_Score__c</fullName>
     <description>Specifies the minimum score to pass the reCAPTCHA v3 validation. (PER-5694)</description>
-    <externalId>false</externalId>
     <label>ReCaptcha Minimum Acceptable Score</label>
     <precision>3</precision>
     <required>false</required>

@@ -3,7 +3,6 @@
     <fullName>Primary__c</fullName>
     <defaultValue>true</defaultValue>
     <description>If there are multiple users for a role, identify the main one</description>
-    <externalId>false</externalId>
     <label>Primary</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Social_Media_Approved__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Social  Media Approved</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

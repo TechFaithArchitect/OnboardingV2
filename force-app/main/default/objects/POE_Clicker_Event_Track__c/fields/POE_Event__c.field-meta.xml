@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>POE_Event__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Event</label>
     <referenceTo>POE_Event__c</referenceTo>
     <relationshipLabel>Clicker Store Tracks</relationshipLabel>

@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>X60_day_follow_up__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>60 day follow up</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

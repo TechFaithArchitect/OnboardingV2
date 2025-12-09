@@ -157,7 +157,7 @@
     <label>Onboarding Application Stage Completion</label>
     <nameField>
         <displayFormat>OASC-{000000}</displayFormat>
-        <label>Onboarding_Application_Stage_Completion Name</label>
+        <label>Onboarding_Application_Stage_Completion</label>
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Onboarding Application Stage Completion</pluralLabel>

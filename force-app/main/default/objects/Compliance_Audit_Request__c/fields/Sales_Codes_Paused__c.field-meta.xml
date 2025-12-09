@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Sales_Codes_Paused__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Sales Codes Paused</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

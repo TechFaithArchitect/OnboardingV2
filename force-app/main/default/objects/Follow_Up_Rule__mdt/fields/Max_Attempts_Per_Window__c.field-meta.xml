@@ -3,6 +3,7 @@
     <fullName>Max_Attempts_Per_Window__c</fullName>
     <description>Maximum attempts allowed in fatigue window.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Max Attempts Per Window</label>
     <precision>5</precision>
     <required>false</required>

@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>New_DLR_Dev_Call_Status__c</fullName>
     <defaultValue>&quot;Not Started&quot;</defaultValue>
-    <externalId>false</externalId>
     <label>New DLR Dev Call Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

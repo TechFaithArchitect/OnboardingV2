@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Requirement_Template__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
-    <externalId>false</externalId>
+    <description>Reference to the requirement template tied to this set template.</description>
     <label>Requirement Template</label>
     <referenceTo>Vendor_Program_Onboarding_Req_Template__c</referenceTo>
     <relationshipLabel>Requirement Set Templates</relationshipLabel>

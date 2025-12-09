@@ -3,7 +3,6 @@
     <fullName>WorkType__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>If populated, this question will be available for orders with the specified work type. (PVFSL-478)</description>
-    <externalId>false</externalId>
     <inlineHelpText>If populated, this question will be available for orders with the specified work type.</inlineHelpText>
     <label>Work Type</label>
     <referenceTo>WorkType</referenceTo>

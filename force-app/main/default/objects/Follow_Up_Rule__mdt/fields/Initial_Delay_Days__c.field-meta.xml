@@ -3,6 +3,7 @@
     <fullName>Initial_Delay_Days__c</fullName>
     <description>Days to wait before first follow-up.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Initial Delay (Days)</label>
     <precision>5</precision>
     <required>false</required>

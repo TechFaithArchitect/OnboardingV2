@@ -41,6 +41,12 @@ public with sharing class FollowUpFatigueService {
             }
         }
 
+        // Suppression windows (holiday/manual/system) via metadata
+        Id accountId = getAccountFromRequirement(onboardingRequirementId);
+        if (accountId != null && isSuppressedAccount(accountId)) {
+            return true;
+        }
+
         if (!fatigueEnabled) {
             return false;
         }
@@ -83,6 +89,49 @@ public with sharing class FollowUpFatigueService {
         }
 
         return false;
+    }
+
+    /**
+     * Check suppression windows for an Account via Follow_Up_Suppression__mdt.
+     */
+    public static Boolean isSuppressedAccount(Id accountId) {
+        if (accountId == null) {
+            return false;
+        }
+        List<Follow_Up_Suppression__mdt> suppressions = [
+            SELECT Start_Date__c, End_Date__c, Reason__c, Suppression_Type__c, Timezone_Aware__c
+            FROM Follow_Up_Suppression__mdt
+            WHERE Active__c = true
+        ];
+        if (suppressions.isEmpty()) {
+            return false;
+        }
+
+        for (Follow_Up_Suppression__mdt sup : suppressions) {
+            Map<String, Object> meta = new Map<String, Object>{
+                'Start_Date__c' => sup.Start_Date__c,
+                'End_Date__c' => sup.End_Date__c,
+                'Timezone_Aware__c' => sup.Timezone_Aware__c
+            };
+            if (isWithinSuppressionWindow(accountId, meta)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Id getAccountFromRequirement(Id onboardingRequirementId) {
+        try {
+            Onboarding_Requirement__c req = [
+                SELECT Onboarding__r.Account__c
+                FROM Onboarding_Requirement__c
+                WHERE Id = :onboardingRequirementId
+                LIMIT 1
+            ];
+            return req.Onboarding__r.Account__c;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

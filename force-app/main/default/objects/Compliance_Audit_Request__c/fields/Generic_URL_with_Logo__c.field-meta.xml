@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Generic_URL_with_Logo__c</fullName>
     <defaultValue>false</defaultValue>
-    <externalId>false</externalId>
     <label>Generic URL with Logo</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

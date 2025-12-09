@@ -3,7 +3,6 @@
     <fullName>Contact__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Contact related to the Work Order; this field is used as a filter. (PVFSL-466)</description>
-    <externalId>false</externalId>
     <label>Contact</label>
     <referenceTo>Contact</referenceTo>
     <relationshipLabel>Claims</relationshipLabel>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Preventing_Fraud_for_DLRS__c</fullName>
-    <externalId>false</externalId>
     <label>Preventing Fraud for DLRS</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

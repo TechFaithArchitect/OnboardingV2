@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Special_Shipment_Requirements__c</fullName>
     <description>Additional shipping requirements. Multiple selections allowed.</description>
-    <externalId>false</externalId>
     <inlineHelpText>Additional shipping requirements. Multiple selections allowed.</inlineHelpText>
     <label>Special Shipment Requirements</label>
     <required>false</required>

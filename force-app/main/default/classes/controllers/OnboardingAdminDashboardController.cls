@@ -244,7 +244,7 @@ public with sharing class OnboardingAdminDashboardController {
         String query = 'SELECT Id, Name, Follow_Up_Type__c, Status__c, ' +
                       'Onboarding__c, Onboarding__r.Name, ' +
                       'Onboarding__r.Account__c, Onboarding__r.Account__r.Name, ' +
-                      'Trigger_Reason__c, CreatedDate, ' +
+                      'Trigger_Reason__c, Error_Message__c, CreatedDate, ' +
                       'Attempt_Count__c, Last_Attempt_Date__c, ' +
                       'Consecutive_Failures__c ' +
                       'FROM Follow_Up_Queue__c ' +
@@ -281,21 +281,26 @@ public with sharing class OnboardingAdminDashboardController {
     public static String retryMessaging(Id issueId) {
         try {
             Follow_Up_Queue__c issue = [
-                SELECT Id, Status__c, Attempt_Count__c
+                SELECT Id, Status__c, Attempt_Count__c, Follow_Up_Type__c
                 FROM Follow_Up_Queue__c
                 WHERE Id = :issueId
                 LIMIT 1
             ];
             
-            // Reset status to Pending Retry
+            // Mark as pending retry and attempt immediately
             issue.Status__c = 'Pending Retry';
             issue.Attempt_Count__c = (issue.Attempt_Count__c == null ? 0 : issue.Attempt_Count__c) + 1;
             update issue;
-            
-            // TODO: Trigger Platform Event or Queueable to retry the messaging
-            // FollowUpRetryTrigger__e event = new FollowUpRetryTrigger__e(Follow_Up_Queue_Id__c = issueId);
-            // EventBus.publish(event);
-            
+
+            // Execute based on type
+            if (issue.Follow_Up_Type__c == 'SMS') {
+                FollowUpExecutionService.sendSMSFollowUp(issue.Id);
+            } else if (issue.Follow_Up_Type__c == 'Email') {
+                FollowUpExecutionService.sendEmailFollowUp(issue.Id);
+            } else {
+                // Unknown type; leave in Pending Retry
+            }
+
             return 'Retry initiated successfully';
         } catch (Exception e) {
             throw new AuraHandledException('Failed to retry messaging: ' + e.getMessage());
@@ -349,7 +354,7 @@ public with sharing class OnboardingAdminDashboardController {
             this.onboardingId = issue.Onboarding__c;
             this.onboardingName = issue.Onboarding__r?.Name;
             this.accountName = issue.Onboarding__r?.Account__r?.Name;
-            this.errorMessage = issue.Trigger_Reason__c; // Using Trigger_Reason__c as error message placeholder
+            this.errorMessage = String.isNotBlank(issue.Error_Message__c) ? issue.Error_Message__c : issue.Trigger_Reason__c;
             this.attemptCount = issue.Attempt_Count__c != null ? issue.Attempt_Count__c.intValue() : 0;
             this.lastAttemptDate = issue.Last_Attempt_Date__c;
             this.createdDate = issue.CreatedDate;

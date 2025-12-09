@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Required_Program__c</fullName>
+    <description>Program/customization that is required for this group member.</description>
     <deleteConstraint>SetNull</deleteConstraint>
-    <externalId>false</externalId>
     <label>Required Program</label>
     <referenceTo>Vendor_Customization__c</referenceTo>
     <relationshipLabel>Vendor Program Group Members</relationshipLabel>

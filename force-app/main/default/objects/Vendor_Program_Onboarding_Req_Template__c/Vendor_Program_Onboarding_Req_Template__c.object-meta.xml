@@ -157,7 +157,7 @@
     <label>Vendor Program Onboarding Req Template</label>
     <nameField>
         <displayFormat>VPORT-{00000}</displayFormat>
-        <label>Vendor Program Onboarding Requirement Template Number</label>
+        <label>Vendor Program Onboarding Requirement Te</label>
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Vendor Program Onboarding Req Templates</pluralLabel>
