@@ -29,16 +29,45 @@
 
 **Important**: The object label is **Vendor Program**, but the API name is **Vendor_Customization__c**. `Vendor_Program__c` does not exist and should not be referenced.
 
-**Purpose**: Stores the selected program customization that onboarding, rules, and requirement sets roll up to.
+**Purpose**: Versioned vendor program customization chosen during onboarding; drives requirement groups, status rules, and wizard selection.
 
 **Key Fields:**
 - `Name` (Text) - Program customization name
-- `Active__c` (Checkbox) - Active status
+- `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Version__c` (Number) / `Previous_Version__c` (Lookup) - Versioning chain
 - `Vendor__c` (Lookup to Account) - Vendor account
+- `Vendor_Program_Requirement_Group__c` (Lookup) - Default requirement group bundle
+- Insurance/eligibility flags (e.g., `General_Liability_Insurance_Needed__c`, `Auto_Insurance_Needed__c`, `Works_Comp_Insurance_Needed__c`)
+- Template/config fields (e.g., `Action_Plan_Template__c`, `Contract_Record_Type__c`, `Order_Entry_Platform__c`)
 
 **Relationships:**
-- Has many Vendor_Program_Group__c
-- Drives Onboarding__c records via the selected customization
+- Can belong to a `Vendor_Program_Group__c` via `Vendor_Program_Group_Member__c`
+- Drives `Onboarding__c` records through selection in the wizard
+
+### Vendor_Program_Group__c
+
+**Purpose**: Groups related vendor program customizations so they share requirement sets, rules, and stage dependencies in the onboarding wizard.
+
+**Key Fields:**
+- `Name` (Text) - Group name
+- `Logic_Type__c` / other rule fields (if present) - Control inheritance behavior
+
+**Relationships:**
+- Has many `Vendor_Program_Group_Member__c`
+- Referenced by onboarding wizard services when selecting programs
+
+### Vendor_Program_Group_Member__c
+
+**Purpose**: Links a specific vendor program customization (`Vendor_Customization__c`) to a `Vendor_Program_Group__c`; supports versioned history and inheritance.
+
+**Key Fields:**
+- `Vendor_Program_Group__c` (Lookup) - Parent group
+- `Required_Program__c` (Lookup to Vendor_Customization__c) - Program required/included
+- `Is_Target__c` (Checkbox) - Marks the target program in the grouping
+- `Active__c` (Checkbox) - Controls current membership validity
+
+**Relationships:**
+- Belongs to a group; points to one program customization; used by requirement set services for historical membership
 
 ### Vendor_Program_Group__c
 
@@ -517,6 +546,16 @@
 
 ### Onboarding_External_Override_Log__c
 **Purpose**: Audit log for external override operations on Onboarding__c (source, reason, request, status changes).
+
+### OrgWideEmail__c
+
+**Purpose**: Read-only cache of org-wide email addresses synchronized via Apex so onboarding/Vendor Program setup can reference a valid From address.
+
+**Key Fields:**
+- `Email_Address__c` (Text) - Org-wide email address
+- `Developer_Name__c` / `MasterLabel__c` (Text) - Source identifiers
+- `OrgWideEmailAddressId__c` (Lookup/Text) - Id of the source OrgWideEmailAddress record
+- `Active__c` (Checkbox) - Whether the address is usable
 
 ## Program Template & Dependency Objects
 
