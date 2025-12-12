@@ -6,4 +6,5 @@ trigger LeadTrigger on Lead (before insert, before update) {
             LeadTriggerHandler.beforeUpdate((List<Lead>) Trigger.new, (Map<Id, Lead>) Trigger.oldMap);
         }
     }
+
 }

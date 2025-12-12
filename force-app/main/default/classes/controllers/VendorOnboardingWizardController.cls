@@ -21,6 +21,89 @@ public with sharing class VendorOnboardingWizardController {
         return VendorOnboardingWizardService.searchVendorPrograms(vendorProgramNameSearchText);
     }
 
+    /**
+     * Account-aware vendor program search with eligibility gating.
+     * If eligibilityPassed is false/null, only programs where Vendor__r.Name = 'PerfectVision' are returned.
+     * If true, programs where Vendor__r.Name != 'PerfectVision' are returned.
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<Vendor_Customization__c> searchVendorProgramsForAccount(
+        Id accountId,
+        String vendorProgramNameSearchText,
+        Boolean eligibilityPassed,
+        Boolean accountHasNda,
+        Boolean accountHasProgramBase
+    ) {
+        return VendorOnboardingWizardService.searchVendorProgramsForAccount(
+            accountId,
+            vendorProgramNameSearchText,
+            eligibilityPassed,
+            accountHasNda,
+            accountHasProgramBase
+        );
+    }
+
+    /**
+     * Returns NDA/Base Application eligibility for a given Account.
+     */
+    @AuraEnabled(cacheable=true)
+    public static VendorOnboardingWizardService.VendorProgramEligibilityResult getVendorProgramEligibilityForAccount(Id accountId) {
+        return VendorOnboardingWizardService.getVendorProgramEligibilityForAccount(accountId);
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<VendorOnboardingWizardService.ContactRoleDTO> getAccountContactsWithRoles(Id accountId) {
+        return VendorOnboardingWizardService.getAccountContactsWithRoles(accountId);
+    }
+
+    @AuraEnabled
+    public static Id upsertAccountContactRelation(Id accountId, Id contactId, String role) {
+        return VendorOnboardingWizardService.upsertAccountContactRelation(accountId, contactId, role);
+    }
+
+    // -------------------------------
+    // Onboarding Opportunity + OCR + AVO
+    // -------------------------------
+    @AuraEnabled
+    public static Id createOnboardingOpportunity(
+        Id accountId,
+        String name,
+        String stageName,
+        Date closeDate,
+        Id recordTypeId
+    ) {
+        return VendorOnboardingWizardService.createOnboardingOpportunity(
+            accountId, name, stageName, closeDate, recordTypeId
+        );
+    }
+
+    @AuraEnabled
+    public static Id upsertOpportunityContactRole(Id opportunityId, Id contactId, String role, Boolean isPrimary) {
+        return VendorOnboardingWizardService.upsertOpportunityContactRole(opportunityId, contactId, role, isPrimary);
+    }
+
+    @AuraEnabled
+    public static Id createAccountVendorProgramOnboarding(
+        Id accountId,
+        Id onboardingId,
+        Id opportunityId,
+        String status,
+        Id primaryContactId
+    ) {
+        return VendorOnboardingWizardService.createAccountVendorProgramOnboarding(
+            accountId, onboardingId, opportunityId, status, primaryContactId
+        );
+    }
+
+    @AuraEnabled
+    public static VendorOnboardingWizardService.OnboardingWithRequirementsResult createOnboardingWithRequirements(
+        Id accountId,
+        Id vendorProgramId,
+        Id opportunityId
+    ) {
+        return VendorOnboardingWizardService.createOnboardingWithRequirements(accountId, vendorProgramId, opportunityId);
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<Vendor_Customization__c> getRecentVendorPrograms(Integer limitCount) {
         return VendorOnboardingWizardService.getRecentVendorPrograms(limitCount);
@@ -662,7 +745,7 @@ public with sharing class VendorOnboardingWizardController {
     public static String syncComponentLibrary() {
         try {
             VendorOnboardingWizardService.syncComponentLibrary();
-            return 'Component Library synced successfully. All 14 wizard components are now available in the library.';
+            return 'Component Library synced successfully. All 10 wizard components are now available in the library.';
         } catch (Exception e) {
             throw new AuraHandledException('Failed to sync Component Library: ' + e.getMessage());
         }
@@ -673,7 +756,7 @@ public with sharing class VendorOnboardingWizardController {
     // -------------------------------
 
     /**
-     * Creates the default "Vendor Program Onboarding" process with all 14 stages if it doesn't exist.
+     * Creates the default "Vendor Program Onboarding" process with all 10 stages if it doesn't exist.
      * This is an admin utility function similar to syncComponentLibrary().
      * 
      * @return The ID of the created or existing process
@@ -682,10 +765,18 @@ public with sharing class VendorOnboardingWizardController {
     public static String initializeDefaultProcess() {
         try {
             Id processId = VendorOnboardingWizardService.initializeDefaultVendorProgramOnboardingProcess();
-            return 'Default Vendor Program Onboarding process created successfully with all 14 stages. Process ID: ' + processId;
+            return 'Default Vendor Program Onboarding process created successfully with all 10 stages. Process ID: ' + processId;
         } catch (Exception e) {
             throw new AuraHandledException('Failed to initialize default process: ' + e.getMessage());
         }
+    }
+
+    // -------------------------------
+    // Health Check
+    // -------------------------------
+    @AuraEnabled(cacheable=true)
+    public static List<OnboardingHealthService.HealthItem> runOnboardingHealthCheck() {
+        return OnboardingHealthService.runHealthCheck();
     }
 
     // -------------------------------

@@ -24,15 +24,8 @@ public with sharing class FollowUpFatigueService {
         Boolean fatigueEnabled = true;
 
         if (String.isNotBlank(followUpRuleDeveloperName)) {
-            List<Follow_Up_Rule__mdt> rules = [
-                SELECT Max_Attempts_Per_Window__c, Fatigue_Window_Days__c, Fatigue_Suppression_Enabled__c
-                FROM Follow_Up_Rule__mdt
-                WHERE DeveloperName = :followUpRuleDeveloperName
-                LIMIT 1
-            ];
-            
-            if (!rules.isEmpty()) {
-                Follow_Up_Rule__mdt rule = rules[0];
+            Follow_Up_Rule__mdt rule = FollowUpRuleRepository.getRuleByDeveloperName(followUpRuleDeveloperName);
+            if (rule != null) {
                 if (rule.Fatigue_Suppression_Enabled__c == false) {
                     return false;
                 }
@@ -42,7 +35,7 @@ public with sharing class FollowUpFatigueService {
         }
 
         // Suppression windows (holiday/manual/system) via metadata
-        Id accountId = getAccountFromRequirement(onboardingRequirementId);
+        Id accountId = FollowUpRuleRepository.getAccountIdForRequirement(onboardingRequirementId);
         if (accountId != null && isSuppressedAccount(accountId)) {
             return true;
         }
@@ -56,15 +49,10 @@ public with sharing class FollowUpFatigueService {
         DateTime thresholdDateTime = DateTime.newInstance(thresholdDate, Time.newInstance(0, 0, 0, 0));
 
         // Query recent follow-ups for this requirement
-        List<Follow_Up_Queue__c> recentFollowUps = [
-            SELECT Id, Attempt_Count__c, Last_Attempt_Date__c, Consecutive_Failures__c
-            FROM Follow_Up_Queue__c
-            WHERE Onboarding_Requirement__c = :onboardingRequirementId
-              AND Last_Attempt_Date__c >= :thresholdDateTime
-              AND Is_Archived__c = false
-            ORDER BY Last_Attempt_Date__c DESC
-            LIMIT 100
-        ];
+        List<Follow_Up_Queue__c> recentFollowUps = FollowUpRuleRepository.getRecentFollowUps(
+            onboardingRequirementId,
+            thresholdDateTime
+        );
 
         if (recentFollowUps.isEmpty()) {
             return false;
@@ -98,11 +86,7 @@ public with sharing class FollowUpFatigueService {
         if (accountId == null) {
             return false;
         }
-        List<Follow_Up_Suppression__mdt> suppressions = [
-            SELECT Start_Date__c, End_Date__c, Reason__c, Suppression_Type__c, Timezone_Aware__c
-            FROM Follow_Up_Suppression__mdt
-            WHERE Active__c = true
-        ];
+        List<Follow_Up_Suppression__mdt> suppressions = FollowUpRuleRepository.getActiveSuppressions();
         if (suppressions.isEmpty()) {
             return false;
         }
@@ -120,20 +104,6 @@ public with sharing class FollowUpFatigueService {
         return false;
     }
 
-    private static Id getAccountFromRequirement(Id onboardingRequirementId) {
-        try {
-            Onboarding_Requirement__c req = [
-                SELECT Onboarding__r.Account__c
-                FROM Onboarding_Requirement__c
-                WHERE Id = :onboardingRequirementId
-                LIMIT 1
-            ];
-            return req.Onboarding__r.Account__c;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     /**
      * Apply fatigue suppression to a follow-up queue record
      * @param followUpQueueId The Follow_Up_Queue__c record ID
@@ -144,12 +114,10 @@ public with sharing class FollowUpFatigueService {
             return;
         }
 
-        Follow_Up_Queue__c followUp = [
-            SELECT Id, Fatigue_Suppressed__c, Suppression_Reason__c, Status__c
-            FROM Follow_Up_Queue__c
-            WHERE Id = :followUpQueueId
-            LIMIT 1
-        ];
+        Follow_Up_Queue__c followUp = FollowUpRuleRepository.getFollowUpQueue(followUpQueueId);
+        if (followUp == null) {
+            return;
+        }
 
         followUp.Fatigue_Suppressed__c = true;
         followUp.Suppression_Reason__c = reason;
@@ -256,12 +224,10 @@ public with sharing class FollowUpFatigueService {
             return;
         }
 
-        Follow_Up_Queue__c followUp = [
-            SELECT Id, Attempt_Count__c, Last_Attempt_Date__c, Consecutive_Failures__c
-            FROM Follow_Up_Queue__c
-            WHERE Id = :followUpQueueId
-            LIMIT 1
-        ];
+        Follow_Up_Queue__c followUp = FollowUpRuleRepository.getFollowUpQueueForTracking(followUpQueueId);
+        if (followUp == null) {
+            return;
+        }
 
         // Update attempt count
         followUp.Attempt_Count__c = (followUp.Attempt_Count__c == null ? 0 : followUp.Attempt_Count__c) + 1;
@@ -287,12 +253,10 @@ public with sharing class FollowUpFatigueService {
             return false;
         }
 
-        Follow_Up_Queue__c followUp = [
-            SELECT Id, Fatigue_Suppressed__c, Status__c
-            FROM Follow_Up_Queue__c
-            WHERE Id = :followUpQueueId
-            LIMIT 1
-        ];
+        Follow_Up_Queue__c followUp = FollowUpRuleRepository.getFollowUpQueueForTracking(followUpQueueId);
+        if (followUp == null) {
+            return false;
+        }
 
         return followUp.Fatigue_Suppressed__c == true || followUp.Status__c == 'Suppressed';
     }
@@ -306,12 +270,10 @@ public with sharing class FollowUpFatigueService {
             return;
         }
 
-        Follow_Up_Queue__c followUp = [
-            SELECT Id, Fatigue_Suppressed__c, Suppression_Reason__c, Status__c
-            FROM Follow_Up_Queue__c
-            WHERE Id = :followUpQueueId
-            LIMIT 1
-        ];
+        Follow_Up_Queue__c followUp = FollowUpRuleRepository.getFollowUpQueueForTracking(followUpQueueId);
+        if (followUp == null) {
+            return;
+        }
 
         followUp.Fatigue_Suppressed__c = false;
         followUp.Suppression_Reason__c = null;

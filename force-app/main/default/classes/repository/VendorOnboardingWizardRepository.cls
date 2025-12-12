@@ -80,6 +80,64 @@ public with sharing class VendorOnboardingWizardRepository {
     }
 
     /**
+     * Account-aware vendor program search with eligibility gating.
+     * If eligibilityPassed is false/null, only returns programs where Vendor__r.Name = 'PerfectVision'.
+     * If true, returns programs where Vendor__r.Name != 'PerfectVision'.
+     * AccountId is reserved for future filtering (e.g., NDA/Base Application checks).
+     */
+    public static List<Vendor_Customization__c> searchVendorProgramsForAccount(
+        Id accountId,
+        String vendorProgramName,
+        Boolean eligibilityPassed,
+        Boolean accountHasNda,
+        Boolean accountHasProgramBase
+    ) {
+        if (String.isBlank(vendorProgramName)) {
+            return new List<Vendor_Customization__c>();
+        }
+
+        Boolean eligible = eligibilityPassed == null ? false : eligibilityPassed;
+        String nameFilter = '%' + vendorProgramName + '%';
+
+        Boolean hasNda = accountHasNda == null ? false : accountHasNda;
+        Boolean hasProgramBase = accountHasProgramBase == null ? false : accountHasProgramBase;
+
+        List<Vendor_Customization__c> programs = [
+            SELECT Id, Name, Vendor__r.Name, Status__c, Active__c, CreatedDate,
+                   Vendor_Program_Group__r.Requires_NDA__c,
+                   Vendor_Program_Group__r.Requires_Program_Base__c
+            FROM Vendor_Customization__c
+            WHERE Name LIKE :nameFilter
+              AND Status__c = 'Active'
+              AND Active__c = true
+            ORDER BY CreatedDate DESC
+            LIMIT 50
+        ];
+
+        List<Vendor_Customization__c> filtered = new List<Vendor_Customization__c>();
+        for (Vendor_Customization__c vp : programs) {
+            Boolean requiresNda = vp.Vendor_Program_Group__r != null && vp.Vendor_Program_Group__r.Requires_NDA__c;
+            Boolean requiresBase = vp.Vendor_Program_Group__r != null && vp.Vendor_Program_Group__r.Requires_Program_Base__c;
+            Boolean ndaOk = !requiresNda || hasNda;
+            Boolean baseOk = !requiresBase || hasProgramBase;
+            if (ndaOk && baseOk) {
+                filtered.add(vp);
+            }
+        }
+
+        // If no eligibility, optionally fall back to legacy PerfectVision programs
+        if (!eligible && filtered.isEmpty()) {
+            for (Vendor_Customization__c vp : programs) {
+                if (vp.Vendor__r != null && vp.Vendor__r.Name == 'PerfectVision') {
+                    filtered.add(vp);
+                }
+            }
+        }
+
+        return filtered;
+    }
+
+    /**
      * Gets recent vendor programs ordered by LastModifiedDate.
      * Returns the most recently viewed/modified vendor programs.
      */
@@ -93,6 +151,142 @@ public with sharing class VendorOnboardingWizardRepository {
             ORDER BY LastModifiedDate DESC
             LIMIT :limitCount
         ];
+    }
+
+    public class AccountEligibility {
+        public Boolean hasNda;
+        public Boolean hasProgramBase;
+    }
+
+    /**
+     * Returns NDA / Program Base Application completion flags for an Account.
+     * NDA: Contract__r.Contract_Type__c = 'NDA' and Onboarding_Status__c != 'Cancelled'
+     * Program Base Application: Contract__r.Contract_Type__c LIKE '%Program Base Application%' AND Onboarding_Status__c = 'Setup Complete'
+     */
+    public static AccountEligibility getAccountOnboardingEligibility(Id accountId) {
+        AccountEligibility eligibility = new AccountEligibility();
+
+        Integer ndaCount = [
+            SELECT COUNT()
+            FROM Onboarding__c
+            WHERE Account__c = :accountId
+              AND Contract__r.Contract_Type__c = 'NDA'
+              AND Onboarding_Status__c = 'Setup Complete'
+        ];
+
+        Integer programBaseCount = [
+            SELECT COUNT()
+            FROM Onboarding__c
+            WHERE Account__c = :accountId
+              AND Contract__r.Contract_Type__c LIKE '%Program Base Application%'
+              AND Onboarding_Status__c = 'Setup Complete'
+        ];
+
+        eligibility.hasNda = ndaCount > 0;
+        eligibility.hasProgramBase = programBaseCount > 0;
+        return eligibility;
+    }
+
+    /**
+     * Creates Onboarding__c and seeds Onboarding_Requirement__c records from Vendor_Program_Requirement__c.
+     */
+    public static VendorOnboardingWizardService.OnboardingWithRequirementsResult createOnboardingWithRequirements(
+        Id accountId,
+        Id vendorProgramId,
+        Id opportunityId
+    ) {
+        Onboarding__c onboarding = new Onboarding__c(
+            Account__c = accountId,
+            Vendor_Customization__c = vendorProgramId,
+            Opportunity__c = opportunityId,
+            Onboarding_Status__c = 'Not Started'
+        );
+        insert onboarding;
+
+        List<Vendor_Program_Requirement__c> vprs = fetchRecentVendorProgramRequirements(vendorProgramId);
+        List<Onboarding_Requirement__c> onboardingReqs = new List<Onboarding_Requirement__c>();
+        for (Vendor_Program_Requirement__c vpr : vprs) {
+            Onboarding_Requirement__c req = new Onboarding_Requirement__c(
+                Onboarding__c = onboarding.Id,
+                Vendor_Program_Requirement__c = vpr.Id,
+                Status__c = 'Not Started'
+            );
+            onboardingReqs.add(req);
+        }
+        if (!onboardingReqs.isEmpty()) {
+            insert onboardingReqs;
+        }
+
+        VendorOnboardingWizardService.OnboardingWithRequirementsResult result = new VendorOnboardingWizardService.OnboardingWithRequirementsResult();
+        result.onboardingId = onboarding.Id;
+        result.requirementCount = onboardingReqs.size();
+        return result;
+    }
+
+    public class ContactRoleInfo {
+        public Id contactId;
+        public String name;
+        public String email;
+        public String role;
+        public Boolean hasAcr;
+    }
+
+    /**
+     * Returns contacts for an Account with their active AccountContactRelation role (if any).
+     */
+    public static List<ContactRoleInfo> getAccountContactsWithRoles(Id accountId) {
+        List<Contact> contacts = [
+            SELECT Id, Name, Email
+            FROM Contact
+            WHERE AccountId = :accountId AND IsDeleted = false
+        ];
+
+        Map<Id, String> contactIdToRole = new Map<Id, String>();
+        for (AccountContactRelation acr : [
+            SELECT Id, ContactId, Roles
+            FROM AccountContactRelation
+            WHERE AccountId = :accountId AND IsActive = true
+        ]) {
+            if (!contactIdToRole.containsKey(acr.ContactId)) {
+                contactIdToRole.put(acr.ContactId, acr.Roles);
+            }
+        }
+
+        List<ContactRoleInfo> results = new List<ContactRoleInfo>();
+        for (Contact c : contacts) {
+            ContactRoleInfo info = new ContactRoleInfo();
+            info.contactId = c.Id;
+            info.name = c.Name;
+            info.email = c.Email;
+            info.role = contactIdToRole.get(c.Id);
+            info.hasAcr = contactIdToRole.containsKey(c.Id);
+            results.add(info);
+        }
+        return results;
+    }
+
+    /**
+     * Upserts an active AccountContactRelation for the given Account/Contact/Role.
+     */
+    public static Id upsertAccountContactRelation(Id accountId, Id contactId, String role) {
+        AccountContactRelation acr;
+        try {
+            acr = [
+                SELECT Id
+                FROM AccountContactRelation
+                WHERE AccountId = :accountId AND ContactId = :contactId AND IsActive = true
+                LIMIT 1
+            ];
+        } catch (QueryException qe) {
+            acr = null;
+        }
+
+        if (acr == null) {
+            acr = new AccountContactRelation(AccountId = accountId, ContactId = contactId, IsActive = true);
+        }
+        acr.Roles = role;
+        upsert acr;
+        return acr.Id;
     }
 
     public static Id insertVendorProgram(Vendor_Customization__c vendorProgram) {

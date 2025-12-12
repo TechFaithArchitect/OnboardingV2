@@ -2,6 +2,18 @@
 
 ## Service Layer
 
+### FollowUpFatigueService
+
+**Location:** `force-app/main/default/classes/services/FollowUpFatigueService.cls`
+
+**Purpose:** Handles follow-up fatigue and suppression logic so dealers are not over-contacted.
+
+**Key Methods:**
+- `shouldSuppressDueToFatigue(onboardingRequirementId, followUpRuleDeveloperName)` — checks recent follow-up volume, fatigue rule metadata, and active suppression windows.
+- `applyFatigueSuppression(followUpQueueId, reason)` / `removeSuppression(followUpQueueId)` — toggles suppression on queue records.
+- `updateAttemptTracking(followUpQueueId, wasSuccessful)` — increments attempt counts and consecutive failures.
+- `isSuppressedAccount(accountId)` — evaluates active suppression windows (timezone-aware).
+
 ### OnboardingApplicationService
 
 **Location:** `force-app/main/default/classes/OnboardingApplicationService.cls`
@@ -163,6 +175,15 @@ Used by `OnboardingHomeDashboardController` for filter logic.
 Used by `OnboardingHomeDashboardController` for identifying blocked/at-risk records.
 
 ## Controllers
+
+### RequirementFieldValueController
+
+**Location:** `force-app/main/default/classes/controllers/RequirementFieldValueController.cls`
+
+**Purpose:** Saves requirement field values (plain or encrypted) and updates the related `Onboarding_Requirement__c` status.
+
+**Key Methods:**
+- `saveFieldValue(requirementFieldValueId, requirementFieldId, onboardingRequirementId, fieldApiName, value, isEncrypted)` — upserts a field value, triggers sync validation and async enqueue, then recalculates requirement status.
 
 ### OnboardingHomeDashboardController
 
@@ -1011,6 +1032,30 @@ Used by `VendorOnboardingWizardService` for all data access operations. All meth
 Repository classes follow the pattern `*Repo.cls` or `*Repository.cls` and handle data access operations:
 
 - `OnboardingAppVendorProgramReqRepo` - Vendor program requirement data access
+- `FollowUpRuleRepository` - Follow-up fatigue metadata and queue access
+- `OnboardingMetricsRepository` - Admin dashboard metrics
+
+### FollowUpRuleRepository
+
+**Location:** `force-app/main/default/classes/repository/FollowUpRuleRepository.cls`
+
+**Purpose:** Centralizes data access for fatigue suppression logic.
+
+**Key Methods:**
+- `getRuleByDeveloperName(developerName)` - Retrieves fatigue rule metadata.
+- `getActiveSuppressions()` - Returns active suppression windows.
+- `getRecentFollowUps(onboardingRequirementId, thresholdDateTime)` - Gets recent queue activity for fatigue checks.
+- `getFollowUpQueue` / `getFollowUpQueueForTracking` - Loads queue records for suppression/attempt tracking flows.
+
+### OnboardingMetricsRepository
+
+**Location:** `force-app/main/default/classes/repository/OnboardingMetricsRepository.cls`
+
+**Purpose:** Encapsulates dashboard metric queries and validation failure retrieval.
+
+**Key Methods:**
+- `getValidationFailureCount`, `getMessageFailureCount`, `getWebhookFailureCount`, `getPlatformEventVolume`, `getActiveFollowUpQueueCount`, `getOverrideOperationCount`
+- `getValidationFailures(startDate, filters)` - Returns validation failures with optional type filtering.
 
 ### OnboardingRepository
 
@@ -1307,6 +1352,30 @@ The Vendor Onboarding Wizard service layer has been refactored into domain-speci
 - `getVendorSelectionComponents()` - Gets all vendor selection component names
 
 **Usage:** Used by `OnboardingApplicationService` to determine which stages should be auto-completed.
+
+### FLSCheckUtil
+
+**Location:** `force-app/main/default/classes/util/FLSCheckUtil.cls`
+
+**Purpose:** Bulk-safe field-level security checks (`isReadable`, `isUpdateable`, `isCreateable`).
+
+### CustomMetadataUtil
+
+**Location:** `force-app/main/default/classes/util/CustomMetadataUtil.cls`
+
+**Purpose:** Cached custom metadata lookup by DeveloperName with `clearCache` helper.
+
+### LoggingUtil
+
+**Location:** `force-app/main/default/classes/util/LoggingUtil.cls`
+
+**Purpose:** Centralized logging helpers with consistent `[Onboarding]` prefix.
+
+### OnboardingTestDataFactory
+
+**Location:** `force-app/main/default/classes/util/OnboardingTestDataFactory.cls`
+
+**Purpose:** Opinionated factory for onboarding test contexts (account, vendor, program, onboarding, requirement, requirement field).
 
 ### VendorProgramStatusMapper
 

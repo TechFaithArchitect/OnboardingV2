@@ -146,4 +146,20 @@ public with sharing class DefaultValueHelper {
             requirementSet.Status__c = 'Draft';
         }
     }
+
+    /**
+     * Default onboarding opportunity values (placeholder until wired to custom metadata).
+     */
+    public static Opportunity applyOnboardingOpportunityDefaults(Opportunity opp) {
+        if (opp == null) {
+            opp = new Opportunity();
+        }
+        if (String.isBlank(opp.StageName)) {
+            opp.StageName = 'Prospecting';
+        }
+        if (opp.CloseDate == null) {
+            opp.CloseDate = Date.today().addDays(14);
+        }
+        return opp;
+    }
 }

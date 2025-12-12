@@ -12,6 +12,28 @@ public with sharing class VendorProgramService {
     public static List<Vendor_Customization__c> searchVendorPrograms(String vendorProgramName) {
         return VendorOnboardingWizardRepository.searchVendorPrograms(vendorProgramName);
     }
+
+    /**
+     * Account-aware vendor program search with eligibility gating (PerfectVision fallback).
+     * @param accountId Account context (reserved for future logic)
+     * @param vendorProgramName Search text
+     * @param eligibilityPassed If false/null, only PerfectVision is returned; if true, PerfectVision is excluded
+     */
+    public static List<Vendor_Customization__c> searchVendorProgramsForAccount(
+        Id accountId,
+        String vendorProgramName,
+        Boolean eligibilityPassed,
+        Boolean accountHasNda,
+        Boolean accountHasProgramBase
+    ) {
+        return VendorOnboardingWizardRepository.searchVendorProgramsForAccount(
+            accountId,
+            vendorProgramName,
+            eligibilityPassed,
+            accountHasNda,
+            accountHasProgramBase
+        );
+    }
     
     /**
      * Gets recent vendor programs

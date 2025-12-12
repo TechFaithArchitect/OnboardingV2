@@ -19,108 +19,34 @@ public with sharing class OnboardingAdminDashboardController {
         // Count validation failures in last 24h
         // Note: Validation_Failure__c object will be created in Phase 1
         // For now, return 0 or query from existing failure tracking
-        metrics.validationFailures24h = getValidationFailureCount(last24h);
-        metrics.validationFailuresTrend = metrics.validationFailures24h - getValidationFailureCount(last48h);
+        metrics.validationFailures24h = OnboardingMetricsRepository.getValidationFailureCount(last24h);
+        metrics.validationFailuresTrend =
+            metrics.validationFailures24h - OnboardingMetricsRepository.getValidationFailureCount(last48h);
         
         // Message failures (last 24 hours)
-        metrics.messageFailures24h = getMessageFailureCount(last24h);
-        metrics.messageFailuresTrend = metrics.messageFailures24h - getMessageFailureCount(last48h);
+        metrics.messageFailures24h = OnboardingMetricsRepository.getMessageFailureCount(last24h);
+        metrics.messageFailuresTrend =
+            metrics.messageFailures24h - OnboardingMetricsRepository.getMessageFailureCount(last48h);
         
         // Webhook failures (last 24 hours)
         // Note: AdobeSyncFailure__c will be created in Phase 3
-        metrics.webhookFailures24h = getWebhookFailureCount(last24h);
-        metrics.webhookFailuresTrend = metrics.webhookFailures24h - getWebhookFailureCount(last48h);
+        metrics.webhookFailures24h = OnboardingMetricsRepository.getWebhookFailureCount(last24h);
+        metrics.webhookFailuresTrend =
+            metrics.webhookFailures24h - OnboardingMetricsRepository.getWebhookFailureCount(last48h);
         
         // Platform Event volume (last hour)
         DateTime last1h = DateTime.now().addHours(-1);
-        metrics.platformEventVolume1h = getPlatformEventVolume(last1h);
+        metrics.platformEventVolume1h = OnboardingMetricsRepository.getPlatformEventVolume(last1h);
         
         // Active follow-up queues
-        metrics.activeFollowUpQueues = getActiveFollowUpQueueCount();
+        metrics.activeFollowUpQueues = OnboardingMetricsRepository.getActiveFollowUpQueueCount();
         
         // Override operations (last 7 days)
         // Note: Onboarding_External_Override_Log__c will be created in Phase 4
         DateTime last7d = DateTime.now().addDays(-7);
-        metrics.overrideOperations7d = getOverrideOperationCount(last7d);
+        metrics.overrideOperations7d = OnboardingMetricsRepository.getOverrideOperationCount(last7d);
         
         return metrics;
-    }
-
-    /**
-     * Get validation failure count for time period
-     * Placeholder - will query Validation_Failure__c in Phase 1
-     */
-    private static Integer getValidationFailureCount(DateTime since) {
-        // TODO: Query Validation_Failure__c when object is created
-        // SELECT COUNT() FROM Validation_Failure__c WHERE CreatedDate >= :since AND Status__c = 'Failed'
-        return 0;
-    }
-
-    /**
-     * Get message failure count from Follow_Up_Queue__c
-     */
-    private static Integer getMessageFailureCount(DateTime since) {
-        try {
-            return [
-                SELECT COUNT()
-                FROM Follow_Up_Queue__c
-                WHERE Status__c = 'Failed'
-                  AND CreatedDate >= :since
-                LIMIT 10000
-            ];
-        } catch (Exception e) {
-            System.debug('Error counting message failures: ' + e.getMessage());
-            return 0;
-        }
-    }
-
-    /**
-     * Get webhook failure count
-     * Placeholder - will query AdobeSyncFailure__c in Phase 3
-     */
-    private static Integer getWebhookFailureCount(DateTime since) {
-        // TODO: Query AdobeSyncFailure__c when object is created
-        // SELECT COUNT() FROM AdobeSyncFailure__c WHERE CreatedDate >= :since AND Status__c != 'Resolved'
-        return 0;
-    }
-
-    /**
-     * Get Platform Event volume
-     * Note: Platform Event monitoring requires Event Monitoring (Salesforce Shield)
-     */
-    private static Integer getPlatformEventVolume(DateTime since) {
-        // Platform Event volume monitoring requires Event Monitoring
-        // For now, return 0 or implement custom tracking
-        // TODO: Implement Platform Event volume tracking via Event Monitoring or custom object
-        return 0;
-    }
-
-    /**
-     * Get count of active follow-up queues
-     */
-    private static Integer getActiveFollowUpQueueCount() {
-        try {
-            return [
-                SELECT COUNT()
-                FROM Follow_Up_Queue__c
-                WHERE Status__c IN ('Pending', 'Pending Retry')
-                  AND Is_Archived__c = false
-                LIMIT 10000
-            ];
-        } catch (Exception e) {
-            System.debug('Error counting active follow-up queues: ' + e.getMessage());
-            return 0;
-        }
-    }
-
-    /**
-     * Get override operation count
-     * Placeholder - will query Onboarding_External_Override_Log__c in Phase 4
-     */
-    private static Integer getOverrideOperationCount(DateTime since) {
-        // TODO: Query Onboarding_External_Override_Log__c when object is created
-        // SELECT COUNT() FROM Onboarding_External_Override_Log__c WHERE Processed_Date__c >= :since
-        return 0;
     }
 
     /**
@@ -136,18 +62,7 @@ public with sharing class OnboardingAdminDashboardController {
         
         DateTime startDate = getStartDateForFilter((String)filters.get('dateRange'));
         
-        String query = 'SELECT Id, Name, Rule_Name__c, Requirement_Field__c, Validation_Result__c, ' +
-                      'Message__c, Validated_On__c, CreatedDate, CreatedBy.Name ' +
-                      'FROM Validation_Failure__c ' +
-                      'WHERE CreatedDate >= :startDate ';
-        
-        if (filters != null && filters.containsKey('validationType') && filters.get('validationType') != null) {
-            query += 'AND Validation_Type__c = :filters.get(\'validationType\') ';
-        }
-        
-        query += 'ORDER BY CreatedDate DESC LIMIT 1000';
-        
-        List<Validation_Failure__c> records = Database.query(query);
+        List<Validation_Failure__c> records = OnboardingMetricsRepository.getValidationFailures(startDate, filters);
         for (Validation_Failure__c failure : records) {
             failures.add(new ValidationFailureDTO(failure));
         }

@@ -272,4 +272,140 @@ private class VendorOnboardingWizardControllerTest {
         // Assert - Verify no exception thrown
         System.assert(true, 'Sync should complete successfully');
     }
+
+    @isTest
+    static void testSearchGating_respectsPerfectVisionFilter() {
+        Account acct = new Account(Name = 'Test Account');
+        insert acct;
+
+        Vendor__c pvVendor = new Vendor__c(Name = 'PerfectVision');
+        Vendor__c otherVendor = new Vendor__c(Name = 'OtherVendor');
+        insert new List<Vendor__c>{ pvVendor, otherVendor };
+
+        Vendor_Program_Group__c gatedGroup = new Vendor_Program_Group__c(
+            Name = 'Gated Group',
+            Logic_Type__c = 'ALL',
+            Requires_NDA__c = true,
+            Requires_Program_Base__c = true
+        );
+        insert gatedGroup;
+
+        Vendor_Customization__c pvProgram = new Vendor_Customization__c(
+            Name = 'PV Program',
+            Vendor__c = pvVendor.Id,
+            Status__c = 'Active',
+            Active__c = true
+        );
+        Vendor_Customization__c otherProgram = new Vendor_Customization__c(
+            Name = 'Other Program',
+            Vendor__c = otherVendor.Id,
+            Status__c = 'Active',
+            Active__c = true,
+            Vendor_Program_Group__c = gatedGroup.Id
+        );
+        Vendor_Customization__c inactiveProgram = new Vendor_Customization__c(
+            Name = 'Inactive Program',
+            Vendor__c = otherVendor.Id,
+            Status__c = 'Draft',
+            Active__c = false
+        );
+        insert new List<Vendor_Customization__c>{ pvProgram, otherProgram, inactiveProgram };
+
+        Test.startTest();
+        List<Vendor_Customization__c> ineligible = VendorOnboardingWizardController.searchVendorProgramsForAccount(
+            acct.Id, 'Program', false, false, false
+        );
+        List<Vendor_Customization__c> eligible = VendorOnboardingWizardController.searchVendorProgramsForAccount(
+            acct.Id, 'Program', true, true, true
+        );
+        Test.stopTest();
+
+        System.assertEquals(1, ineligible.size(), 'Ineligible should include only programs without prerequisites');
+        System.assertEquals(pvProgram.Id, ineligible[0].Id);
+
+        System.assertEquals(1, eligible.size(), 'Eligible should include prerequisite program when account satisfies them');
+        System.assertEquals(otherProgram.Id, eligible[0].Id);
+        System.assertEquals(true, eligible[0].Active__c, 'Should only return active programs');
+        System.assertEquals('Active', eligible[0].Status__c, 'Should only return programs with Active status');
+    }
+
+    @isTest
+    static void testAccountContactRole_upsert_and_fetch() {
+        Account acct = new Account(Name = 'ACR Test Account');
+        insert acct;
+        Contact c = new Contact(LastName = 'Tester', AccountId = acct.Id, Email = 'test@example.com');
+        insert c;
+
+        Test.startTest();
+        Id acrId = VendorOnboardingWizardController.upsertAccountContactRelation(acct.Id, c.Id, 'Owner');
+        List<VendorOnboardingWizardService.ContactRoleDTO> dtos =
+            VendorOnboardingWizardController.getAccountContactsWithRoles(acct.Id);
+        Test.stopTest();
+
+        System.assertNotEquals(null, acrId, 'ACR should be inserted');
+        System.assertEquals(1, dtos.size(), 'Should return one contact');
+        System.assertEquals('Owner', dtos[0].role, 'Role should match upserted value');
+        System.assertEquals(true, dtos[0].hasAcr, 'hasAcr should be true after upsert');
+    }
+
+    @isTest
+    static void testOpportunity_and_ocr_create() {
+        Account acct = new Account(Name = 'Opp Test Account');
+        insert acct;
+        Contact c = new Contact(LastName = 'Tester', AccountId = acct.Id);
+        insert c;
+
+        Test.startTest();
+        Id oppId = VendorOnboardingWizardController.createOnboardingOpportunity(
+            acct.Id,
+            'Onboarding Opp',
+            'Prospecting',
+            Date.today().addDays(5),
+            null
+        );
+        Id ocrId = VendorOnboardingWizardController.upsertOpportunityContactRole(
+            oppId,
+            c.Id,
+            'Owner',
+            true
+        );
+        Test.stopTest();
+
+        OpportunityContactRole ocr = [SELECT OpportunityId, ContactId, Role, IsPrimary FROM OpportunityContactRole WHERE Id = :ocrId];
+        System.assertEquals(oppId, ocr.OpportunityId, 'OCR should reference created Opportunity');
+        System.assertEquals(c.Id, ocr.ContactId, 'OCR should reference Contact');
+        System.assertEquals('Owner', ocr.Role, 'OCR role should match input');
+        System.assertEquals(true, ocr.IsPrimary, 'OCR primary flag should match input');
+    }
+
+    @isTest
+    static void testOnboarding_with_requirements_created() {
+        Account acct = new Account(Name = 'Onboarding Test Account');
+        insert acct;
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true
+        );
+
+        // Create Opp
+        Id oppId = VendorOnboardingWizardController.createOnboardingOpportunity(
+            acct.Id, 'Onboarding Opp', 'Prospecting', Date.today().addDays(10), null
+        );
+
+        Test.startTest();
+        VendorOnboardingWizardService.OnboardingWithRequirementsResult result =
+            VendorOnboardingWizardController.createOnboardingWithRequirements(
+                acct.Id, vendorProgram.Id, oppId
+            );
+        Test.stopTest();
+
+        System.assertNotEquals(null, result, 'Result should not be null');
+        System.assertNotEquals(null, result.onboardingId, 'Onboarding should be created');
+        System.assertEquals(0, result.requirementCount, 'Requirement count should be zero when no VPRs exist');
+
+        Onboarding__c ob = [SELECT Account__c, Vendor_Customization__c, Opportunity__c FROM Onboarding__c WHERE Id = :result.onboardingId];
+        System.assertEquals(acct.Id, ob.Account__c, 'Onboarding should link Account');
+        System.assertEquals(vendorProgram.Id, ob.Vendor_Customization__c, 'Onboarding should link Vendor Program');
+        System.assertEquals(oppId, ob.Opportunity__c, 'Onboarding should link Opportunity');
+    }
 }

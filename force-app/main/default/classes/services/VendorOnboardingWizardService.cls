@@ -39,6 +39,182 @@ public with sharing class VendorOnboardingWizardService {
         return VendorProgramService.searchVendorPrograms(vendorProgramName);
     }
 
+    /**
+     * Account-aware vendor program search with eligibility gating.
+     * @param accountId Account context for future gating/metrics.
+     * @param vendorProgramName Search text.
+     * @param eligibilityPassed If false/null, only PerfectVision is returned; if true, PerfectVision is excluded.
+     */
+    public static List<Vendor_Customization__c> searchVendorProgramsForAccount(
+        Id accountId,
+        String vendorProgramName,
+        Boolean eligibilityPassed,
+        Boolean accountHasNda,
+        Boolean accountHasProgramBase
+    ) {
+        return VendorProgramService.searchVendorProgramsForAccount(
+            accountId,
+            vendorProgramName,
+            eligibilityPassed,
+            accountHasNda,
+            accountHasProgramBase
+        );
+    }
+
+    /**
+     * Returns NDA / Program Base Application eligibility for an Account.
+     */
+    @AuraEnabled
+    public static VendorProgramEligibilityResult getVendorProgramEligibilityForAccount(Id accountId) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        VendorOnboardingWizardRepository.AccountEligibility eligibility =
+            VendorOnboardingWizardRepository.getAccountOnboardingEligibility(accountId);
+
+        Boolean eligible = eligibility.hasNda && eligibility.hasProgramBase;
+        String message;
+        if (eligible) {
+            message = 'Eligible for all vendor programs.';
+        } else if (!eligibility.hasNda && !eligibility.hasProgramBase) {
+            message = 'NDA and Program Base Application must be completed.';
+        } else if (!eligibility.hasNda) {
+            message = 'NDA must be completed.';
+        } else {
+            message = 'Program Base Application must be completed.';
+        }
+
+        VendorProgramEligibilityResult result = new VendorProgramEligibilityResult();
+        result.eligibilityPassed = eligible;
+        result.hasNda = eligibility.hasNda;
+        result.hasProgramBase = eligibility.hasProgramBase;
+        result.message = message;
+        return result;
+    }
+
+    // Contacts + ACR roles
+    @AuraEnabled(cacheable=true)
+    public static List<ContactRoleDTO> getAccountContactsWithRoles(Id accountId) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        List<VendorOnboardingWizardRepository.ContactRoleInfo> infos =
+            VendorOnboardingWizardRepository.getAccountContactsWithRoles(accountId);
+        List<ContactRoleDTO> dtos = new List<ContactRoleDTO>();
+        for (VendorOnboardingWizardRepository.ContactRoleInfo info : infos) {
+            ContactRoleDTO dto = new ContactRoleDTO();
+            dto.contactId = info.contactId;
+            dto.name = info.name;
+            dto.email = info.email;
+            dto.role = info.role;
+            dto.hasAcr = info.hasAcr;
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    @AuraEnabled
+    public static Id upsertAccountContactRelation(Id accountId, Id contactId, String role) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        ValidationHelper.requireId(contactId, 'Contact ID');
+        if (String.isBlank(role)) {
+            throw new AuraHandledException('Role is required for Contact ' + String.valueOf(contactId));
+        }
+        return VendorOnboardingWizardRepository.upsertAccountContactRelation(accountId, contactId, role);
+    }
+
+    public class ContactRoleDTO {
+        @AuraEnabled public Id contactId;
+        @AuraEnabled public String name;
+        @AuraEnabled public String email;
+        @AuraEnabled public String role;
+        @AuraEnabled public Boolean hasAcr;
+    }
+
+    // Onboarding creation with requirements
+    @AuraEnabled
+    public static OnboardingWithRequirementsResult createOnboardingWithRequirements(
+        Id accountId,
+        Id vendorProgramId,
+        Id opportunityId
+    ) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        ValidationHelper.requireId(vendorProgramId, 'Vendor Program ID');
+        return VendorOnboardingWizardRepository.createOnboardingWithRequirements(accountId, vendorProgramId, opportunityId);
+    }
+
+    public class OnboardingWithRequirementsResult {
+        @AuraEnabled public Id onboardingId;
+        @AuraEnabled public Integer requirementCount;
+    }
+
+    public class VendorProgramEligibilityResult {
+        @AuraEnabled public Boolean eligibilityPassed;
+        @AuraEnabled public Boolean hasNda;
+        @AuraEnabled public Boolean hasProgramBase;
+        @AuraEnabled public String message;
+    }
+
+    // -------------------------------
+    // Onboarding Opportunity + OCR + AVO
+    // -------------------------------
+    @AuraEnabled
+    public static Id createOnboardingOpportunity(
+        Id accountId,
+        String name,
+        String stageName,
+        Date closeDate,
+        Id recordTypeId
+    ) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        if (String.isBlank(name)) {
+            throw new AuraHandledException('Opportunity Name is required.');
+        }
+        Opportunity opp = new Opportunity(
+            AccountId = accountId,
+            Name = name,
+            StageName = stageName,
+            CloseDate = closeDate
+        );
+        if (recordTypeId != null) {
+            opp.RecordTypeId = recordTypeId;
+        }
+        opp = DefaultValueHelper.applyOnboardingOpportunityDefaults(opp);
+        insert opp;
+        return opp.Id;
+    }
+
+    @AuraEnabled
+    public static Id upsertOpportunityContactRole(Id opportunityId, Id contactId, String role, Boolean isPrimary) {
+        ValidationHelper.requireId(opportunityId, 'Opportunity ID');
+        ValidationHelper.requireId(contactId, 'Contact ID');
+        OpportunityContactRole ocr = new OpportunityContactRole(
+            OpportunityId = opportunityId,
+            ContactId = contactId,
+            Role = role,
+            IsPrimary = isPrimary == null ? false : isPrimary
+        );
+        insert ocr;
+        return ocr.Id;
+    }
+
+    @AuraEnabled
+    public static Id createAccountVendorProgramOnboarding(
+        Id accountId,
+        Id onboardingId,
+        Id opportunityId,
+        String status,
+        Id primaryContactId
+    ) {
+        ValidationHelper.requireId(accountId, 'Account ID');
+        ValidationHelper.requireId(onboardingId, 'Onboarding ID');
+        Account_Vendor_Program_Onboarding__c avo = new Account_Vendor_Program_Onboarding__c(
+            Account__c = accountId,
+            Onboarding__c = onboardingId,
+            Opportunity__c = opportunityId,
+            Status__c = String.isNotBlank(status) ? status : 'Intake',
+            Primary_Contact__c = primaryContactId
+        );
+        insert avo;
+        return avo.Id;
+    }
+
     public static List<Vendor_Customization__c> getRecentVendorPrograms(Integer limitCount) {
         return VendorProgramService.getRecentVendorPrograms(limitCount);
     }
@@ -395,20 +571,14 @@ public with sharing class VendorOnboardingWizardService {
         List<String> components = new List<String>{
             'vendorProgramOnboardingVendor',
             'vendorProgramOnboardingVendorProgramSearchOrCreate',
-            'vendorProgramOnboardingVendorProgramCreate',
-            'vendorProgramOnboardingVendorProgramGroup',
-            'vendorProgramOnboardingVendorProgramRequirementGroup',
-            'vendorProgramOnboardingVendorProgramRecipientGroup',
-            'vendorProgramOnboardingRecipientGroup',
-            'vendorProgramOnboardingRecipientGroupMembers',
-            'vendorProgramOnboardingTrainingRequirements',
+            'vendorProgramOnboardingRequirementSetOrCreate',
+            'vendorProgramOnboardingRequirementGroupLinking',
             'vendorProgramOnboardingRequiredCredentials',
-            'vendorProgramOnboardingRequirementSet',
-            'vendorProgramOnboardingReqTemplate',
-            'vendorProgramOnboardingVendorProgramRequirements',
+            'vendorProgramOnboardingTrainingRequirements',
             'vendorProgramOnboardingStatusRulesEngine',
-            'vendorProgramOnboardingStatusRuleBuilder',
-            'vendorProgramOnboardingCommunicationTemplate'
+            'vendorProgramOnboardingRecipientGroup',
+            'vendorProgramOnboardingCommunicationTemplate',
+            'vendorProgramOnboardingFinalize'
         };
 
         VendorOnboardingWizardRepository.upsertOnboardingComponents(components);
@@ -420,7 +590,7 @@ public with sharing class VendorOnboardingWizardService {
 
     /**
      * Creates the default "Vendor Program Onboarding" process if it doesn't exist.
-     * Also creates all 16 stages linked to the component library entries in the correct order.
+     * Also creates all 10 stages linked to the component library entries in the correct order.
      * This is an admin utility function to initialize the default onboarding flow.
      */
     public static Id initializeDefaultVendorProgramOnboardingProcess() {
@@ -439,7 +609,7 @@ public with sharing class VendorOnboardingWizardService {
         // Step 4: Create the process
         Onboarding_Application_Process__c process = new Onboarding_Application_Process__c(
             Name = 'Vendor Program Onboarding',
-            Description__c = 'Default onboarding process for vendor programs. Includes all 16 wizard stages.',
+            Description__c = 'Default onboarding process for vendor programs. Includes the streamlined 10-step wizard.',
             Active__c = true
         );
         OnboardingApplicationRepository.insertProcess(process);
@@ -448,20 +618,14 @@ public with sharing class VendorOnboardingWizardService {
         List<StageDefinition> stageDefinitions = new List<StageDefinition>{
             new StageDefinition(1, 'Select Vendor', 'vendorProgramOnboardingVendor', true),
             new StageDefinition(2, 'Search or Create Vendor Program', 'vendorProgramOnboardingVendorProgramSearchOrCreate', true),
-            new StageDefinition(3, 'Create Vendor Program', 'vendorProgramOnboardingVendorProgramCreate', true),
-            new StageDefinition(4, 'Vendor Program Group', 'vendorProgramOnboardingVendorProgramGroup', true),
-            new StageDefinition(5, 'Vendor Program Requirement Group', 'vendorProgramOnboardingVendorProgramRequirementGroup', true),
-            new StageDefinition(6, 'Vendor Program Recipient Group', 'vendorProgramOnboardingVendorProgramRecipientGroup', true),
-            new StageDefinition(7, 'Recipient Group', 'vendorProgramOnboardingRecipientGroup', true),
-            new StageDefinition(8, 'Recipient Group Members', 'vendorProgramOnboardingRecipientGroupMembers', true),
-            new StageDefinition(9, 'Training Requirements', 'vendorProgramOnboardingTrainingRequirements', true),
-            new StageDefinition(10, 'Required Credentials', 'vendorProgramOnboardingRequiredCredentials', true),
-            new StageDefinition(11, 'Select or Create Requirement Set', 'vendorProgramOnboardingRequirementSet', true),
-            new StageDefinition(12, 'Create Requirement Template', 'vendorProgramOnboardingReqTemplate', true),
-            new StageDefinition(13, 'Vendor Program Requirements', 'vendorProgramOnboardingVendorProgramRequirements', true),
-            new StageDefinition(14, 'Status Rules Engine', 'vendorProgramOnboardingStatusRulesEngine', true),
-            new StageDefinition(15, 'Status Rule Builder', 'vendorProgramOnboardingStatusRuleBuilder', true),
-            new StageDefinition(16, 'Communication Template', 'vendorProgramOnboardingCommunicationTemplate', true)
+            new StageDefinition(3, 'Requirement Set or Create', 'vendorProgramOnboardingRequirementSetOrCreate', true),
+            new StageDefinition(4, 'Requirement Group Linking', 'vendorProgramOnboardingRequirementGroupLinking', true),
+            new StageDefinition(5, 'Required Credentials', 'vendorProgramOnboardingRequiredCredentials', true),
+            new StageDefinition(6, 'Training Requirements', 'vendorProgramOnboardingTrainingRequirements', true),
+            new StageDefinition(7, 'Status Rules Engine', 'vendorProgramOnboardingStatusRulesEngine', true),
+            new StageDefinition(8, 'Recipient Group', 'vendorProgramOnboardingRecipientGroup', true),
+            new StageDefinition(9, 'Communication Template', 'vendorProgramOnboardingCommunicationTemplate', true),
+            new StageDefinition(10, 'Finalize Vendor Program', 'vendorProgramOnboardingFinalize', true)
         };
 
         // Step 6: Create stages
