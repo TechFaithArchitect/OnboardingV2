@@ -85,8 +85,20 @@
             required>
           </lightning-input>
 
+          <lightning-input 
+            label="Display Label (Optional)" 
+            value={newRequirementSetDisplayLabel} 
+            onchange={handleNewRequirementSetDisplayLabelChange}
+            placeholder="e.g., Standard Business Requirements"
+            class="slds-m-top_small">
+          </lightning-input>
+          <p class="slds-text-body_small slds-text-color_weak slds-m-left_small slds-m-top_x-small">
+            <lightning-icon icon-name="utility:info" size="xx-small" alternative-text="Info"></lightning-icon>
+            If left blank, a Display Label will be automatically generated. You can edit it later on the record page.
+          </p>
+
           <div class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-            <strong>Note:</strong> The requirement set will be created with Status = "Draft" and linked to the current Vendor Program.
+            <strong>Note:</strong> The requirement set will be created with Status = "Active", Active = true, Version = 1, and linked to the current Vendor Program.
           </div>
 
           <lightning-button 

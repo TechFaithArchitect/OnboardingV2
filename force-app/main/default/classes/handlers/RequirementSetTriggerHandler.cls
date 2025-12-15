@@ -55,16 +55,18 @@ public with sharing class RequirementSetTriggerHandler {
         
         if (!requirementSetIds.isEmpty()) {
             List<Onboarding_Requirement_Set__c> toUpdate = [
-                SELECT Id
+                SELECT Id, Display_Label__c
                 FROM Onboarding_Requirement_Set__c
                 WHERE Id IN :requirementSetIds
             ];
+            // Only auto-update Display Labels that are blank or auto-generated
             updateDisplayLabels(toUpdate);
         }
     }
     
     /**
-     * After update logic - update Display_Label__c if Version__c or other fields changed
+     * After update logic - update Display_Label__c if Version__c changed
+     * Only updates if Display_Label__c is blank or auto-generated (preserves user-manual entries)
      * Note: Must query fresh records to update, as trigger.new records are read-only in after context
      */
     public static void afterUpdate(List<Onboarding_Requirement_Set__c> newList, Map<Id, Onboarding_Requirement_Set__c> oldMap) {
@@ -90,11 +92,13 @@ public with sharing class RequirementSetTriggerHandler {
         
         if (!requirementSetIdsToUpdate.isEmpty()) {
             // Query fresh records to update (trigger.new is read-only in after context)
+            // Include Display_Label__c so we can check if it was manually set
             List<Onboarding_Requirement_Set__c> toUpdate = [
-                SELECT Id
+                SELECT Id, Display_Label__c, Version__c
                 FROM Onboarding_Requirement_Set__c
                 WHERE Id IN :requirementSetIdsToUpdate
             ];
+            // Only auto-update Display Labels that are blank or auto-generated
             updateDisplayLabels(toUpdate);
         }
     }
@@ -135,12 +139,13 @@ public with sharing class RequirementSetTriggerHandler {
         }
         
         List<Onboarding_Requirement_Set__c> requirementSets = [
-            SELECT Id
+            SELECT Id, Display_Label__c
             FROM Onboarding_Requirement_Set__c
             WHERE Id IN :requirementSetIds
         ];
         
         if (!requirementSets.isEmpty()) {
+            // Only auto-update Display Labels that are blank or auto-generated
             updateDisplayLabels(requirementSets);
         }
     }
@@ -149,6 +154,9 @@ public with sharing class RequirementSetTriggerHandler {
      * Updates Display_Label__c for requirement sets based on linked vendor programs via junction.
      * Formula: First Vendor Program Label + " Requirements - v" + Version (if exists)
      * If multiple vendor programs, uses first one alphabetically by Label.
+     * 
+     * IMPORTANT: Only updates Display_Label__c if it's blank/null or matches the auto-generated pattern.
+     * This preserves user-manually-entered Display Labels.
      */
     private static void updateDisplayLabels(List<Onboarding_Requirement_Set__c> requirementSets) {
         if (requirementSets == null || requirementSets.isEmpty()) {
@@ -180,13 +188,13 @@ public with sharing class RequirementSetTriggerHandler {
             }
         }
         
-        // Query requirement sets with Version__c if it exists
+        // Query requirement sets with Version__c and Display_Label__c to check if user manually set it
         List<Onboarding_Requirement_Set__c> reqSetsToUpdate = new List<Onboarding_Requirement_Set__c>();
         
         try {
-            // Try to query with Version__c
+            // Try to query with Version__c and Display_Label__c
             Map<Id, Onboarding_Requirement_Set__c> reqSetsMap = new Map<Id, Onboarding_Requirement_Set__c>([
-                SELECT Id, Version__c
+                SELECT Id, Version__c, Display_Label__c
                 FROM Onboarding_Requirement_Set__c
                 WHERE Id IN :requirementSetIds
             ]);
@@ -197,14 +205,24 @@ public with sharing class RequirementSetTriggerHandler {
                     continue;
                 }
                 
-                String vendorProgramLabel = vendorProgramLabelByRequirementSet.get(reqSet.Id);
-                String displayLabel = buildDisplayLabel(vendorProgramLabel, fullReqSet.Version__c);
+                // Only update Display_Label__c if:
+                // 1. It's blank/null, OR
+                // 2. It matches the auto-generated pattern (starts with "Requirements - v")
+                // This preserves user-manually-entered labels
+                String currentDisplayLabel = fullReqSet.Display_Label__c;
+                Boolean shouldUpdate = String.isBlank(currentDisplayLabel) || 
+                                       currentDisplayLabel.startsWith('Requirements - v');
                 
-                reqSet.Display_Label__c = displayLabel;
-                reqSetsToUpdate.add(reqSet);
+                if (shouldUpdate) {
+                    String vendorProgramLabel = vendorProgramLabelByRequirementSet.get(reqSet.Id);
+                    String displayLabel = buildDisplayLabel(vendorProgramLabel, fullReqSet.Version__c);
+                    
+                    reqSet.Display_Label__c = displayLabel;
+                    reqSetsToUpdate.add(reqSet);
+                }
             }
         } catch (Exception e) {
-            // Version__c field doesn't exist - build without version
+            // Version__c or Display_Label__c field doesn't exist - build without version
             for (Onboarding_Requirement_Set__c reqSet : requirementSets) {
                 String vendorProgramLabel = vendorProgramLabelByRequirementSet.get(reqSet.Id);
                 String displayLabel = buildDisplayLabel(vendorProgramLabel, null);

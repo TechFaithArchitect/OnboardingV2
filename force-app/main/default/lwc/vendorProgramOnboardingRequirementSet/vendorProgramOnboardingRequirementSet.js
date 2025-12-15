@@ -19,6 +19,7 @@ export default class VendorProgramOnboardingRequirementSet extends OnboardingSte
   @track showCreateForm = false;
   @track nextDisabled = true;
   @track newRequirementSetName = '';
+  @track newRequirementSetDisplayLabel = ''; // Optional Display Label field
   @track isHierarchyLoading = false;
   @track expandedRows = [];
   @track selectedRows = []; // Array of selected row IDs for tree grid
@@ -307,6 +308,10 @@ export default class VendorProgramOnboardingRequirementSet extends OnboardingSte
     this.validateCreateForm();
   }
 
+  handleNewRequirementSetDisplayLabelChange(e) {
+    this.newRequirementSetDisplayLabel = e.target.value;
+  }
+
   validateCreateForm() {
     const hasSelectedSet = !!this.selectedRequirementSetId;
     const hasValidCreateForm = !!this.newRequirementSetName?.trim();
@@ -331,6 +336,8 @@ export default class VendorProgramOnboardingRequirementSet extends OnboardingSte
       const requirementSetId = await createOnboardingRequirementSet({ 
         requirementSet: { 
           Name: this.newRequirementSetName.trim(),
+          // Include Display_Label__c if user provided it
+          Display_Label__c: this.newRequirementSetDisplayLabel?.trim() || null,
           // Note: Vendor_Program__c kept for backward compatibility
           // But junction records are the primary way to link requirement sets to vendor programs
           Vendor_Program__c: this.vendorProgramId || null // Optional for many-to-many
@@ -340,6 +347,7 @@ export default class VendorProgramOnboardingRequirementSet extends OnboardingSte
       this.selectedRows = [requirementSetId]; // Set selected rows for checkbox selection
       const createdName = this.newRequirementSetName.trim(); // Store before clearing
       this.newRequirementSetName = '';
+      this.newRequirementSetDisplayLabel = ''; // Clear display label
       this.showCreateForm = false;
       this.nextDisabled = false;
       this.dispatchValidationState();
