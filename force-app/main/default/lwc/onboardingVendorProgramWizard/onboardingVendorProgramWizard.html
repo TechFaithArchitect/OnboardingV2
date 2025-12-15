@@ -2,7 +2,7 @@
     <!-- Vendor Program Onboarding Modal -->
     <section role="dialog" tabindex="-1" aria-labelledby="vendor-program-modal-heading" aria-modal="true" 
              aria-describedby="vendor-program-modal-content" class="slds-modal slds-fade-in-open">
-        <div class="slds-modal__container vendor-program-modal-large">
+        <div class="slds-modal__container {modalContainerClass}">
             <header class="slds-modal__header">
                 <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
                         title="Close" onclick={handleClose}>
@@ -54,14 +54,18 @@
                         </template>
                         <template if:false={isVendorHierarchyLoading}>
                             <template if:true={vendorHierarchy.length}>
-                                <lightning-tree-grid
-                                    key-field="id"
-                                    data={vendorHierarchy}
-                                    columns={vendorHierarchyColumns}
-                                    onrowaction={handleVendorHierarchyRowAction}
-                                    expanded-rows={expandedVendorRows}
-                                    hide-checkbox-column>
-                                </lightning-tree-grid>
+                                <div class="tree-grid-wrapper">
+                                    <div class="tree-grid-container slds-scrollable_x">
+                                        <lightning-tree-grid
+                                            key-field="id"
+                                            data={vendorHierarchy}
+                                            columns={vendorHierarchyColumns}
+                                            onrowaction={handleVendorHierarchyRowAction}
+                                            expanded-rows={expandedVendorRows}
+                                            hide-checkbox-column>
+                                        </lightning-tree-grid>
+                                    </div>
+                                </div>
                             </template>
                             <template if:false={vendorHierarchy.length}>
                                 <div class="slds-text-align_center slds-p-around_large">

@@ -42,12 +42,13 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
     @track isProceedingWithVendor = false;
     @track isProceedingWithVendorProgram = false;
 
-    // Tree grid columns
+    // Tree grid columns with dynamic widths
     vendorHierarchyColumns = [
         {
             label: 'Name / Label',
             fieldName: 'displayName',
             type: 'text',
+            initialWidth: 200,
             cellAttributes: {
                 class: { fieldName: 'rowClass' }
             }
@@ -56,6 +57,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
             label: 'Status',
             fieldName: 'status',
             type: 'text',
+            initialWidth: 100,
             cellAttributes: {
                 class: { fieldName: 'statusClass' }
             }
@@ -64,6 +66,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
             label: 'Programs',
             fieldName: 'programCount',
             type: 'number',
+            initialWidth: 90,
             typeAttributes: {
                 minimumFractionDigits: 0
             }
@@ -71,17 +74,20 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
         {
             label: 'Retail Option',
             fieldName: 'retailOption',
-            type: 'text'
+            type: 'text',
+            initialWidth: 140
         },
         {
             label: 'Business Vertical',
             fieldName: 'businessVertical',
-            type: 'text'
+            type: 'text',
+            initialWidth: 160
         },
         {
             label: 'Last Modified',
             fieldName: 'lastModifiedDate',
             type: 'date',
+            initialWidth: 150,
             typeAttributes: {
                 year: 'numeric',
                 month: 'short',
@@ -93,10 +99,12 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
         {
             label: 'Modified By',
             fieldName: 'lastModifiedBy',
-            type: 'text'
+            type: 'text',
+            initialWidth: 140
         },
         {
             type: 'action',
+            initialWidth: 75,
             typeAttributes: {
                 rowActions: [
                     { label: 'Edit', name: 'edit' }
@@ -262,6 +270,33 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
 
     get isVendorProgramSelectionStep() {
         return this.vendorProgramModalStep === 'vendorProgramSelection';
+    }
+
+    // --- Dynamic modal sizing based on step and column count ---
+
+    /**
+     * Computes the modal container class based on the current step.
+     * For tree grid step with many columns, uses larger modal size.
+     * Follows SLDS patterns for modal sizing.
+     */
+    get modalContainerClass() {
+        const baseClass = 'vendor-program-modal-container';
+        if (this.isTreeGridStep) {
+            // Tree grid has 8 columns, needs extra space
+            return `${baseClass} tree-grid-modal slds-modal_large`;
+        }
+        // Other steps can use standard or medium size
+        return `${baseClass} slds-modal_medium`;
+    }
+
+    /**
+     * Computes the minimum width needed for the tree grid based on column count.
+     * This helps ensure the modal is sized appropriately.
+     */
+    get treeGridMinWidth() {
+        // Sum of initialWidth values: 200 + 100 + 90 + 140 + 160 + 150 + 140 + 75 = 1055px
+        // Add padding and margins: ~120px
+        return 1175; // pixels
     }
 
     // --- Vendor selection ---

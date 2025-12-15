@@ -1,0 +1,92 @@
+/* Dynamic modal sizing based on column count - follows SLDS patterns */
+.vendor-program-modal-container {
+    /* Base sizing - SLDS medium modal */
+    max-width: 70%;
+    width: 70%;
+    min-width: 480px; /* SLDS minimum */
+}
+
+/* For tree grid step with many columns, use large modal with extra width */
+.vendor-program-modal-container.tree-grid-modal {
+    max-width: 95%;
+    width: 95%;
+    min-width: 1200px; /* Ensure enough space for all 8 columns */
+}
+
+/* Scrollable container for tree grid - uses SLDS scrollable pattern */
+.tree-grid-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    /* SLDS scrollable utility class behavior */
+    max-height: 70vh; /* Limit vertical height, allow scrolling */
+}
+
+/* Ensure tree grid fills container and allows horizontal scroll */
+.tree-grid-container lightning-tree-grid {
+    min-width: 100%;
+    width: max-content; /* Allow grid to expand beyond container if needed */
+    display: block;
+}
+
+/* Tree grid wrapper to handle scrolling and spacing */
+.tree-grid-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Responsive adjustments for smaller screens - follows SLDS breakpoints */
+@media (max-width: 1024px) {
+    .vendor-program-modal-container.tree-grid-modal {
+        max-width: 98%;
+        width: 98%;
+        min-width: 95%;
+    }
+}
+
+@media (max-width: 768px) {
+    .vendor-program-modal-container {
+        max-width: 100%;
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .vendor-program-modal-container.tree-grid-modal {
+        max-width: 100%;
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .tree-grid-container {
+        max-height: 60vh;
+    }
+}
+
+/* Ensure modal content area handles overflow properly */
+.slds-modal__content {
+    overflow: visible;
+    max-height: none; /* Allow content to determine height */
+}
+
+/* Add visual indicator for horizontal scroll when needed */
+.tree-grid-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tree-grid-container::-webkit-scrollbar-track {
+    background: var(--slds-g-color-neutral-base-95, #f3f3f3);
+    border-radius: 4px;
+}
+
+.tree-grid-container::-webkit-scrollbar-thumb {
+    background: var(--slds-g-color-neutral-base-50, #706e6b);
+    border-radius: 4px;
+}
+
+.tree-grid-container::-webkit-scrollbar-thumb:hover {
+    background: var(--slds-g-color-neutral-base-40, #514f4d);
+}
+
