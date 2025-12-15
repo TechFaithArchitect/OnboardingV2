@@ -1,4 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { extractErrorMessage } from 'c/utils';
 import getRequirements from '@salesforce/apex/OnboardingRequirementsPanelController.getRequirements';
 import getInvalidFieldValues from '@salesforce/apex/OnboardingRequirementsPanelController.getInvalidFieldValues';
 import updateRequirementStatuses from '@salesforce/apex/OnboardingRequirementsPanelController.updateRequirementStatuses';
@@ -23,19 +25,26 @@ export default class OnboardingRequirementsPanel extends LightningElement {
         this.loadData();
     }
 
-    loadData() {
+    async loadData() {
         this.loading = true;
-        Promise.all([
-            getRequirements({ onboardingId: this.recordId }),
-            getInvalidFieldValues({ onboardingId: this.recordId })
-        ])
-            .then(([reqs, invalids]) => {
-                this.requirements = reqs.map(r => ({ ...r }));
-                this.invalidFields = invalids || [];
-            })
-            .finally(() => {
-                this.loading = false;
-            });
+        try {
+            const [reqs, invalids] = await Promise.all([
+                getRequirements({ onboardingId: this.recordId }),
+                getInvalidFieldValues({ onboardingId: this.recordId })
+            ]);
+            this.requirements = (reqs || []).map(r => ({ ...r }));
+            this.invalidFields = invalids || [];
+        } catch (error) {
+            this.showToast(
+                'Error',
+                extractErrorMessage(error, 'Failed to load onboarding requirements.'),
+                'error'
+            );
+            this.requirements = [];
+            this.invalidFields = [];
+        } finally {
+            this.loading = false;
+        }
     }
 
     handleStatusChange(event) {
@@ -45,25 +54,50 @@ export default class OnboardingRequirementsPanel extends LightningElement {
         if (req) req.Status = value;
     }
 
-    submit() {
-        updateRequirementStatuses({ updates: this.requirements })
-            .then(() => runRuleEvaluation({ onboardingId: this.recordId }))
-            .then(() => this.loadData())
-            .catch(() => {
-                // Preserve existing simple error handling
-                alert('An error occurred while processing.');
-            });
+    async submit() {
+        if (!this.requirements || !this.requirements.length) {
+            return;
+        }
+
+        try {
+            await updateRequirementStatuses({ updates: this.requirements });
+            await runRuleEvaluation({ onboardingId: this.recordId });
+            await this.loadData();
+            this.showToast('Success', 'Requirement statuses updated and rules evaluated.', 'success');
+        } catch (error) {
+            this.showToast(
+                'Error',
+                extractErrorMessage(error, 'An error occurred while processing requirements.'),
+                'error'
+            );
+        }
     }
 
-    rerunSelected() {
+    async rerunSelected() {
         const ids = (this.invalidFields || []).map(f => f.fieldValueId);
         if (!ids.length) {
             return;
         }
-        rerunValidation({ fieldValueIds: ids })
-            .then(() => this.loadData())
-            .catch(() => {
-                alert('An error occurred while re-running validation.');
-            });
+        try {
+            await rerunValidation({ fieldValueIds: ids });
+            await this.loadData();
+            this.showToast('Success', 'Validation re-run for invalid fields.', 'success');
+        } catch (error) {
+            this.showToast(
+                'Error',
+                extractErrorMessage(error, 'An error occurred while re-running validation.'),
+                'error'
+            );
+        }
+    }
+
+    showToast(title, message, variant) {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title,
+                message,
+                variant
+            })
+        );
     }
 }
