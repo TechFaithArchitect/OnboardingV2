@@ -85,8 +85,8 @@ Timeline-style activity feed showing:
 - Clickable links to navigate to records
 
 ### Quick Actions
-- **Start Onboarding Vendor Program**: Opens vendor program onboarding wizard
-- **Start Dealer Onboarding**: Opens modal to select an account and initiate onboarding
+- **Start Onboarding Vendor Program**: Opens `onboardingVendorProgramWizard` modal to select/create a Vendor Program and initialize onboarding
+- **Start Dealer Onboarding**: Opens `onboardingDealerOnboardingModal` to select an account and initiate onboarding
 - **Sync Component Library**: Populates Component Library with wizard components
 - **Initialize Default Process**: Creates default Vendor Program Onboarding process
 - **Refresh**: Reloads all dashboard data
@@ -98,6 +98,8 @@ Visible only to users with admin permissions:
 - **Stage Dependencies**: Navigate to stage dependency management
 - **Vendor Program Wizard**: Open vendor program onboarding wizard
 - **Component Library**: Navigate to component library
+
+These shortcuts, along with validation/messaging tabs, are encapsulated in the `onboardingAdminToolsPanel` child component to keep the main dashboard focused on orchestration.
 
 ## Design Decisions
 

@@ -15,6 +15,9 @@
 - Parallel loading of stages and process details
 - Computed properties for current stage, component name, and context
 
+**Error Handling:**
+- Uses `c/utils.extractErrorMessage` and `ShowToastEvent` to surface Apex failures instead of failing silently
+
 **API:**
 - `@api processId` - ID of the onboarding process
 - `@api vendorProgramId` - ID of the vendor program being onboarded
@@ -161,9 +164,10 @@ Add to a Vendor Program record page:
 - **Vendor Program Grid**: Card layout showing program health metrics
 - **Recent Activity Sidebar**: Timeline-style activity feed
 - **Insights Tab**: Analytics and visualizations
-- **Admin Shortcuts**: Permission-gated configuration shortcuts
-- Quick action buttons to start new onboarding
-- Modal for selecting an account to start onboarding
+- **Admin Shortcuts**: Permission-gated configuration shortcuts rendered via `onboardingAdminToolsPanel`
+- Quick action buttons to start new onboarding:
+  - Uses `onboardingVendorProgramWizard` for Vendor Program selection/creation and onboarding kickoff
+  - Uses `onboardingDealerOnboardingModal` for Account (Dealer) selection before launching the Account onboarding quick action
 - Row actions for viewing, resuming, and viewing requirements
 - Refresh functionality to reload data
 
@@ -174,6 +178,9 @@ Add to a Vendor Program record page:
 - `onboardingVendorProgramGrid` - Vendor program card grid
 - `onboardingRecentActivity` - Activity feed sidebar
 - `onboardingInsights` - Analytics and charts
+- `onboardingVendorProgramWizard` - Vendor Program selection/creation + onboarding kickoff modal
+- `onboardingDealerOnboardingModal` - Dealer Account selection modal for starting onboarding
+- `onboardingAdminToolsPanel` - Admin configuration shortcuts and tools
 
 **Status Handling:**
 - **Dealer Onboarding Status** (`OnboardingDTO.Status`): Displayed as-is from `Onboarding__c.Onboarding_Status__c` - no simplification
@@ -430,7 +437,12 @@ The component automatically loads data when added to a home page. Filters can be
 
 **Location:** `force-app/main/default/lwc/requirementConditionsList/`
 
-**Purpose:** Displays requirement conditions for rules.
+**Purpose:** Displays and manages requirement conditions for rules.
+
+**Key Features:**
+- Loads and displays rule conditions for a given status rule
+- Handles deletion with automatic refresh via `refreshApex`/fallback reload
+- Emits bubbling `error` events with user-friendly messages (using `c/utils.extractErrorMessage`) so parents can centralize toast handling
 
 ### vendorProgramHighlights
 
@@ -954,7 +966,8 @@ All components follow a consistent pattern and are dynamically rendered by `onbo
 - Lists all requirements for an onboarding
 - Allows status updates via combobox
 - Triggers status re-evaluation after updates
-- Displays requirement details
+- Displays requirement details and invalid field summaries
+- Uses shared error handling (`c/utils.extractErrorMessage`) and toasts for all Apex failures (load, submit, re-run validation)
 
 **API:**
 - `@api recordId` - Onboarding record ID (from record page context)
@@ -978,9 +991,10 @@ Add to an Onboarding record page:
 
 **Key Features:**
 - Select vendor program group and requirement group
+- Validate that both groups are selected before loading rules
 - Load existing rules
 - Edit rules in datatable
-- Save rule changes
+- Save rule changes with success/error toasts using shared error handling (`c/utils.extractErrorMessage`)
 
 **Dependencies:**
 - `OnboardingStatusRulesEngineController.getVendorProgramGroups()`
@@ -1052,11 +1066,41 @@ Add to an Onboarding record page:
 **Configuration:**
 - `isActiveFieldApiName` - API name of the active field (default: "Active__c")
 
-### onboardingApplicationFlow
+### onboardingVendorProgramWizard
 
-**Location:** `force-app/main/default/lwc/onboardingApplicationFlow/`
+**Location:** `force-app/main/default/lwc/onboardingVendorProgramWizard/`
 
-**Purpose:** Generic onboarding application flow component.
+**Purpose:** Modal wizard for selecting or creating Vendor Programs and initializing their onboarding flow.
+
+**Key Features:**
+- Vendor/program hierarchy tree grid with search
+- Vendor search and inline creation (with duplicate detection)
+- Vendor Program search, recent list, and selection
+- Initializes onboarding progress for the selected/created Vendor Program
+- Emits `launchwizard` events consumed by `onboardingHomeDashboard` to open the main onboarding flow
+
+### onboardingDealerOnboardingModal
+
+**Location:** `force-app/main/default/lwc/onboardingDealerOnboardingModal/`
+
+**Purpose:** Simple modal for selecting an Account (Dealer) from the Eligible Accounts list before starting dealer onboarding.
+
+**Key Features:**
+- Accepts eligible Account list from parent
+- Maps Accounts into combobox options
+- Emits `start` event with `accountId` when user confirms
+
+### onboardingAdminToolsPanel
+
+**Location:** `force-app/main/default/lwc/onboardingAdminToolsPanel/`
+
+**Purpose:** Encapsulates the Admin Tools section of the onboarding dashboard.
+
+**Key Features:**
+- Tabs for Validation Failures, Messaging Issues, Rule Tester, Override Audit, Rule Builder
+- Buttons to open list views for validation failures, messaging issues, and override audit
+- Follow-up shortcut buttons (Pending, Pending Retry, Failed, Due Today)
+- Stubbed navigation shortcuts (Manage Requirements, Stage Dependencies, Vendor Program Wizard, Component Library)
 
 ### onboardingAppRequirementSetupWizard
 

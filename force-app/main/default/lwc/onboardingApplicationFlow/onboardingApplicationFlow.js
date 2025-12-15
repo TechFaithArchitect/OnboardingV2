@@ -1,4 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { extractErrorMessage } from 'c/utils';
 import getStagesForProcess from '@salesforce/apex/OnboardingApplicationService.getStagesForProcess';
 import getProcessDetails from '@salesforce/apex/OnboardingApplicationService.getProcessDetails';
 
@@ -50,10 +52,18 @@ export default class OnboardingApplicationFlow extends LightningElement {
                 getProcessDetails({ processId: this.processId })
             ]);
 
-            this.stages = stagesResult;
-            this.processName = processResult.Name;
+            this.stages = stagesResult || [];
+            this.processName = processResult?.Name || '';
         } catch (error) {
-            // Silently fail - stages and processName will remain empty
+            this.stages = [];
+            this.processName = '';
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: extractErrorMessage(error, 'Failed to load onboarding application flow.'),
+                    variant: 'error'
+                })
+            );
         }
     }
 

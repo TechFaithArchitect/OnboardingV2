@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { extractErrorMessage } from 'c/utils';
 import getStagesForProcess from '@salesforce/apex/OnboardingApplicationService.getStagesForProcess';
 import getProgress from '@salesforce/apex/OnboardingApplicationService.getProgress';
 import saveProgress from '@salesforce/apex/OnboardingApplicationService.saveProgress';
@@ -449,7 +450,7 @@ export default class OnboardingFlowEngine extends LightningElement {
       }
 
     } catch (error) {
-      this.showToast('Error', 'Failed to proceed to next step.', 'error');
+      this.showToast('Error', extractErrorMessage(error, 'Failed to proceed to next step.'), 'error');
     }
   }
 

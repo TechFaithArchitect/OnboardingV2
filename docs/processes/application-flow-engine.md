@@ -78,6 +78,7 @@ wiredProcess({ error, data }) {
 - Handle navigation (next/back)
 - Parallel loading of stages and process details
 - Computed properties for UI state
+- Surfaces Apex failures via toast using shared error handling (`c/utils.extractErrorMessage`)
 
 **Key Methods:**
 
