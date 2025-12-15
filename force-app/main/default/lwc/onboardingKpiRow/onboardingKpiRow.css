@@ -10,11 +10,11 @@
 
 .kpi-card .slds-text-heading_large {
     font-weight: 600;
-    color: #080707;
+    color: var(--lwc-colorTextDefault, #080707);  /* SLDS: default text */
 }
 
 .negative {
-    color: #c23934;
+    color: #c23934;  /* Error red - no SLDS text error token available */
 }
 
 /* Mobile responsiveness */

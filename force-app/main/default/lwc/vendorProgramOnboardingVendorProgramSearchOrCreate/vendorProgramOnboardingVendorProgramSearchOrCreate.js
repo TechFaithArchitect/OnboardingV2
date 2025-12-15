@@ -53,6 +53,12 @@ export default class VendorProgramOnboardingVendorProgramSearchOrCreate extends 
         this.searchText = e.target.value;
     }
 
+    handleSearchKeydown(e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            this.searchVendorPrograms();
+        }
+    }
+
     handleNewProgramChange(e) {
         this.newProgramName = e.target.value;
         this.validateCreateForm();

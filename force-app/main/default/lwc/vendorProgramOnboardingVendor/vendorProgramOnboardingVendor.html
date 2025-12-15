@@ -19,7 +19,8 @@
         label="Search Vendor"
         value={searchText}
         onchange={handleSearchChange}
-        placeholder="Type to search vendors (min 2 characters)..."
+        onkeydown={handleSearchKeydown}
+        placeholder="Type to search vendors (min 2 characters), then press Enter or pause typing..."
         class="slds-m-bottom_small">
       </lightning-input>
 
@@ -51,9 +52,19 @@
         </template>
       </template>
 
-    <p class="slds-m-top_medium">Or create a new vendor:</p>
-    <lightning-input label="New Vendor Name" value={newVendorName} onchange={handleNewVendorChange}></lightning-input>
-    <lightning-button label="Create Vendor" onclick={createVendor} class="slds-m-top_small"></lightning-button>
+      <p class="slds-m-top_medium">Or create a new vendor:</p>
+      <lightning-input 
+        label="New Vendor Name" 
+        value={newVendorName} 
+        onchange={handleNewVendorChange}>
+      </lightning-input>
+      <lightning-button 
+        label="Create &amp; Continue" 
+        variant="brand"
+        onclick={createVendor} 
+        class="slds-m-top_small"
+        disabled={isCreatingVendor}>
+      </lightning-button>
 
       <!-- Navigation buttons removed - handled by flow engine footer -->
     </div>

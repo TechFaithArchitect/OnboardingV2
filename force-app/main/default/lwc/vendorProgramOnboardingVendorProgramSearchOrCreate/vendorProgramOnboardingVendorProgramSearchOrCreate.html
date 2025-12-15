@@ -19,10 +19,15 @@
         label="Search Vendor Program"
         value={searchText}
         onchange={handleSearchChange}
-        placeholder="Enter program name"
+        onkeydown={handleSearchKeydown}
+        placeholder="Enter program name, then press Enter or click Search"
       ></lightning-input>
 
-    <lightning-button label="Search" onclick={searchPrograms} class="slds-m-top_small"></lightning-button>
+      <lightning-button 
+        label="Search" 
+        onclick={searchVendorPrograms} 
+        class="slds-m-top_small">
+      </lightning-button>
 
     <template if:true={programs.length}>
       <p class="slds-m-top_medium">Select an existing program:</p>

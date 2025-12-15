@@ -1,20 +1,21 @@
 /**
- * Service for Onboarding Dashboard filter logic
- * Centralizes date range calculations and filter clause building
+ * Service for building filter clauses for onboarding dashboard queries
+ * Centralizes filter logic and date range calculations
  */
 public with sharing class OnboardingDashboardFilterService {
 
     /**
-     * Gets the start date for a time filter
+     * Get date range filter for SOQL WHERE clause
      * @param timeFilter Time filter value (LAST_30_DAYS, LAST_90_DAYS, YEAR_TO_DATE, ALL_TIME)
-     * @return Start date or null for ALL_TIME
+     * @return Date start date or null for ALL_TIME
      */
     public static Date getDateRangeFilter(String timeFilter) {
         if (String.isBlank(timeFilter)) {
-            return null;
+            timeFilter = 'LAST_90_DAYS';
         }
-        
+
         Date today = Date.today();
+        
         if (timeFilter == 'LAST_30_DAYS') {
             return today.addDays(-30);
         } else if (timeFilter == 'LAST_90_DAYS') {
@@ -30,114 +31,100 @@ public with sharing class OnboardingDashboardFilterService {
     }
 
     /**
-     * Gets WHERE clause for view filter
+     * Get WHERE clause for view filter
      * @param viewFilter View filter value (MY_VIEW, MY_TEAM, ORG_WIDE)
      * @param currentUserId Current user ID
-     * @return WHERE clause string (without WHERE keyword)
+     * @return WHERE clause string (e.g., "CreatedById = '005...'")
      */
     public static String getViewFilterClause(String viewFilter, Id currentUserId) {
-        if (viewFilter == 'MY_VIEW' || String.isBlank(viewFilter)) {
-            return 'CreatedById = :currentUserId';
-        } else if (viewFilter == 'MY_TEAM') {
-            // Get direct reports
-            List<User> teamMembers = [SELECT Id FROM User WHERE ManagerId = :currentUserId];
-            Set<Id> teamUserIds = new Set<Id>{ currentUserId };
-            for (User u : teamMembers) {
-                teamUserIds.add(u.Id);
-            }
-            return 'CreatedById IN :teamUserIds';
+        if (String.isBlank(viewFilter)) {
+            viewFilter = 'MY_VIEW';
         }
-        // ORG_WIDE: return empty string (no filter)
-        return '';
+
+        if (viewFilter == 'MY_VIEW') {
+            return 'CreatedById = \'' + String.escapeSingleQuotes(String.valueOf(currentUserId)) + '\'';
+        } else if (viewFilter == 'MY_TEAM') {
+            // Get team member IDs
+            Set<Id> teamUserIds = OnboardingAccessService.getUserIdsForViewFilter(viewFilter);
+            if (teamUserIds.isEmpty()) {
+                return 'CreatedById = \'' + String.escapeSingleQuotes(String.valueOf(currentUserId)) + '\'';
+            }
+            return 'CreatedById IN (' + buildIdList(teamUserIds) + ')';
+        } else if (viewFilter == 'ORG_WIDE') {
+            // No filter - show all records user has access to
+            return '';
+        }
+
+        // Default to MY_VIEW
+        return 'CreatedById = \'' + String.escapeSingleQuotes(String.valueOf(currentUserId)) + '\'';
     }
 
     /**
-     * Builds a complete WHERE clause with all filters
+     * Build complete WHERE clause with all filters
      * @param timeFilter Time range filter
      * @param vendorIds List of vendor IDs to filter by
      * @param programIds List of vendor program IDs to filter by
-     * @param viewFilter View filter
-     * @param currentUserId Current user ID
-     * @param baseClause Base WHERE clause (e.g., status filters)
+     * @param viewFilter View filter (MY_VIEW, MY_TEAM, ORG_WIDE)
      * @return Complete WHERE clause string
      */
     public static String buildFilterClause(
         String timeFilter,
         List<Id> vendorIds,
         List<Id> programIds,
-        String viewFilter,
-        Id currentUserId,
-        String baseClause
+        String viewFilter
     ) {
-        List<String> clauses = new List<String>();
-        
-        // Add base clause
-        if (String.isNotBlank(baseClause)) {
-            clauses.add(baseClause);
+        List<String> conditions = new List<String>();
+
+        // View filter
+        if (String.isNotBlank(viewFilter) && viewFilter != 'ORG_WIDE') {
+            String viewClause = getViewFilterClause(viewFilter, UserInfo.getUserId());
+            if (String.isNotBlank(viewClause)) {
+                conditions.add(viewClause);
+            }
         }
-        
-        // Add view filter
-        String viewClause = getViewFilterClause(viewFilter, currentUserId);
-        if (String.isNotBlank(viewClause)) {
-            clauses.add(viewClause);
-        }
-        
-        // Add time filter
+
+        // Time filter
         Date startDate = getDateRangeFilter(timeFilter);
         if (startDate != null) {
-            clauses.add('CreatedDate >= :startDate');
+            conditions.add('CreatedDate >= ' + formatDateForSOQL(startDate));
         }
-        
-        // Add vendor filter
+
+        // Vendor filter
         if (vendorIds != null && !vendorIds.isEmpty()) {
-            clauses.add('Vendor_Customization__r.Vendor__c IN :vendorIds');
+            conditions.add('Vendor__c IN (' + buildIdList(new Set<Id>(vendorIds)) + ')');
         }
-        
-        // Add program filter
+
+        // Program filter
         if (programIds != null && !programIds.isEmpty()) {
-            clauses.add('Vendor_Customization__c IN :programIds');
+            conditions.add('Vendor_Customization__c IN (' + buildIdList(new Set<Id>(programIds)) + ')');
         }
-        
-        return String.join(clauses, ' AND ');
+
+        // Status filter (exclude completed/denied/expired for active onboarding)
+        conditions.add('Onboarding_Status__c NOT IN (\'Complete\', \'Denied\', \'Expired\')');
+
+        return String.join(conditions, ' AND ');
     }
 
     /**
-     * Builds WHERE clause for LastModifiedDate filter (used for recent activity)
-     * @param timeFilter Time range filter
-     * @param vendorIds List of vendor IDs to filter by
-     * @param programIds List of vendor program IDs to filter by
-     * @param baseClause Base WHERE clause
-     * @return Complete WHERE clause string
+     * Build ID list string for SOQL IN clause
      */
-    public static String buildLastModifiedFilterClause(
-        String timeFilter,
-        List<Id> vendorIds,
-        List<Id> programIds,
-        String baseClause
-    ) {
-        List<String> clauses = new List<String>();
-        
-        // Add base clause
-        if (String.isNotBlank(baseClause)) {
-            clauses.add(baseClause);
+    private static String buildIdList(Set<Id> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return '';
         }
-        
-        // Add time filter (using LastModifiedDate)
-        Date startDate = getDateRangeFilter(timeFilter);
-        if (startDate != null) {
-            clauses.add('LastModifiedDate >= :startDate');
+        List<String> idStrings = new List<String>();
+        for (Id idValue : ids) {
+            idStrings.add('\'' + String.escapeSingleQuotes(String.valueOf(idValue)) + '\'');
         }
-        
-        // Add vendor filter
-        if (vendorIds != null && !vendorIds.isEmpty()) {
-            clauses.add('Vendor_Customization__r.Vendor__c IN :vendorIds');
-        }
-        
-        // Add program filter
-        if (programIds != null && !programIds.isEmpty()) {
-            clauses.add('Vendor_Customization__c IN :programIds');
-        }
-        
-        return String.join(clauses, ' AND ');
+        return String.join(idStrings, ', ');
+    }
+
+    /**
+     * Format date for SOQL WHERE clause
+     */
+    private static String formatDateForSOQL(Date d) {
+        return String.valueOf(d.year()) + '-' + 
+               String.valueOf(d.month()).leftPad(2, '0') + '-' + 
+               String.valueOf(d.day()).leftPad(2, '0');
     }
 }

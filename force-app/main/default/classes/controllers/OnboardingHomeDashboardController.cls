@@ -497,23 +497,19 @@ public with sharing class OnboardingHomeDashboardController {
         for (Onboarding__c ob : onboardings) {
             OnboardingWithBlockingDTO dto = new OnboardingWithBlockingDTO(ob);
             
-            // Check for blocked requirements
-            List<Onboarding_Requirement__c> reqs = reqsByOnboarding.get(ob.Id);
-            if (reqs != null) {
-                for (Onboarding_Requirement__c req : reqs) {
-                    if (req.Status__c == 'Denied') {
-                        dto.IsBlocked = true;
-                        dto.BlockingReasons.add('Requirement denied: ' + req.Id);
-                    } else if (req.Status__c == 'Incomplete') {
-                        // Check if it's been incomplete for more than 7 days (at risk)
-                        if (ob.CreatedDate != null) {
-                            Integer daysSinceCreated = ob.CreatedDate.date().daysBetween(Date.today());
-                            if (daysSinceCreated > 7) {
-                                dto.IsAtRisk = true;
-                                dto.BlockingReasons.add('Requirement incomplete for ' + daysSinceCreated + ' days');
-                            }
-                        }
-                    }
+            // Use blocking detection service
+            List<String> blockingReasons = OnboardingBlockingDetectionService.getBlockingReasons(ob.Id);
+            if (!blockingReasons.isEmpty()) {
+                dto.IsBlocked = true;
+                dto.BlockingReasons.addAll(blockingReasons);
+            }
+            
+            // Check if at risk (7 days threshold)
+            Boolean isAtRisk = OnboardingBlockingDetectionService.isAtRisk(ob.Id, 7);
+            if (isAtRisk) {
+                dto.IsAtRisk = true;
+                if (dto.BlockingReasons.isEmpty()) {
+                    dto.BlockingReasons.add('No activity for 7+ days');
                 }
             }
             

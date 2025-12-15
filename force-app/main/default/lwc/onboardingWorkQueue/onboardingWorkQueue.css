@@ -1,12 +1,12 @@
 .blocked-row {
-    border-left: 4px solid #c23934;
+    border-left: 4px solid #c23934;  /* Error red - no SLDS border token available */
 }
 
 .at-risk-row {
-    border-left: 4px solid #ffb75d;
+    border-left: 4px solid #ffb75d;  /* Warning orange - no SLDS border token available */
 }
 
 .normal-row {
-    border-left: 4px solid #0176d3;
+    border-left: 4px solid var(--lwc-colorBrand, #0176d3);  /* SLDS: brand */
 }
 

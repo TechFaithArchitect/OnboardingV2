@@ -48,7 +48,6 @@ private class OnboardingDashboardFilterServiceTest {
 
     @isTest
     static void testBuildFilterClause() {
-        Id currentUserId = UserInfo.getUserId();
         List<Id> vendorIds = new List<Id>();
         List<Id> programIds = new List<Id>();
         
@@ -58,9 +57,7 @@ private class OnboardingDashboardFilterServiceTest {
             'LAST_90_DAYS',
             vendorIds,
             programIds,
-            'MY_VIEW',
-            currentUserId,
-            'Onboarding_Status__c != \'Complete\''
+            'MY_VIEW'
         );
         
         Test.stopTest();
@@ -68,11 +65,11 @@ private class OnboardingDashboardFilterServiceTest {
         System.assertNotEquals(null, clause, 'Clause should not be null');
         System.assert(clause.contains('CreatedById'), 'Clause should contain CreatedById filter');
         System.assert(clause.contains('CreatedDate'), 'Clause should contain CreatedDate filter');
+        System.assert(clause.contains('Onboarding_Status__c'), 'Clause should contain status filter');
     }
 
     @isTest
     static void testBuildFilterClauseWithVendorFilter() {
-        Id currentUserId = UserInfo.getUserId();
         Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
         insert testVendor;
         
@@ -85,9 +82,7 @@ private class OnboardingDashboardFilterServiceTest {
             'LAST_90_DAYS',
             vendorIds,
             programIds,
-            'MY_VIEW',
-            currentUserId,
-            'Onboarding_Status__c != \'Complete\''
+            'MY_VIEW'
         );
         
         Test.stopTest();
@@ -96,22 +91,89 @@ private class OnboardingDashboardFilterServiceTest {
     }
 
     @isTest
-    static void testBuildLastModifiedFilterClause() {
+    static void testBuildFilterClauseWithProgramFilter() {
+        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
+        insert testVendor;
+        
+        Vendor_Customization__c testProgram = new Vendor_Customization__c(
+            Vendor__c = testVendor.Id,
+            Active__c = true,
+            Status__c = 'Active'
+        );
+        insert testProgram;
+        
         List<Id> vendorIds = new List<Id>();
-        List<Id> programIds = new List<Id>();
+        List<Id> programIds = new List<Id>{ testProgram.Id };
         
         Test.startTest();
         
-        String clause = OnboardingDashboardFilterService.buildLastModifiedFilterClause(
+        String clause = OnboardingDashboardFilterService.buildFilterClause(
             'LAST_90_DAYS',
             vendorIds,
             programIds,
-            'CreatedById = :currentUserId'
+            'MY_VIEW'
+        );
+        
+        Test.stopTest();
+        
+        System.assert(clause.contains('Vendor_Customization__c'), 'Clause should contain program filter');
+    }
+
+    @isTest
+    static void testBuildFilterClauseWithAllFilters() {
+        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
+        insert testVendor;
+        
+        Vendor_Customization__c testProgram = new Vendor_Customization__c(
+            Vendor__c = testVendor.Id,
+            Active__c = true,
+            Status__c = 'Active'
+        );
+        insert testProgram;
+        
+        List<Id> vendorIds = new List<Id>{ testVendor.Id };
+        List<Id> programIds = new List<Id>{ testProgram.Id };
+        
+        Test.startTest();
+        String clause = OnboardingDashboardFilterService.buildFilterClause(
+            'YEAR_TO_DATE',
+            vendorIds,
+            programIds,
+            'MY_TEAM'
+        );
+        
+        Test.stopTest();
+        
+        System.assert(clause.contains('Vendor__c'), 'Clause should contain vendor filter');
+        System.assert(clause.contains('Vendor_Customization__c'), 'Clause should contain program filter');
+        System.assert(clause.contains('CreatedDate'), 'Clause should contain date filter');
+        System.assert(clause.contains('Onboarding_Status__c'), 'Clause should contain status filter');
+    }
+
+    @isTest
+    static void testBuildFilterClause_OrgWide() {
+        Test.startTest();
+        String clause = OnboardingDashboardFilterService.buildFilterClause(
+            'ALL_TIME',
+            null,
+            null,
+            'ORG_WIDE'
         );
         
         Test.stopTest();
         
         System.assertNotEquals(null, clause, 'Clause should not be null');
-        System.assert(clause.contains('LastModifiedDate'), 'Clause should contain LastModifiedDate filter');
+        System.assert(!clause.contains('CreatedById'), 'Org wide should not filter by CreatedById');
+        System.assert(clause.contains('Onboarding_Status__c'), 'Clause should contain status filter');
+    }
+
+    @isTest
+    static void testGetDateRangeFilter_EdgeCases() {
+        Test.startTest();
+        Date invalidFilter = OnboardingDashboardFilterService.getDateRangeFilter('INVALID_FILTER');
+        Test.stopTest();
+        
+        // Should default to LAST_90_DAYS
+        System.assertNotEquals(null, invalidFilter, 'Invalid filter should default to last 90 days');
     }
 }

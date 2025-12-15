@@ -45,10 +45,18 @@ public with sharing class VendorProgramService {
     }
     
     /**
-     * Creates a new vendor program record
+     * Creates a new vendor program record.
+     * Applies server-side guards to prevent accidental duplicate draft programs
+     * for the same vendor when using the default wizard path.
+     *
+     * Guard behaviour:
+     * - If a Draft, inactive Vendor_Customization__c already exists for the same Vendor__c
+     *   with the same Name (typically 'New Vendor Program' from the dashboard/wizard),
+     *   this method will return the existing Id instead of creating a new record.
+     *
      * @param vendorProgram The vendor program record to create
      * @param vendorId The ID of the associated vendor
-     * @return The ID of the created vendor program
+     * @return The ID of the created or existing vendor program
      * @throws AuraHandledException if vendorProgram is null or vendorId is null
      */
     public static Id createVendorProgram(Vendor_Customization__c vendorProgram, Id vendorId) {
@@ -59,7 +67,34 @@ public with sharing class VendorProgramService {
         
         // Apply default values
         DefaultValueHelper.applyVendorProgramDefaults(vendorProgram);
-        
+
+        // Server-side duplicate guard:
+        // If this is the default "New Vendor Program" path (or no Name was provided),
+        // and there is already a Draft, inactive program for this vendor with the same Name,
+        // reuse the existing record instead of creating a duplicate.
+        String effectiveName = String.isBlank(vendorProgram.Name)
+            ? 'New Vendor Program'
+            : vendorProgram.Name;
+
+        // Only apply the guard when using the default name pattern to avoid blocking
+        // legitimate custom-named programs.
+        if (effectiveName == 'New Vendor Program') {
+            List<Vendor_Customization__c> existingDrafts = [
+                SELECT Id
+                FROM Vendor_Customization__c
+                WHERE Vendor__c = :vendorId
+                  AND Name = :effectiveName
+                  AND Status__c = 'Draft'
+                  AND (Active__c = false OR Active__c = null)
+                ORDER BY CreatedDate DESC
+                LIMIT 1
+            ];
+
+            if (!existingDrafts.isEmpty()) {
+                return existingDrafts[0].Id;
+            }
+        }
+
         return VendorOnboardingWizardRepository.insertVendorProgram(vendorProgram);
     }
     

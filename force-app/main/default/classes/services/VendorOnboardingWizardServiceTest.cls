@@ -73,6 +73,35 @@ private class VendorOnboardingWizardServiceTest {
     }
 
     @isTest
+    static void testCreateVendorProgram_ReusesExistingDraftForSameVendor() {
+        // Arrange
+        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        // First call creates a draft program with default name 'New Vendor Program'
+        Vendor_Customization__c firstProgram = new Vendor_Customization__c();
+        firstProgram.Name = 'New Vendor Program';
+
+        Test.startTest();
+        Id firstId = VendorOnboardingWizardService.createVendorProgram(firstProgram, vendor.Id);
+        // Second call with same vendor and default name should reuse the existing draft
+        Vendor_Customization__c secondProgram = new Vendor_Customization__c();
+        secondProgram.Name = 'New Vendor Program';
+        Id secondId = VendorOnboardingWizardService.createVendorProgram(secondProgram, vendor.Id);
+        Test.stopTest();
+
+        // Assert: both calls return the same Id and only one draft program exists
+        System.assertEquals(firstId, secondId, 'Subsequent createVendorProgram calls with same vendor/default name should reuse existing draft');
+        List<Vendor_Customization__c> programs = [
+            SELECT Id, Vendor__c, Status__c, Active__c, Name
+            FROM Vendor_Customization__c
+            WHERE Vendor__c = :vendor.Id
+        ];
+        System.assertEquals(1, programs.size(), 'Only one vendor program should exist for the vendor with default name');
+        System.assertEquals('New Vendor Program', programs[0].Name, 'Program should use default name');
+        System.assertEquals('Draft', programs[0].Status__c, 'Program should be in Draft status');
+        System.assertEquals(false, programs[0].Active__c, 'Program should be inactive (draft)');
+    }
+
+    @isTest
     static void testSearchVendorProgramGroups() {
         // Arrange
         Vendor_Program_Group__c vendorProgramGroup = TestVendorProgramGroupFactory.create(true);

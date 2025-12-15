@@ -8,12 +8,12 @@
 
 /* Full width section wrapper that breaks out of padding - only for summary/table */
 .full-width-section {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: calc(100% + 2rem);
+    margin-left: calc(-1 * var(--lwc-spacingMedium, 1rem));
+    margin-right: calc(-1 * var(--lwc-spacingMedium, 1rem));
+    width: calc(100% + 2 * var(--lwc-spacingMedium, 1rem));
     box-sizing: border-box;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: var(--lwc-spacingMedium, 1rem);
+    padding-right: var(--lwc-spacingMedium, 1rem);
 }
 
 /* Ensure summary and table stay within the section */
@@ -31,7 +31,7 @@
 }
 
 .slds-card {
-    border-radius: 0.25rem;
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 100%;
@@ -39,23 +39,24 @@
 }
 
 /* Summary Box - matches container width */
+/* Note: Gradient uses success color - SLDS doesn't have success background token, using hex directly */
 .summary-box {
     background: linear-gradient(135deg, #04844b 0%, #06a057 100%);
-    border-radius: 0.5rem;
-    padding: 1.25rem;
-    color: white;
+    border-radius: var(--lwc-borderRadiusLarge, 0.5rem);
+    padding: var(--lwc-spacingLarge, 1.25rem);
+    color: var(--lwc-colorTextInverse, #ffffff);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-bottom: 1rem;
+    margin-bottom: var(--lwc-spacingMedium, 1rem);
 }
 
 /* Success icon in summary box - white circle with check */
 .summary-box .slds-media__figure {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    padding: 0.5rem;
+    padding: var(--lwc-spacingXSmall, 0.5rem);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,17 +66,13 @@
 }
 
 .summary-box .slds-icon {
-    fill: white;
-}
-
-.summary-box .slds-icon {
-    fill: white;
+    fill: var(--lwc-colorTextInverse, #ffffff);
 }
 
 .summary-title {
     font-size: clamp(1rem, 2vw, 1.25rem);
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--lwc-spacingXSmall, 0.5rem);
 }
 
 .summary-description {
@@ -86,11 +83,11 @@
 
 /* Guidance Box - Responsive */
 .guidance-box {
-    background-color: #f3f2f2;
-    border-left: 4px solid #0176d3;
-    padding: 1rem;
-    border-radius: 0.25rem;
-    margin-bottom: 1.5rem;
+    background-color: var(--lwc-colorBackground, #f3f2f2);  /* SLDS: background */
+    border-left: 4px solid var(--lwc-colorBrand, #0176d3);  /* SLDS: brand */
+    padding: var(--lwc-spacingMedium, 1rem);
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+    margin-bottom: var(--lwc-spacingLarge, 1.5rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -99,9 +96,9 @@
 /* Requirements Table Wrapper - SLDS standard approach */
 .requirements-table-wrapper {
     margin-top: 0;
-    border-radius: 0.25rem;
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
+    background-color: var(--lwc-colorBackgroundAlt, #ffffff);  /* SLDS: alt background */
     min-height: 200px;
 }
 
@@ -110,6 +107,7 @@
 
 
 /* Fix checkbox styling - white circle/square with check matching green box */
+/* Note: Custom property for datatable brand color - using success green directly */
 .requirements-table-wrapper lightning-datatable {
     --sds-g-color-brand: #04844b;
 }
@@ -117,11 +115,11 @@
 /* Responsive adjustments - let SLDS handle most of it */
 
 .requirements-help-text {
-    background-color: #fafaf9;
-    border-left: 3px solid #0176d3;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    border-radius: 0.25rem;
+    background-color: var(--lwc-colorBackgroundAlt, #fafaf9);  /* SLDS: alt background */
+    border-left: 3px solid var(--lwc-colorBrand, #0176d3);  /* SLDS: brand */
+    padding: var(--lwc-spacingSmall, 0.75rem);
+    margin-top: var(--lwc-spacingMedium, 1rem);
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -129,29 +127,29 @@
 
 /* Bulk Create Section - Responsive */
 .bulk-create-section {
-    background-color: #ffffff;
-    border: 1px solid #dddbda;
-    border-radius: 0.5rem;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    margin-bottom: 1.5rem;
+    background-color: var(--lwc-colorBackgroundAlt, #ffffff);  /* SLDS: alt background */
+    border: 1px solid var(--lwc-colorBorder, #dddbda);  /* SLDS: border */
+    border-radius: var(--lwc-borderRadiusLarge, 0.5rem);
+    padding: clamp(var(--lwc-spacingMedium, 1rem), 2vw, var(--lwc-spacingLarge, 1.5rem));
+    margin-bottom: var(--lwc-spacingLarge, 1.5rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
 
 .bulk-create-section h3 {
-    color: #080707;
+    color: var(--lwc-colorTextDefault, #080707);  /* SLDS: default text */
     font-size: clamp(1rem, 1.5vw, 1.125rem);
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: var(--lwc-spacingMedium, 1rem);
 }
 
 /* Settings Row - Responsive Flex */
 .settings-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--lwc-spacingMedium, 1rem);
+    margin-bottom: var(--lwc-spacingMedium, 1rem);
     align-items: flex-start;
     width: 100%;
     box-sizing: border-box;
@@ -174,10 +172,10 @@
 
 /* Dual Listbox Container - Responsive */
 .dual-listbox-container {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #fafaf9;
-    border-radius: 0.25rem;
+    margin-top: var(--lwc-spacingMedium, 1rem);
+    padding: var(--lwc-spacingMedium, 1rem);
+    background-color: var(--lwc-colorBackgroundAlt, #fafaf9);  /* SLDS: alt background */
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -192,29 +190,30 @@
 
 /* Group Selection Box - Responsive */
 .group-selection-box {
-    background-color: #ffffff;
-    border: 1px solid #dddbda;
-    border-radius: 0.5rem;
-    padding: clamp(1rem, 2vw, 1.25rem);
-    margin-bottom: 1.5rem;
+    background-color: var(--lwc-colorBackgroundAlt, #ffffff);  /* SLDS: alt background */
+    border: 1px solid var(--lwc-colorBorder, #dddbda);  /* SLDS: border */
+    border-radius: var(--lwc-borderRadiusLarge, 0.5rem);
+    padding: clamp(var(--lwc-spacingMedium, 1rem), 2vw, var(--lwc-spacingLarge, 1.25rem));
+    margin-bottom: var(--lwc-spacingLarge, 1.5rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
 
 .group-selection-box h3 {
-    color: #080707;
+    color: var(--lwc-colorTextDefault, #080707);  /* SLDS: default text */
     font-size: clamp(1rem, 1.5vw, 1.125rem);
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: var(--lwc-spacingMedium, 1rem);
 }
 
 .success-banner {
+    /* Note: Gradient uses success color - SLDS doesn't have success background token, using hex directly */
     background: linear-gradient(135deg, #04844b 0%, #06a057 100%);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    color: white;
-    margin-bottom: 1.5rem;
+    border-radius: var(--lwc-borderRadiusLarge, 0.5rem);
+    padding: var(--lwc-spacingMedium, 1rem);
+    color: var(--lwc-colorTextInverse, #ffffff);  /* SLDS: inverse text */
+    margin-bottom: var(--lwc-spacingLarge, 1.5rem);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 100%;
@@ -222,15 +221,15 @@
 }
 
 .success-banner .slds-icon {
-    fill: white;
+    fill: var(--lwc-colorTextInverse, #ffffff);  /* SLDS: inverse text */
 }
 
 .info-banner {
-    background-color: #e8f4f8;
-    border-left: 4px solid #0176d3;
-    padding: 1rem;
-    border-radius: 0.25rem;
-    margin-bottom: 1.5rem;
+    background-color: #e8f4f8;  /* Info background - no SLDS token available, using hex directly */
+    border-left: 4px solid var(--lwc-colorBrand, #0176d3);  /* SLDS: brand */
+    padding: var(--lwc-spacingMedium, 1rem);
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+    margin-bottom: var(--lwc-spacingLarge, 1.5rem);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -242,10 +241,10 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #dddbda;
+    gap: var(--lwc-spacingMedium, 1rem);
+    margin-top: calc(2 * var(--lwc-spacingMedium, 1rem));
+    padding-top: var(--lwc-spacingLarge, 1.5rem);
+    border-top: 1px solid var(--lwc-colorBorder, #dddbda);  /* SLDS: border */
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -271,15 +270,15 @@
 .stats-display {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.5rem;
+    gap: var(--lwc-spacingMedium, 1rem);
+    margin-top: var(--lwc-spacingXSmall, 0.5rem);
     font-size: clamp(0.75rem, 1.2vw, 0.875rem);
 }
 
 .stat-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--lwc-spacingXxxSmall, 0.25rem);
 }
 
 .stat-label {
@@ -288,7 +287,7 @@
 }
 
 .stat-value {
-    color: #ffffff;
+    color: var(--lwc-colorTextInverse, #ffffff);  /* SLDS: inverse text */
     font-weight: 600;
 }
 

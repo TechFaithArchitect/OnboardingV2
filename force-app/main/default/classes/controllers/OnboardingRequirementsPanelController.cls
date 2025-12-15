@@ -23,18 +23,8 @@ public with sharing class OnboardingRequirementsPanelController {
     public static List<InvalidFieldDTO> getInvalidFieldValues(Id onboardingId) {
         ValidationHelper.requireId(onboardingId, 'Onboarding ID');
 
-        List<Requirement_Field_Value__c> invalidValues = [
-            SELECT Id,
-                   Validation_Status__c,
-                   Validation_Error_Message__c,
-                   Requirement_Field__r.Name,
-                   Requirement_Field__r.Field_API_Name__c,
-                   Onboarding_Requirement__r.Name
-            FROM Requirement_Field_Value__c
-            WHERE Onboarding_Requirement__r.Onboarding__c = :onboardingId
-              AND Is_Archived__c = false
-              AND Validation_Status__c != 'Valid'
-        ];
+        // Use repository for data access
+        List<Requirement_Field_Value__c> invalidValues = RequirementFieldValueRepository.getInvalidFieldValuesByOnboarding(onboardingId);
 
         List<InvalidFieldDTO> results = new List<InvalidFieldDTO>();
         for (Requirement_Field_Value__c fv : invalidValues) {

@@ -12,6 +12,7 @@ export default class VendorProgramOnboardingStepOne extends OnboardingStepBase {
   @track newVendorName = '';
   @track nextDisabled = true;
   @track isLoading = false;
+  @track isCreatingVendor = false;
 
   // Debounce timer for autocomplete
   searchTimeout;
@@ -78,6 +79,24 @@ export default class VendorProgramOnboardingStepOne extends OnboardingStepBase {
     }
   }
 
+  // Allow Enter key to immediately trigger a search using the current text
+  handleSearchKeydown(e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      const searchValue = e.target.value || '';
+      this.searchText = searchValue;
+      if (!searchValue || searchValue.trim().length < 2) {
+        this.debouncedSearchText = '';
+        this.vendorOptions = [];
+        this.selectedVendorId = '';
+        this.nextDisabled = true;
+        this.dispatchValidationState();
+        return;
+      }
+      this.isLoading = true;
+      this.debouncedSearchText = searchValue.trim();
+    }
+  }
+
   handleNewVendorChange(e) {
     this.newVendorName = e.target.value;
   }
@@ -101,20 +120,59 @@ export default class VendorProgramOnboardingStepOne extends OnboardingStepBase {
   }
 
   async createVendor() {
-    if (!this.newVendorName || this.newVendorName.trim().length === 0) return;
+    if (!this.newVendorName || this.newVendorName.trim().length === 0) {
+      return;
+    }
+
+    if (this.isCreatingVendor) {
+      return;
+    }
+
+    this.isCreatingVendor = true;
     try {
-      const vendorId = await createVendorApex({ vendor: { Name: this.newVendorName.trim() } });
+      const trimmedName = this.newVendorName.trim();
+
+      // First, check if a vendor with a similar name already exists
+      const matches = await searchVendors({ vendorNameSearchText: trimmedName });
+      if (matches && matches.length > 0) {
+        // Surface existing vendors instead of creating a duplicate
+        this.vendorOptions = matches.map(v => ({
+          label: v.Name,
+          value: v.Id
+        }));
+        this.selectedVendorId = '';
+        this.searchText = trimmedName;
+        this.newVendorName = '';
+        this.nextDisabled = true;
+        this.dispatchValidationState();
+
+        this.showToast(
+          'Vendor Already Exists',
+          'We found existing vendors matching this name. Please select an existing vendor above to continue or refine your search.',
+          'info'
+        );
+        return;
+      }
+
+      // No match → create vendor and immediately proceed
+      const vendorId = await createVendorApex({ vendor: { Name: trimmedName } });
+
       this.selectedVendorId = vendorId;
-      this.searchText = this.newVendorName.trim();
+      this.searchText = trimmedName;
       this.vendorOptions = [{
-        label: this.newVendorName.trim(),
+        label: trimmedName,
         value: vendorId
       }];
       this.newVendorName = ''; // Clear input
       this.nextDisabled = false;
       this.dispatchValidationState();
+
+      // Immediately advance to next step after successful vendor creation
+      this.proceedToNext();
     } catch (err) {
       this.handleError(err, 'Failed to create vendor');
+    } finally {
+      this.isCreatingVendor = false;
     }
   }
 

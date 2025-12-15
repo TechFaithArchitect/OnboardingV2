@@ -24,14 +24,8 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
             return;
         }
 
-        List<Requirement_Field_Value__c> valuesToUpdate = [
-            SELECT Id, Value__c, Encrypted_Value__c, Validation_Status__c,
-                   Validation_Error_Message__c, Requirement_Field__r.Required__c,
-                   Requirement_Field__r.Field_API_Name__c, Requirement_Field__r.Validation_Type__c,
-                   Requirement_Field__c, Onboarding_Requirement__c
-            FROM Requirement_Field_Value__c
-            WHERE Id IN :fieldValueIds
-        ];
+        // Use repository for data access
+        List<Requirement_Field_Value__c> valuesToUpdate = RequirementFieldValueRepository.getFieldValuesByIds(fieldValueIds);
 
         // Load rules for the field API names we're validating
         Set<String> fieldApis = new Set<String>();
@@ -46,15 +40,16 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
         }
         Map<String, Requirement_Field_Validation_Rule__mdt> rulesByApi = RequirementFieldValidationService.loadRulesByFieldApi(fieldApis);
 
-        // Gather sibling values for cross-field checks
+        // Gather sibling values for cross-field checks using repository
         Map<Id, Map<String, String>> valuesByRequirement = new Map<Id, Map<String, String>>();
         if (!requirementIds.isEmpty()) {
-            for (Requirement_Field_Value__c sibling : [
-                SELECT Onboarding_Requirement__c, Requirement_Field__r.Field_API_Name__c,
-                       Value__c, Encrypted_Value__c
-                FROM Requirement_Field_Value__c
-                WHERE Onboarding_Requirement__c IN :requirementIds
-            ]) {
+            // Get all field values for these requirements
+            List<Requirement_Field_Value__c> allSiblings = new List<Requirement_Field_Value__c>();
+            for (Id reqId : requirementIds) {
+                allSiblings.addAll(RequirementFieldValueRepository.getFieldValuesByRequirement(reqId));
+            }
+            
+            for (Requirement_Field_Value__c sibling : allSiblings) {
                 if (sibling.Requirement_Field__r == null || String.isBlank(sibling.Requirement_Field__r.Field_API_Name__c)) continue;
                 Map<String, String> mapByApi = valuesByRequirement.get(sibling.Onboarding_Requirement__c);
                 if (mapByApi == null) {
@@ -84,8 +79,12 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
                     ? null
                     : (String.isNotBlank(rule.Error_Message__c) ? rule.Error_Message__c : 'Cross-field validation failed.');
             } else if (rule != null && rule.Validation_Type__c == 'External') {
+                // External validation - enqueue for external validation service
+                // For now, mark as Pending. External validator will process separately
                 fv.Validation_Status__c = 'Pending';
                 fv.Validation_Error_Message__c = 'Awaiting external validation.';
+                // TODO: Enqueue for external validation service
+                // RequirementFieldExternalValidator.validateExternally(new Set<Id>{fv.Id});
             } else {
                 fv.Validation_Status__c = 'Valid';
                 fv.Validation_Error_Message__c = null;
@@ -254,9 +253,10 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
         Integer start = 0;
         
         for (Integer i = 0; i < expression.length(); i++) {
-            if (expression.charAt(i) == '(') {
+            String currentChar = expression.substring(i, i + 1);
+            if (currentChar == '(') {
                 depth++;
-            } else if (expression.charAt(i) == ')') {
+            } else if (currentChar == ')') {
                 depth--;
             } else if (depth == 0 && expression.substring(i).startsWith(operator)) {
                 // Found operator at top level

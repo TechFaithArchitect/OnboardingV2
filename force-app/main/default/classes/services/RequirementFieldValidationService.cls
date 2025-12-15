@@ -22,15 +22,8 @@ public with sharing class RequirementFieldValidationService {
             return new List<ValidationResult>();
         }
 
-        List<Requirement_Field_Value__c> fieldValues = [
-            SELECT Id, Value__c, Encrypted_Value__c, Validation_Status__c, Validation_Error_Message__c,
-                   Last_Validated_Date__c, Requirement_Field__c,
-                   Requirement_Field__r.Field_API_Name__c,
-                   Requirement_Field__r.Required__c,
-                   Requirement_Field__r.Validation_Type__c
-            FROM Requirement_Field_Value__c
-            WHERE Id IN :fieldValueIds
-        ];
+        // Use repository for data access
+        List<Requirement_Field_Value__c> fieldValues = RequirementFieldValueRepository.getFieldValuesByIds(fieldValueIds);
 
         Map<Id, Requirement_Field__c> requirementFieldsById = new Map<Id, Requirement_Field__c>();
         Set<String> fieldApiNames = new Set<String>();

@@ -92,7 +92,7 @@ private class OnboardingBlockingDetectionServiceTest {
     }
 
     @isTest
-    static void testGetBlockingInfoBulk() {
+    static void testGetBlockedOnboardingIdsBulk() {
         List<Onboarding__c> onboardings = [SELECT Id FROM Onboarding__c];
         
         if (onboardings.isEmpty()) {
@@ -105,12 +105,11 @@ private class OnboardingBlockingDetectionServiceTest {
         }
         
         Test.startTest();
-        Map<Id, OnboardingBlockingDetectionService.BlockingInfo> blockingInfo = 
-            OnboardingBlockingDetectionService.getBlockingInfoBulk(onboardingIds);
+        Set<Id> blockedIds = OnboardingBlockingDetectionService.getBlockedOnboardingIds(onboardingIds);
         Test.stopTest();
         
-        System.assertNotEquals(null, blockingInfo, 'Blocking info should not be null');
-        System.assertEquals(onboardingIds.size(), blockingInfo.size(), 'Should have info for all onboarding IDs');
+        System.assertNotEquals(null, blockedIds, 'Blocked IDs should not be null');
+        // May be empty if no blocking conditions exist
     }
 
     @isTest
@@ -132,6 +131,60 @@ private class OnboardingBlockingDetectionServiceTest {
         Test.stopTest();
         
         System.assert(blockedIds.contains(deniedOb.Id), 'Should identify denied onboarding as blocked');
+    }
+
+    @isTest
+    static void testGetBlockingReasonsWithIncompleteRequirements() {
+        Onboarding__c onboarding = [SELECT Id FROM Onboarding__c LIMIT 1];
+        
+        // Create incomplete requirement
+        Onboarding_Requirement__c incompleteReq = new Onboarding_Requirement__c(
+            Onboarding__c = onboarding.Id,
+            Status__c = 'Incomplete'
+        );
+        insert incompleteReq;
+        
+        Test.startTest();
+        List<String> reasons = OnboardingBlockingDetectionService.getBlockingReasons(onboarding.Id);
+        Test.stopTest();
+        
+        System.assertNotEquals(null, reasons, 'Reasons should not be null');
+        System.assert(reasons.size() > 0, 'Should have blocking reasons for incomplete requirements');
+    }
+
+    @isTest
+    static void testIsAtRiskWithOldOnboarding() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Vendor_Customization__c testProgram = [SELECT Id FROM Vendor_Customization__c LIMIT 1];
+        
+        // Create onboarding with old last modified date
+        Onboarding__c oldOnboarding = new Onboarding__c(
+            Account__c = testAccount.Id,
+            Vendor_Customization__c = testProgram.Id,
+            Onboarding_Status__c = 'In Process'
+        );
+        insert oldOnboarding;
+        
+        // Update last modified date to 10 days ago
+        oldOnboarding.LastModifiedDate = DateTime.now().addDays(-10);
+        update oldOnboarding;
+        
+        Test.startTest();
+        Boolean atRisk = OnboardingBlockingDetectionService.isAtRisk(oldOnboarding.Id, 7);
+        Test.stopTest();
+        
+        System.assertEquals(true, atRisk, 'Should identify old onboarding as at risk');
+    }
+
+    @isTest
+    static void testIsAtRiskWithRecentOnboarding() {
+        Onboarding__c onboarding = [SELECT Id FROM Onboarding__c LIMIT 1];
+        
+        Test.startTest();
+        Boolean atRisk = OnboardingBlockingDetectionService.isAtRisk(onboarding.Id, 7);
+        Test.stopTest();
+        
+        System.assertEquals(false, atRisk, 'Recent onboarding should not be at risk');
     }
 
     @isTest

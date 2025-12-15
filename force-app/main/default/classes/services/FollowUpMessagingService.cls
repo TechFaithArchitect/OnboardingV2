@@ -1,19 +1,57 @@
 /**
- * Service for sending SMS messages
+ * Service for sending SMS messages via multiple providers
+ * Supports Salesforce Messaging API and Twilio using strategy pattern
  * 
- * NOTE: This is a placeholder implementation. 
- * Integrate with your SMS provider (Twilio, AWS SNS, etc.) or Salesforce Messaging API when available.
- * The Salesforce Messaging API requires specific setup and may not be available in all orgs.
+ * NOTE: Salesforce Messaging API requires Digital Engagement setup.
+ * Twilio requires Named Credential configuration.
  */
 public with sharing class FollowUpMessagingService {
 
     /**
-     * Send SMS message
+     * Send SMS message using specified provider
      * @param contactId Contact to send message to
      * @param messageContent Message text
-     * @param messagingChannelId SMS channel ID (optional, for future use)
-     * @param templateId Optional template ID (for future use)
-     * @return String identifier for tracking (placeholder)
+     * @param providerType SMS provider type ('SalesforceMessaging' or 'Twilio')
+     * @param providerConfig Provider-specific configuration map:
+     *   - For SalesforceMessaging: messagingChannelId (Id), templateId (Id, optional)
+     *   - For Twilio: fromPhoneNumber (String), accountSid (String, optional), authToken (String, optional)
+     * @return String identifier for tracking (provider-specific message ID)
+     */
+    public static String sendSMS(
+        Id contactId,
+        String messageContent,
+        String providerType,
+        Map<String, Object> providerConfig
+    ) {
+        if (contactId == null || String.isBlank(messageContent)) {
+            throw new IllegalArgumentException('Contact ID and message content are required');
+        }
+
+        // Get SMS provider strategy
+        SMSProviderStrategy provider;
+        try {
+            provider = SMSProviderStrategyFactory.getStrategy(providerType);
+        } catch (IllegalArgumentException e) {
+            throw new FollowUpMessagingException('Invalid SMS provider type: ' + providerType);
+        }
+
+        // Validate configuration
+        String validationError = provider.validateConfig(providerConfig);
+        if (validationError != null) {
+            throw new FollowUpMessagingException('Provider configuration error: ' + validationError);
+        }
+
+        // Send SMS using provider strategy
+        return provider.sendSMS(contactId, messageContent, providerConfig);
+    }
+
+    /**
+     * Send SMS message (backward compatibility - uses Salesforce Messaging as default)
+     * @param contactId Contact to send message to
+     * @param messageContent Message text
+     * @param messagingChannelId SMS channel ID (for Salesforce Messaging)
+     * @param templateId Optional template ID (for Salesforce Messaging)
+     * @return String identifier for tracking
      */
     public static String sendSMS(
         Id contactId,
@@ -21,43 +59,64 @@ public with sharing class FollowUpMessagingService {
         Id messagingChannelId,
         Id templateId
     ) {
-        if (contactId == null || String.isBlank(messageContent)) {
-            throw new IllegalArgumentException('Contact ID and message content are required');
+        // Build provider config for Salesforce Messaging
+        Map<String, Object> providerConfig = new Map<String, Object>();
+        providerConfig.put('messagingChannelId', messagingChannelId);
+        if (templateId != null) {
+            providerConfig.put('templateId', templateId);
         }
 
-        try {
-            // TODO: Integrate with SMS provider
-            // Options:
-            // 1. Twilio API
-            // 2. AWS SNS
-            // 3. Salesforce Messaging API (requires setup)
-            // 4. Custom SMS gateway
-            
-            // For now, log the message (replace with actual SMS sending)
-            System.debug('SMS would be sent to Contact: ' + contactId);
-            System.debug('Message: ' + messageContent);
-            
-            // Return placeholder identifier
-            return 'SMS-' + String.valueOf(DateTime.now().getTime());
-        } catch (Exception e) {
-            System.debug('Error sending SMS: ' + e.getMessage());
-            throw new FollowUpMessagingException('Failed to send SMS: ' + e.getMessage(), e);
-        }
+        return sendSMS(contactId, messageContent, 'SalesforceMessaging', providerConfig);
     }
 
     /**
-     * Check if Contact has active messaging endpoint
+     * Check if Contact has active messaging endpoint for specified provider
+     * @param contactId Contact ID
+     * @param providerType SMS provider type ('SalesforceMessaging' or 'Twilio')
+     * @param providerConfig Provider-specific configuration
+     * @return Boolean indicating if messaging is available
+     */
+    public static Boolean hasActiveMessagingEndpoint(
+        Id contactId,
+        String providerType,
+        Map<String, Object> providerConfig
+    ) {
+        if (contactId == null) {
+            return false;
+        }
+
+        // Get SMS provider strategy
+        SMSProviderStrategy provider;
+        try {
+            provider = SMSProviderStrategyFactory.getStrategy(providerType);
+        } catch (IllegalArgumentException e) {
+            System.debug('Invalid provider type, defaulting to phone check: ' + e.getMessage());
+            // Fallback to phone check
+            return hasPhoneNumber(contactId);
+        }
+
+        return provider.hasActiveMessagingEndpoint(contactId, providerConfig);
+    }
+
+    /**
+     * Check if Contact has active messaging endpoint (backward compatibility)
+     * Uses Salesforce Messaging as default
      * @param contactId Contact ID
      * @param channelId Messaging Channel ID (optional)
      * @return Boolean indicating if messaging is available
      */
     public static Boolean hasActiveMessagingEndpoint(Id contactId, Id channelId) {
-        if (contactId == null) {
-            return false;
+        Map<String, Object> providerConfig = new Map<String, Object>();
+        if (channelId != null) {
+            providerConfig.put('messagingChannelId', channelId);
         }
+        return hasActiveMessagingEndpoint(contactId, 'SalesforceMessaging', providerConfig);
+    }
 
-        // TODO: Check if Contact has active messaging endpoint
-        // For now, check if Contact has a phone number
+    /**
+     * Helper method to check if Contact has phone number
+     */
+    private static Boolean hasPhoneNumber(Id contactId) {
         List<Contact> contacts = [
             SELECT Id, Phone, MobilePhone
             FROM Contact
@@ -65,7 +124,6 @@ public with sharing class FollowUpMessagingService {
               AND (Phone != null OR MobilePhone != null)
             LIMIT 1
         ];
-
         return !contacts.isEmpty();
     }
 
