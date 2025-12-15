@@ -513,8 +513,6 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
         setTimeout(() => {
             this.isLoading = false;
         }, 1000);
-        // Also refresh vendor hierarchy
-        this.loadVendorHierarchy();
     }
 
     // Sync Component Library
