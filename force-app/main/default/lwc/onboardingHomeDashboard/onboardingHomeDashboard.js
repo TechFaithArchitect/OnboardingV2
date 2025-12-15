@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { extractErrorMessage } from 'c/utils';
 import hasAdminPermission from '@salesforce/customPermission/OnboardingAppAdmin';
 import getMyActiveOnboarding from '@salesforce/apex/OnboardingHomeDashboardController.getMyActiveOnboarding';
 import getOnboardingSummary from '@salesforce/apex/OnboardingHomeDashboardController.getOnboardingSummary';
@@ -238,13 +239,6 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
         } else if (error) {
             console.error('Error loading team queue:', error);
         }
-    }
-
-    // Utility helpers
-    getErrorMessage(error, fallbackMessage) {
-        const apiMessage = error && (error.body && error.body.message ? error.body.message : error.message);
-        const message = apiMessage || 'Unknown error';
-        return fallbackMessage ? `${fallbackMessage} ${message}` : message;
     }
 
     async runWithGuard(flagPropertyName, asyncCallback) {
@@ -623,7 +617,7 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
                 const message = await syncComponentLibrary();
                 this.showToast('Success', message, 'success');
             } catch (error) {
-                this.showToast('Error', this.getErrorMessage(error, 'Failed to sync Component Library.'), 'error');
+                this.showToast('Error', extractErrorMessage(error, 'Failed to sync Component Library.'), 'error');
             }
         });
     }
@@ -639,7 +633,7 @@ export default class OnboardingHomeDashboard extends NavigationMixin(LightningEl
                     this.handleRefresh();
                 }, 1000);
             } catch (error) {
-                this.showToast('Error', this.getErrorMessage(error, 'Failed to initialize default process.'), 'error');
+                this.showToast('Error', extractErrorMessage(error, 'Failed to initialize default process.'), 'error');
             }
         });
     }

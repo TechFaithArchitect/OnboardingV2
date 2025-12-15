@@ -1,5 +1,6 @@
 import { LightningElement, track, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { extractErrorMessage } from 'c/utils';
 
 import getVendorsWithPrograms from '@salesforce/apex/OnboardingHomeDashboardController.getVendorsWithPrograms';
 import searchVendorsWithPrograms from '@salesforce/apex/OnboardingHomeDashboardController.searchVendorsWithPrograms';
@@ -105,14 +106,6 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
     ];
 
     // --- Utility helpers ---
-
-    getErrorMessage(error, fallbackMessage) {
-        const apiMessage =
-            error &&
-            (error.body && error.body.message ? error.body.message : error.message);
-        const message = apiMessage || 'Unknown error';
-        return fallbackMessage ? `${fallbackMessage} ${message}` : message;
-    }
 
     showToast(title, message, variant) {
         const evt = new ShowToastEvent({
@@ -318,7 +311,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
                 this.showToast('No Results', 'No vendors found matching your search.', 'info');
             }
         } catch (error) {
-            this.showToast('Error', this.getErrorMessage(error, 'Failed to search vendors.'), 'error');
+            this.showToast('Error', extractErrorMessage(error, 'Failed to search vendors.'), 'error');
         } finally {
             this.isVendorSearching = false;
         }
@@ -364,7 +357,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
             } catch (error) {
                 this.showToast(
                     'Error',
-                    this.getErrorMessage(error, 'Failed to create vendor.'),
+                    extractErrorMessage(error, 'Failed to create vendor.'),
                     'error'
                 );
             }
@@ -427,7 +420,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
                 this.showToast('No Results', 'No vendor programs found matching your search.', 'info');
             }
         } catch (error) {
-            this.showToast('Error', this.getErrorMessage(error, 'Failed to search vendor programs.'), 'error');
+            this.showToast('Error', extractErrorMessage(error, 'Failed to search vendor programs.'), 'error');
         } finally {
             this.isVendorProgramSearching = false;
         }
@@ -468,7 +461,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
                     })
                 );
             } catch (error) {
-                this.showToast('Error', this.getErrorMessage(error, 'Failed to start onboarding flow.'), 'error');
+                this.showToast('Error', extractErrorMessage(error, 'Failed to start onboarding flow.'), 'error');
             }
         });
     }
@@ -515,7 +508,7 @@ export default class OnboardingVendorProgramWizard extends LightningElement {
             } catch (error) {
                 this.showToast(
                     'Error',
-                    this.getErrorMessage(error, 'Failed to create vendor program and start onboarding.'),
+                    extractErrorMessage(error, 'Failed to create vendor program and start onboarding.'),
                     'error'
                 );
             }
