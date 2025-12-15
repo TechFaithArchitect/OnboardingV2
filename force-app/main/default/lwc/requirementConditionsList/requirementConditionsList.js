@@ -2,6 +2,7 @@ import { LightningElement, api, wire, track } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import getConditions from '@salesforce/apex/OnboardingStatusRuleController.getConditions';
 import deleteCondition from '@salesforce/apex/OnboardingStatusRuleController.deleteCondition';
+import { extractErrorMessage } from 'c/utils';
 
 export default class RequirementConditionList extends LightningElement {
     @api ruleId;
@@ -29,6 +30,17 @@ export default class RequirementConditionList extends LightningElement {
                 ...row,
                 requirementName: row.Vendor_Program_Requirement__r.Name
             }));
+        } else if (error) {
+            // Surface the error via a custom event for parent to handle
+            this.dispatchEvent(
+                new CustomEvent('error', {
+                    detail: {
+                        message: extractErrorMessage(error, 'Failed to load requirement conditions.')
+                    },
+                    bubbles: true,
+                    composed: true
+                })
+            );
         }
     }
 
@@ -39,10 +51,21 @@ export default class RequirementConditionList extends LightningElement {
         if (actionName === 'delete') {
             deleteCondition({ conditionId: row.Id })
                 .then(() => {
-                    // Refresh wire adapter to reflect the deletion
                     if (this.wiredConditionsResult) {
                         return refreshApex(this.wiredConditionsResult);
                     }
+                    return this.refreshData();
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new CustomEvent('error', {
+                            detail: {
+                                message: extractErrorMessage(error, 'Failed to delete condition.')
+                            },
+                            bubbles: true,
+                            composed: true
+                        })
+                    );
                 });
         }
     }
@@ -52,12 +75,23 @@ export default class RequirementConditionList extends LightningElement {
         alert('Add Condition – not yet implemented');
     }
 
-    refreshData() {
-        return getConditions({ ruleId: this.ruleId }).then(data => {
-            this.conditions = data.map(row => ({
+    async refreshData() {
+        try {
+            const data = await getConditions({ ruleId: this.ruleId });
+            this.conditions = (data || []).map(row => ({
                 ...row,
                 requirementName: row.Vendor_Program_Requirement__r.Name
             }));
-        });
+        } catch (error) {
+            this.dispatchEvent(
+                new CustomEvent('error', {
+                    detail: {
+                        message: extractErrorMessage(error, 'Failed to refresh requirement conditions.')
+                    },
+                    bubbles: true,
+                    composed: true
+                })
+            );
+        }
     }
 }
