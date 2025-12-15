@@ -9,29 +9,70 @@ public with sharing class RequirementSetTriggerHandler {
     
     /**
      * Before insert/update logic
+     * Sets default Display_Label__c if not provided
      */
     public static void run(List<Onboarding_Requirement_Set__c> newList, Map<Id, Onboarding_Requirement_Set__c> oldMap) {
-        // No before logic currently needed
+        for (Onboarding_Requirement_Set__c reqSet : newList) {
+            // Set a default Display_Label__c if not provided
+            // This will be updated by afterInsert/afterUpdate when junction records exist
+            if (String.isBlank(reqSet.Display_Label__c)) {
+                // Try to get Version__c if it exists
+                Decimal version = 1;
+                try {
+                    Object versionObj = reqSet.get('Version__c');
+                    if (versionObj != null) {
+                        if (versionObj instanceof Decimal) {
+                            version = (Decimal)versionObj;
+                        } else if (versionObj instanceof String) {
+                            String versionStr = (String)versionObj;
+                            if (String.isNotBlank(versionStr)) {
+                                version = Decimal.valueOf(versionStr);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Version__c field doesn't exist or can't be read - use default
+                }
+                reqSet.Display_Label__c = 'Requirements - v' + version;
+            }
+        }
     }
     
     /**
      * After insert logic - populate Display_Label__c
+     * Note: Must query fresh records to update, as trigger.new records are read-only in after context
      */
     public static void afterInsert(List<Onboarding_Requirement_Set__c> newList) {
-        if (!isUpdatingDisplayLabel) {
-            updateDisplayLabels(newList);
+        if (isUpdatingDisplayLabel) {
+            return; // Prevent recursion
+        }
+        
+        // Query fresh records to update (trigger.new is read-only in after context)
+        Set<Id> requirementSetIds = new Set<Id>();
+        for (Onboarding_Requirement_Set__c reqSet : newList) {
+            requirementSetIds.add(reqSet.Id);
+        }
+        
+        if (!requirementSetIds.isEmpty()) {
+            List<Onboarding_Requirement_Set__c> toUpdate = [
+                SELECT Id
+                FROM Onboarding_Requirement_Set__c
+                WHERE Id IN :requirementSetIds
+            ];
+            updateDisplayLabels(toUpdate);
         }
     }
     
     /**
      * After update logic - update Display_Label__c if Version__c or other fields changed
+     * Note: Must query fresh records to update, as trigger.new records are read-only in after context
      */
     public static void afterUpdate(List<Onboarding_Requirement_Set__c> newList, Map<Id, Onboarding_Requirement_Set__c> oldMap) {
         if (isUpdatingDisplayLabel) {
             return; // Prevent recursion
         }
         
-        List<Onboarding_Requirement_Set__c> toUpdate = new List<Onboarding_Requirement_Set__c>();
+        Set<Id> requirementSetIdsToUpdate = new Set<Id>();
         
         for (Onboarding_Requirement_Set__c reqSet : newList) {
             Onboarding_Requirement_Set__c oldReqSet = oldMap.get(reqSet.Id);
@@ -40,14 +81,20 @@ public with sharing class RequirementSetTriggerHandler {
             // Note: Version__c might not exist - handle gracefully
             try {
                 if (oldReqSet != null && reqSet.get('Version__c') != oldReqSet.get('Version__c')) {
-                    toUpdate.add(reqSet);
+                    requirementSetIdsToUpdate.add(reqSet.Id);
                 }
             } catch (Exception e) {
                 // Version__c field doesn't exist - ignore
             }
         }
         
-        if (!toUpdate.isEmpty()) {
+        if (!requirementSetIdsToUpdate.isEmpty()) {
+            // Query fresh records to update (trigger.new is read-only in after context)
+            List<Onboarding_Requirement_Set__c> toUpdate = [
+                SELECT Id
+                FROM Onboarding_Requirement_Set__c
+                WHERE Id IN :requirementSetIdsToUpdate
+            ];
             updateDisplayLabels(toUpdate);
         }
     }

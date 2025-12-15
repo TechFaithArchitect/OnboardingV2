@@ -26,12 +26,13 @@ export default class VendorProgramOnboardingRequirementSet extends OnboardingSte
   // Column definitions for requirement set hierarchy tree grid
   requirementSetHierarchyColumns = [
     { 
-      label: 'Display Label', 
+      label: 'Display Label (Descriptive Name)', 
       fieldName: 'displayName', 
       type: 'text',
       cellAttributes: {
         class: { fieldName: 'rowClass' }
-      }
+      },
+      wrapText: true
     },
     { 
       label: 'Status', 

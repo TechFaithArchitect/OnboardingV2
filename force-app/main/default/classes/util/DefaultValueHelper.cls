@@ -141,9 +141,19 @@ public with sharing class DefaultValueHelper {
             return;
         }
         
-        // Set default Status if not provided
+        // Set default Status to Active if not provided
         if (String.isBlank(requirementSet.Status__c)) {
-            requirementSet.Status__c = 'Draft';
+            requirementSet.Status__c = 'Active';
+        }
+        
+        // Set Active to true when Status is Active
+        if (requirementSet.Status__c == 'Active' && (requirementSet.Active__c == null || requirementSet.Active__c == false)) {
+            requirementSet.Active__c = true;
+        }
+        
+        // Set default Version to 1 if not provided
+        if (requirementSet.Version__c == null) {
+            requirementSet.Version__c = 1;
         }
     }
 
