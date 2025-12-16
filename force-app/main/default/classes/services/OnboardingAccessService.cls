@@ -257,4 +257,36 @@ public with sharing class OnboardingAccessService {
 
         return userIds;
     }
+
+    /**
+     * Checks if the current user has System Administrator access.
+     * 
+     * A user is considered an admin if they have:
+     * 1. System Administrator profile, OR
+     * 2. Customize Application permission (typically admin-level)
+     * 
+     * @return Boolean indicating if current user is an admin
+     */
+    public static Boolean isCurrentUserAdmin() {
+        // Check if user is System Administrator
+        Profile userProfile = [SELECT Name FROM Profile WHERE Id = :UserInfo.getProfileId() LIMIT 1];
+        if (userProfile.Name == 'System Administrator') {
+            return true;
+        }
+        
+        // Check for Customize Application permission (typically admin-level)
+        try {
+            PermissionSetAssignment[] assignments = [
+                SELECT PermissionSet.PermissionsCustomizeApplication
+                FROM PermissionSetAssignment
+                WHERE AssigneeId = :UserInfo.getUserId()
+                  AND PermissionSet.PermissionsCustomizeApplication = true
+                LIMIT 1
+            ];
+            return !assignments.isEmpty();
+        } catch (Exception e) {
+            // If permission check fails, default to false for security
+            return false;
+        }
+    }
 }

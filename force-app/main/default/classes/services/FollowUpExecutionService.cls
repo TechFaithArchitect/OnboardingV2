@@ -38,14 +38,13 @@ public with sharing class FollowUpExecutionService {
         Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
         Communication_Template__c commTemplate = getCommTemplate(rule);
 
-        // Determine SMS provider (default to SalesforceMessaging if not specified)
-        // NOTE: Add SMS_Provider__c field to Follow_Up_Rule__mdt to configure provider per rule
+        // Determine SMS provider (prefers SMS_Provider__c field, falls back to Messaging Channel presence)
         String smsProvider = determineSMSProvider(rule, commTemplate);
         
         // Build provider configuration based on provider type
         Map<String, Object> providerConfig = buildProviderConfig(smsProvider, rule, commTemplate);
         
-        // Validate provider configuration
+        // Validate provider configuration (fail fast before callout)
         String configError = validateProviderConfig(smsProvider, providerConfig);
         if (configError != null) {
             markFollowUpFailed(followUpQueueId, configError);
@@ -56,6 +55,11 @@ public with sharing class FollowUpExecutionService {
         if (!FollowUpMessagingService.hasActiveMessagingEndpoint(dealerContact.Id, smsProvider, providerConfig)) {
             markFollowUpFailed(followUpQueueId, 'No active messaging endpoint for contact');
             return;
+        }
+        
+        // If provider is Twilio, ensure Salesforce Messaging path is not used
+        if (smsProvider == 'Twilio' && providerConfig.containsKey('messagingChannelId')) {
+            providerConfig.remove('messagingChannelId');
         }
 
         try {
@@ -242,14 +246,23 @@ public with sharing class FollowUpExecutionService {
 
     /**
      * Determine SMS provider from rule or template
-     * NOTE: Add SMS_Provider__c field to Follow_Up_Rule__mdt to configure provider per rule
-     * For now, defaults to SalesforceMessaging if Messaging_Channel__c exists, otherwise Twilio
+     * Prefers SMS_Provider__c field on rule, otherwise falls back to Messaging Channel presence
      */
     private static String determineSMSProvider(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
-        // Check if SMS_Provider__c field exists on rule (will be null if field doesn't exist)
-        // If field exists and has value, use it
-        // Otherwise, default based on whether Messaging_Channel__c is configured
+        // Prefer SMS_Provider__c field if set on rule
+        if (rule != null) {
+            try {
+                String smsProvider = (String)rule.get('SMS_Provider__c');
+                if (String.isNotBlank(smsProvider)) {
+                    return smsProvider;
+                }
+            } catch (Exception e) {
+                // Field may not exist yet - fall through to default logic
+                System.debug('SMS_Provider__c field not accessible: ' + e.getMessage());
+            }
+        }
         
+        // Fallback: Check if Messaging Channel is configured
         Id messagingChannelId = getIdIfValid(
             commTemplate != null ? commTemplate.Messaging_Channel_Id__c : 
             rule != null ? rule.Messaging_Channel__c : null
@@ -257,12 +270,12 @@ public with sharing class FollowUpExecutionService {
         
         // If Messaging Channel is configured, use Salesforce Messaging
         // Otherwise, default to Twilio
-        // TODO: Once SMS_Provider__c field is added to Follow_Up_Rule__mdt, use that instead
         return messagingChannelId != null ? 'SalesforceMessaging' : 'Twilio';
     }
 
     /**
      * Build provider configuration map based on provider type
+     * Includes fromPhone, accountSid, and namedCredential for Twilio
      */
     private static Map<String, Object> buildProviderConfig(
         String providerType,
@@ -286,63 +299,122 @@ public with sharing class FollowUpExecutionService {
                 config.put('templateId', templateId);
             }
         } else if (providerType == 'Twilio') {
-            // Get from phone number from rule or template
-            // NOTE: Add Twilio_From_Phone__c field to Follow_Up_Rule__mdt or Communication_Template__c
-            // For now, use a default or get from custom metadata
+            // Get from phone number: rule/template first, then active Twilio config
             String fromPhone = getTwilioFromPhone(rule, commTemplate);
             if (String.isNotBlank(fromPhone)) {
                 config.put('fromPhoneNumber', fromPhone);
             }
             
-            // Optional: Account SID and Auth Token (if not in Named Credential)
-            // These can be added to Follow_Up_Rule__mdt if needed
+            // Get Account SID: rule/template first, then active Twilio config
+            String accountSid = getTwilioAccountSid(rule, commTemplate);
+            if (String.isNotBlank(accountSid)) {
+                config.put('accountSid', accountSid);
+            }
+            
+            // Get Named Credential: rule/template first, then active Twilio config
+            String namedCredential = getTwilioNamedCredential(rule, commTemplate);
+            if (String.isNotBlank(namedCredential)) {
+                config.put('namedCredential', namedCredential);
+            }
         }
         
         return config;
     }
 
     /**
-     * Get Twilio from phone number from Twilio_Configuration__mdt
-     * Uses the first active configuration record
+     * Get Twilio from phone number
+     * Priority: rule/template field > active Twilio_Configuration__mdt
      */
     private static String getTwilioFromPhone(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+        // Check rule first
+        if (rule != null) {
+            try {
+                String fromPhone = (String)rule.get('Twilio_From_Phone__c');
+                if (String.isNotBlank(fromPhone)) {
+                    return fromPhone;
+                }
+            } catch (Exception e) {
+                // Field may not exist - continue
+                System.debug('Twilio_From_Phone__c field not accessible: ' + e.getMessage());
+            }
+        }
+        
+        // Fallback to active Twilio_Configuration__mdt
         try {
-            // Query Twilio_Configuration__mdt for active configuration
             List<Twilio_Configuration__mdt> configs = [
-                SELECT From_Phone_Number__c, Named_Credential__c
+                SELECT From_Phone_Number__c
                 FROM Twilio_Configuration__mdt
                 WHERE Active__c = true
                 LIMIT 1
             ];
             
-            if (!configs.isEmpty()) {
+            if (!configs.isEmpty() && String.isNotBlank(configs[0].From_Phone_Number__c)) {
                 return configs[0].From_Phone_Number__c;
             }
         } catch (Exception e) {
-            // Twilio_Configuration__mdt may not exist yet - log and return null
             System.debug('Twilio_Configuration__mdt not found or not accessible: ' + e.getMessage());
         }
         
-        // Fallback: Check if Twilio_From_Phone__c field exists on rule or template
-        // TODO: Once Twilio_From_Phone__c field is added to Follow_Up_Rule__mdt or Communication_Template__c, retrieve it here
         return null;
     }
 
     /**
-     * Get Twilio Account SID from configuration
+     * Get Twilio Account SID
+     * Priority: rule field > active Twilio_Configuration__mdt
      * NOTE: Account SID is required for Twilio API calls (used in URL path)
      */
     private static String getTwilioAccountSid(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
-        // TODO: Add Account_SID__c field to Twilio_Configuration__mdt or Follow_Up_Rule__mdt
-        // For now, return null (will cause validation error, which is expected)
-        // Account SID should be provided in providerConfig or stored in Named Credential username
+        // Check rule first
+        if (rule != null) {
+            try {
+                String accountSid = (String)rule.get('Twilio_Account_SID__c');
+                if (String.isNotBlank(accountSid)) {
+                    return accountSid;
+                }
+            } catch (Exception e) {
+                // Field may not exist - continue
+                System.debug('Twilio_Account_SID__c field not accessible: ' + e.getMessage());
+            }
+        }
+        
+        // Fallback to active Twilio_Configuration__mdt
+        try {
+            List<Twilio_Configuration__mdt> configs = [
+                SELECT Account_SID__c
+                FROM Twilio_Configuration__mdt
+                WHERE Active__c = true
+                LIMIT 1
+            ];
+            
+            if (!configs.isEmpty() && String.isNotBlank(configs[0].Account_SID__c)) {
+                return configs[0].Account_SID__c;
+            }
+        } catch (Exception e) {
+            System.debug('Could not get Account SID from Twilio_Configuration__mdt: ' + e.getMessage());
+        }
+        
         return null;
     }
 
     /**
-     * Get Twilio Named Credential name from configuration
+     * Get Twilio Named Credential name
+     * Priority: rule field > active Twilio_Configuration__mdt > default 'Twilio_API'
      */
     private static String getTwilioNamedCredential(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+        // Check rule first
+        if (rule != null) {
+            try {
+                String namedCredential = (String)rule.get('Twilio_Named_Credential__c');
+                if (String.isNotBlank(namedCredential)) {
+                    return namedCredential;
+                }
+            } catch (Exception e) {
+                // Field may not exist - continue
+                System.debug('Twilio_Named_Credential__c field not accessible: ' + e.getMessage());
+            }
+        }
+        
+        // Fallback to active Twilio_Configuration__mdt
         try {
             List<Twilio_Configuration__mdt> configs = [
                 SELECT Named_Credential__c
@@ -358,22 +430,35 @@ public with sharing class FollowUpExecutionService {
             System.debug('Could not get Named Credential from Twilio_Configuration__mdt: ' + e.getMessage());
         }
         
-        return null; // Will use default
+        // Default to 'Twilio_API' if nothing is configured
+        return 'Twilio_API';
     }
 
     /**
      * Validate provider configuration
+     * Returns precise error messages when required fields are missing
      */
     private static String validateProviderConfig(String providerType, Map<String, Object> providerConfig) {
         if (providerType == 'SalesforceMessaging') {
             Id messagingChannelId = (Id)providerConfig.get('messagingChannelId');
             if (messagingChannelId == null) {
-                return 'No messaging channel configured for Salesforce Messaging';
+                return 'No messaging channel configured for Salesforce Messaging. Configure Messaging_Channel__c on Follow_Up_Rule__mdt or Communication_Template__c.';
             }
         } else if (providerType == 'Twilio') {
             String fromPhone = (String)providerConfig.get('fromPhoneNumber');
             if (String.isBlank(fromPhone)) {
-                return 'From phone number is required for Twilio. Add Twilio_From_Phone__c field to Follow_Up_Rule__mdt.';
+                return 'From phone number is required for Twilio. Configure Twilio_From_Phone__c on Follow_Up_Rule__mdt or ensure an active Twilio_Configuration__mdt record exists with From_Phone_Number__c.';
+            }
+            
+            String accountSid = (String)providerConfig.get('accountSid');
+            if (String.isBlank(accountSid)) {
+                return 'Account SID is required for Twilio API calls. Configure Twilio_Account_SID__c on Follow_Up_Rule__mdt or ensure an active Twilio_Configuration__mdt record exists with Account_SID__c. Alternatively, store Account SID in Named Credential username.';
+            }
+            
+            // Named Credential is optional (has default), but validate it's provided or default exists
+            String namedCredential = (String)providerConfig.get('namedCredential');
+            if (String.isBlank(namedCredential)) {
+                return 'Named Credential is required for Twilio. Configure Twilio_Named_Credential__c on Follow_Up_Rule__mdt or ensure an active Twilio_Configuration__mdt record exists with Named_Credential__c.';
             }
         }
         return null; // Valid
@@ -388,7 +473,8 @@ public with sharing class FollowUpExecutionService {
                    Initial_Delay_Days__c, Escalation_Schedule__c,
                    Messaging_Channel__c, Messaging_Template__c,
                    Max_Attempts_Per_Window__c, Fatigue_Window_Days__c, Fatigue_Suppression_Enabled__c,
-                   Active__c
+                   Active__c,
+                   SMS_Provider__c, Twilio_From_Phone__c, Twilio_Account_SID__c, Twilio_Named_Credential__c
             FROM Follow_Up_Rule__mdt
             WHERE DeveloperName = :developerName
             LIMIT 1
