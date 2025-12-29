@@ -77,8 +77,6 @@ private class FollowUpProcessorTest {
         Onboarding__c ob = TestOnboardingFactory.create(acct, vendorProgram, true);
 
         // Mock email send success
-        EmailCommSenderService.testResultOverride = new EmailCommSendResultDTO('Success', null, null);
-
         // Queue an email follow-up
         Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
             Name = 'FU Email',

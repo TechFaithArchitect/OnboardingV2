@@ -317,11 +317,7 @@
         <apexClass>CreditCheckTabControllerTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>CurrentUserSenderStrategy</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+        <classAccesses>
         <apexClass>CustomException</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -357,15 +353,7 @@
         <apexClass>EmailAttachmentRepositoryTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>EmailAttachmentService</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailAttachmentServiceTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+            <classAccesses>
         <apexClass>EmailCatalogCMDTRepository</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -373,87 +361,7 @@
         <apexClass>EmailCatalogCMDTRepositoryTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommApexSendFlowDTO</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommBatchSendAction</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommBatchSendActionTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommDedupeUtil</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommDedupeUtilTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLogHelper</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLogHelperTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLogRepository</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLogRepositoryTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLoggerQueueable</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLoggerQueueableTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLoggerService</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommLoggerServiceTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSendAction</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSendActionTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSendRequestDTO</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSendResultDTO</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSendWrapper</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSenderService</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailCommSenderServiceTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+                                                                                    <classAccesses>
         <apexClass>EmailCommTerritoryRoleHelper</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -469,35 +377,7 @@
         <apexClass>EmailCommTerritoryRoleSyncJobTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>EmailMessageBuilder</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailMessageBuilderTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailMessageRepository</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailSendAndLogOrchestrator</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailSendAndLogOrchestratorTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailSenderStrategy</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>EmailSenderStrategyFactory</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+                                <classAccesses>
         <apexClass>EmailSyncServiceConstants</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1477,11 +1357,7 @@
         <apexClass>OrgWideEmailSyncServiceTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>OrgWideSenderStrategy</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+        <classAccesses>
         <apexClass>OverrideAuditController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -2693,15 +2569,7 @@
         <apexClass>TestECCFactory</apexClass>
         <enabled>false</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>TestEmailCommLogFactory</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>TestEmailCommSendResultFactory</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
+            <classAccesses>
         <apexClass>TestEmailContextFactory</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -9469,72 +9337,7 @@
         <field>ERP_Setup__c.Vendor__c</field>
         <readable>false</readable>
     </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Account__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Communication_Template__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Contact__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Email_Message_Id__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.HTML_Body__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Onboarding__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Sent_At__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Sent_By__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Sent_Via__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Status__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Subject__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.Text_Body__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Email_Communication_Log__c.To_Address__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
+                                                        <fieldPermissions>
         <editable>false</editable>
         <field>Email_Template_Catalog__mdt.Active__c</field>
         <readable>false</readable>
@@ -17251,10 +17054,7 @@
     <layoutAssignments>
         <layout>EmailMessage-Email Message Layout</layout>
     </layoutAssignments>
-    <layoutAssignments>
-        <layout>Email_Communication_Log__c-Email Communication Log Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
+        <layoutAssignments>
         <layout>Email_Template_Catalog__mdt-Onboarding Email Template Catalog Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -18960,11 +18760,7 @@
         <tab>ECC_Field_Display_Configuration__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
-    <tabVisibilities>
-        <tab>Email_Communication_Log__c</tab>
-        <visibility>Hidden</visibility>
-    </tabVisibilities>
-    <tabVisibilities>
+        <tabVisibilities>
         <tab>Onboarding_App_Stage_Dependency_Member__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>

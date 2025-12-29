@@ -182,23 +182,6 @@ public class TestDataFactory {
         return TestDataFactoryWrapper.createDraftVendorCustomizationWrapper(doInsert);
     }
 
-    public static TestDataFactoryWrapper.EmailCommWrapper createEmailCommSendRequestDTO(Boolean doInsert) {
-        return TestDataFactoryWrapper.createEmailCommSendWrapper(doInsert, 0);
-    }
-
-    public static EmailCommSendRequestDTO createEmailCommSendRequestDTO() {
-        return TestDataFactoryWrapper.createEmailCommSendRequestDTO();
-    }
-
-    public static TestDataFactoryWrapper.EmailCommWrapper createEmailCommSendWrapper(Integer count, Boolean doInsert) {
-        // For now, create a single wrapper - can be enhanced if needed
-        return TestDataFactoryWrapper.createEmailCommSendWrapper(doInsert, 0);
-    }
-
-    public static Email_Communication_Log__c createEmailCommLog(EmailCommSendRequestDTO emailCommSendRequestDTO, Boolean doInsert, Integer daysAgo) {
-        return TestEmailCommLogFactory.create(emailCommSendRequestDTO, doInsert, daysAgo);
-    }
-
     public static TestDataFactoryWrapper.ECCTestWrapper createECCTestWrapper(Boolean doInsert) {
         return TestDataFactoryWrapper.createECCScenario(doInsert);
     }
