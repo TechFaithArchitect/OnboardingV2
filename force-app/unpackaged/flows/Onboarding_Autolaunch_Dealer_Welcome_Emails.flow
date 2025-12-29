@@ -25,32 +25,97 @@
         </outputParameters>
     </actionCalls>
     <actionCalls>
-        <name>Send_Email_and_Log_Communication_Action</name>
-        <label>Send Email and Log Communication Action</label>
+        <name>Send_Email_Communication_Program_Base_App</name>
+        <label>Send Email Communication - Program Base App</label>
+        <locationX>50</locationX>
+        <locationY>566</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Update_Account_Company_Id_with_ptn</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>ccAddresses</name>
+            <value/>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>OrgWideEmailAddress</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <elementReference>OrgWideEmailRecord.OrgWideEmailAddressId__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useEmailTemplate</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailTemplateId</name>
+            <value>
+                <elementReference>CommunicationTemplateRecord.Email_Template_Id__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+            <value>
+                <elementReference>OnboardingRecord.Opportunity__r.Selected_Opportunity_Contact__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>relatedRecordId</name>
+            <value>
+                <elementReference>OnboardingRecord.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logEmailOnSend</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>2.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <name>Send_Email_Communication_Vendor</name>
+        <label>Send Email Communication - Vendor</label>
         <locationX>446</locationX>
         <locationY>566</locationY>
-        <actionName>EmailCommSendAction</actionName>
-        <actionType>apex</actionType>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
         <connector>
             <targetReference>Get_New_Dealer_Record_Type</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>ccEmailAddresses</name>
+            <name>ccAddresses</name>
+            <value/>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
             <value>
-                <elementReference>ccEmailAddresses</elementReference>
+                <stringValue>OrgWideEmailAddress</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>communicationTemplateId</name>
+            <name>senderAddress</name>
             <value>
-                <elementReference>CommunicationTemplateRecord.Id</elementReference>
+                <elementReference>OrgWideEmailRecord.OrgWideEmailAddressId__c</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>contactId</name>
+            <name>useEmailTemplate</name>
             <value>
-                <elementReference>OnboardingRecord.Opportunity__r.Selected_Opportunity_Contact__c</elementReference>
+                <stringValue>True</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -60,94 +125,29 @@
             </value>
         </inputParameters>
         <inputParameters>
-            <name>logSync</name>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>onboardingId</name>
-            <value>
-                <elementReference>OnboardingRecord.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>orgWideEmailAddressId</name>
-            <value>
-                <elementReference>OrgWideEmailRecord.OrgWideEmailAddressId__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>senderType</name>
-            <value>
-                <stringValue>OrgWide</stringValue>
-            </value>
-        </inputParameters>
-        <nameSegment>EmailCommSendAction</nameSegment>
-        <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
-    <actionCalls>
-        <name>Send_Email_and_Log_Communication_Action_Program_Base_App</name>
-        <label>Send Email and Log Communication Action - Program Base App</label>
-        <locationX>50</locationX>
-        <locationY>566</locationY>
-        <actionName>EmailCommSendAction</actionName>
-        <actionType>apex</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>ccEmailAddresses</name>
-            <value>
-                <elementReference>ccEmailAddresses</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>communicationTemplateId</name>
-            <value>
-                <elementReference>CommunicationTemplateRecord.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>contactId</name>
+            <name>recipientId</name>
             <value>
                 <elementReference>OnboardingRecord.Opportunity__r.Selected_Opportunity_Contact__c</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>emailTemplateId</name>
-            <value>
-                <elementReference>CommunicationTemplateRecord.Email_Template_Id__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logSync</name>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>onboardingId</name>
+            <name>relatedRecordId</name>
             <value>
                 <elementReference>OnboardingRecord.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>orgWideEmailAddressId</name>
+            <name>logEmailOnSend</name>
             <value>
-                <elementReference>OrgWideEmailRecord.OrgWideEmailAddressId__c</elementReference>
+                <booleanValue>true</booleanValue>
             </value>
         </inputParameters>
-        <inputParameters>
-            <name>senderType</name>
-            <value>
-                <stringValue>OrgWide</stringValue>
-            </value>
-        </inputParameters>
-        <nameSegment>EmailCommSendAction</nameSegment>
+        <nameSegment>emailSimple</nameSegment>
         <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionString>2.0.1</versionString>
     </actionCalls>
     <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>Contract_Type_to_Determine_Email</name>
         <label>Contract Type to Determine Email</label>
@@ -186,7 +186,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Email_and_Log_Communication_Action_Program_Base_App</targetReference>
+                <targetReference>Send_Email_Communication_Program_Base_App</targetReference>
             </connector>
             <label>Program Base App</label>
         </rules>
@@ -201,7 +201,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Email_and_Log_Communication_Action</targetReference>
+                <targetReference>Send_Email_Communication_Vendor</targetReference>
             </connector>
             <label>Vendor</label>
         </rules>
@@ -571,6 +571,27 @@ IF(
         <object>Contact</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordUpdates>
+        <name>Update_Account_Company_Id_with_ptn</name>
+        <label>Update Account Company Id with ptn</label>
+        <locationX>50</locationX>
+        <locationY>674</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>OnboardingRecord.Account__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Company_ID__c</field>
+            <value>
+                <stringValue>ptn</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
     <start>
         <locationX>320</locationX>
         <locationY>0</locationY>

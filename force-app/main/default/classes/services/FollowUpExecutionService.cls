@@ -125,20 +125,33 @@ public with sharing class FollowUpExecutionService {
             return;
         }
 
-        // Build email request from communication template
-        EmailCommSendRequestDTO req = new EmailCommSendRequestDTO();
-        req.communicationTemplateId = commTemplate != null ? commTemplate.Id : null;
-        req.emailTemplateId = commTemplate != null ? commTemplate.Email_Template_Id__c : null;
-        req.subject = commTemplate != null ? commTemplate.Email_Subject__c : 'Onboarding Follow-Up';
-        req.toAddress = dealerContact.Email;
-        req.recipientId = dealerContact.Id;
-        req.relatedRecordId = followUp.Onboarding__c;
-        req.logSync = true;
+        // Build email from communication template
+        String emailTemplateId = commTemplate != null ? commTemplate.Email_Template_Id__c : null;
+        if (String.isBlank(emailTemplateId)) {
+            markFollowUpFailed(followUpQueueId, 'No email template configured for follow-up');
+            return;
+        }
 
-        EmailCommSendResultDTO result = EmailCommSenderService.sendEmail(req);
-        if (result == null || result.status != 'Success') {
-            String errorMsg = result != null ? result.errorMessage : 'Unknown error';
-            markFollowUpFailed(followUpQueueId, 'Email send failed: ' + errorMsg);
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setSaveAsActivity(true);
+        mail.setTemplateId(emailTemplateId);
+        mail.setTargetObjectId(dealerContact.Id);
+        mail.setWhatId(followUp.Onboarding__c);
+        mail.setUseSignature(false);
+
+        try {
+            Messaging.SendEmailResult[] results = Messaging.sendEmail(
+                new Messaging.SingleEmailMessage[] { mail }
+            );
+            if (results == null || results.isEmpty() || !results[0].isSuccess()) {
+                String errorMsg = (results != null && !results.isEmpty() && results[0].getErrors().size() > 0)
+                    ? results[0].getErrors()[0].getMessage()
+                    : 'Unknown error';
+                markFollowUpFailed(followUpQueueId, 'Email send failed: ' + errorMsg);
+                return;
+            }
+        } catch (Exception e) {
+            markFollowUpFailed(followUpQueueId, 'Email send failed: ' + e.getMessage());
             return;
         }
 

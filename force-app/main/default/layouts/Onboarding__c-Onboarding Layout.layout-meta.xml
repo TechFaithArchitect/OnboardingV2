@@ -512,7 +512,6 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <relatedList>Email_Communication_Log__c.Onboarding__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>

@@ -38,16 +38,6 @@ public class TestDataFactoryWrapper {
         }
     }
 
-    public class EmailCommWrapper {
-        public EmailCommSendRequestDTO dto;
-        public EmailMessage msg;
-        public Email_Communication_Log__c log;
-        public EmailCommWrapper(EmailCommSendRequestDTO dto, EmailMessage msg, Email_Communication_Log__c log) {
-            this.dto = dto;
-            this.msg = msg;
-            this.log = log;
-        }
-    }
 
     // -------- Users & Permissions --------
     public class PermissionedUserWrapper {
@@ -465,30 +455,6 @@ public class TestDataFactoryWrapper {
         Onboarding__c onboarding = TestOnboardingFactory.create(account, vendorCustomizationWrapper.customization, doInsert);
         Communication_Template__c template = TestCommTemplateFactory.createTemplate(doInsert);
         return new EmailTestContextWrapper(account, contact, template, onboarding);
-    }
-
-    public static EmailCommWrapper createEmailCommSendWrapper(Boolean doInsert, Integer daysAgo) {
-        EmailTestContextWrapper emailTestContext = createEmailTestContext(doInsert);
-
-        EmailCommSendRequestDTO emailCommSendRequestDTO = new EmailCommSendRequestDTO();
-        emailCommSendRequestDTO.contactId = emailTestContext.contact.Id;
-        emailCommSendRequestDTO.accountId = emailTestContext.account.Id;
-        emailCommSendRequestDTO.onboardingId = emailTestContext.onboarding.Id;
-        emailCommSendRequestDTO.communicationTemplateId = emailTestContext.template.Id;
-        emailCommSendRequestDTO.toAddress = 'test@example.com';
-        emailCommSendRequestDTO.subject = 'Test Subject';
-        emailCommSendRequestDTO.htmlBody = '<p>Test</p>';
-        emailCommSendRequestDTO.textBody = 'Test';
-        emailCommSendRequestDTO.logSync = true;
-
-        EmailMessage emailMessage = TestEmailMessageFactory.create(doInsert);
-        Email_Communication_Log__c emailCommLog = TestEmailCommLogFactory.create(emailCommSendRequestDTO, doInsert, daysAgo);
-
-        return new EmailCommWrapper(emailCommSendRequestDTO, emailMessage, emailCommLog);
-    }
-
-    public static EmailCommSendRequestDTO createEmailCommSendRequestDTO() {
-        return createEmailCommSendWrapper(true, 0).dto;
     }
 
     public static Vendor_Program_Group__c createVendorProgramGroup(Boolean doInsert) {
