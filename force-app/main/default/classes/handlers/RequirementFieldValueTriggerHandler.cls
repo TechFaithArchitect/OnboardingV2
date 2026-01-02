@@ -57,7 +57,7 @@ public with sharing class RequirementFieldValueTriggerHandler {
             if (fieldValueIdsToEnqueue.contains(record.Id)) {
                 Requirement_Field__c reqField = requirementFields.get(record.Requirement_Field__c);
                 if (reqField != null && 
-                    (reqField.Validation_Type__c == 'Cross-Field' || reqField.Validation_Type__c == 'External')) {
+                    (reqField.Validation_Type__c == 'Cross-Field' || isExternalValidation(reqField.Validation_Type__c))) {
                     asyncFieldValueIds.add(record.Id);
                 }
             }
@@ -84,5 +84,8 @@ public with sharing class RequirementFieldValueTriggerHandler {
             System.debug('Stack trace: ' + e.getStackTraceString());
         }
     }
-}
 
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
+    }
+}

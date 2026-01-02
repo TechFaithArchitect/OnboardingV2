@@ -7,4 +7,3 @@ trigger OnboardingRequirementTrigger on Onboarding_Requirement__c (after insert,
         OnboardingRequirementTriggerHandler.handleAfterSave(Trigger.new, Trigger.oldMap);
     }
 }
-

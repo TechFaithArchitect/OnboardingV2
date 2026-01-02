@@ -41,6 +41,7 @@ public with sharing class RequirementFieldValueRepository {
                    Validation_Error_Message__c, Last_Validated_Date__c,
                    Requirement_Field__c, Requirement_Field__r.Field_API_Name__c,
                    Requirement_Field__r.Required__c, Requirement_Field__r.Validation_Type__c,
+                   Requirement_Field__r.Sequence__c,
                    Requirement_Field__r.Requirement_Field_Group__c,
                    Onboarding_Requirement__c
             FROM Requirement_Field_Value__c
@@ -53,7 +54,7 @@ public with sharing class RequirementFieldValueRepository {
     /**
      * Get Requirement_Field_Value__c records for an onboarding with invalid status
      * @param onboardingId Onboarding__c ID
-     * @return List of Requirement_Field_Value__c records with Invalid or Needs_Correction status
+     * @return List of Requirement_Field_Value__c records with Invalid or Needs Correction status
      */
     public static List<Requirement_Field_Value__c> getInvalidFieldValuesByOnboarding(Id onboardingId) {
         if (onboardingId == null) {
@@ -68,7 +69,7 @@ public with sharing class RequirementFieldValueRepository {
                    Onboarding_Requirement__c, Onboarding_Requirement__r.Name
             FROM Requirement_Field_Value__c
             WHERE Onboarding_Requirement__r.Onboarding__c = :onboardingId
-              AND Validation_Status__c IN ('Invalid', 'Needs_Correction')
+              AND Validation_Status__c IN ('Invalid', 'Needs Correction')
             ORDER BY Onboarding_Requirement__r.Name,
                      Requirement_Field__r.Name
         ];
@@ -155,8 +156,7 @@ public with sharing class RequirementFieldValueRepository {
             SELECT COUNT()
             FROM Requirement_Field_Value__c
             WHERE Onboarding_Requirement__r.Onboarding__c = :onboardingId
-              AND Validation_Status__c IN ('Invalid', 'Needs_Correction')
+              AND Validation_Status__c IN ('Invalid', 'Needs Correction')
         ];
     }
 }
-

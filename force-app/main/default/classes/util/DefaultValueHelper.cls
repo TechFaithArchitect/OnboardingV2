@@ -37,8 +37,13 @@ public with sharing class DefaultValueHelper {
         }
         
         // Set default Status if not provided
-        if (String.isBlank(vendorProgram.Status__c)) {
-            vendorProgram.Status__c = 'Draft';
+        if (String.isBlank(vendorProgram.Status__c) ||
+            !PicklistHelper.isPicklistValueValid('Vendor_Customization__c', 'Status__c', vendorProgram.Status__c)) {
+            vendorProgram.Status__c = PicklistHelper.getValidPicklistValue(
+                'Vendor_Customization__c',
+                'Status__c',
+                'Draft'
+            );
         }
         
         // Set Active = false for new programs (draft)
@@ -141,14 +146,21 @@ public with sharing class DefaultValueHelper {
             return;
         }
         
-        // Set default Status to Active if not provided
-        if (String.isBlank(requirementSet.Status__c)) {
-            requirementSet.Status__c = 'Active';
+        // Set default Status to Draft if not provided or invalid
+        if (String.isBlank(requirementSet.Status__c) ||
+            !PicklistHelper.isPicklistValueValid('Onboarding_Requirement_Set__c', 'Status__c', requirementSet.Status__c)) {
+            requirementSet.Status__c = PicklistHelper.getValidPicklistValue(
+                'Onboarding_Requirement_Set__c',
+                'Status__c',
+                'Draft'
+            );
         }
         
         // Set Active to true when Status is Active
         if (requirementSet.Status__c == 'Active' && (requirementSet.Active__c == null || requirementSet.Active__c == false)) {
             requirementSet.Active__c = true;
+        } else if (requirementSet.Active__c == null) {
+            requirementSet.Active__c = false;
         }
         
         // Set default Version to 1 if not provided

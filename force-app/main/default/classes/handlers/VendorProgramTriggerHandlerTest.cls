@@ -11,11 +11,8 @@ private class VendorProgramTriggerHandlerTest {
         Vendor_Customization__c rootCustomization = setup.customization; // this is Draft by default
 
         // Valid child Active version referencing root
-        Vendor_Customization__c activeVersion = new Vendor_Customization__c(
-            Vendor__c = vendor.Id,
-            Status__c = 'Active',
-            Active__c = true,
-            Previous_Version__c = rootCustomization.Id
+        Vendor_Customization__c activeVersion = TestDataFactory.createVendorCustomization(
+            vendor, 'Active', true, rootCustomization.Id, false
         );
 
         // Act
@@ -39,16 +36,13 @@ private class VendorProgramTriggerHandlerTest {
 
         // First valid active child
         Vendor_Customization__c firstActive = 
-            TestVendorFactory.createCustomizationInternal(
+            TestDataFactory.createVendorCustomization(
                 vendor, 'Active', true, rootCustomization.Id, true
             );
 
         // Second active child referencing same parent - should fail
-        Vendor_Customization__c secondActive = new Vendor_Customization__c(
-            Vendor__c = vendor.Id,
-            Status__c = 'Active',
-            Active__c = true,
-            Previous_Version__c = rootCustomization.Id
+        Vendor_Customization__c secondActive = TestDataFactory.createVendorCustomization(
+            vendor, 'Active', true, rootCustomization.Id, false
         );
 
         // Act
@@ -75,10 +69,8 @@ private class VendorProgramTriggerHandlerTest {
         Vendor__c vendor = setup.vendor;
 
         // Create active version with NO parent (first active allowed)
-        Vendor_Customization__c orphan = new Vendor_Customization__c(
-            Vendor__c = vendor.Id,
-            Active__c = true,
-            Status__c = 'Active'
+        Vendor_Customization__c orphan = TestDataFactory.createVendorCustomization(
+            vendor, 'Active', true, null, false
         );
 
         // Act

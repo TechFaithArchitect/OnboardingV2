@@ -3,10 +3,8 @@ private class OnboardingPrimaryContactTest {
 
     @isTest
     static void createsAvoWithPrimaryContact() {
-        Account acct = new Account(Name = 'Primary Contact Account');
-        insert acct;
-        Contact contact = new Contact(LastName = 'Primary', AccountId = acct.Id);
-        insert contact;
+        Account acct = TestDataFactory.createAccount('Primary Contact Account', true);
+        Contact contact = TestDataFactory.createContact('Primary', 'Contact', true, acct);
 
         Opportunity opp = new Opportunity(
             Name = 'Onboarding Opp',
@@ -16,8 +14,11 @@ private class OnboardingPrimaryContactTest {
         );
         insert opp;
 
-        Onboarding__c onboarding = new Onboarding__c(Account__c = acct.Id);
-        insert onboarding;
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true
+        );
+        Onboarding__c onboarding = TestDataFactory.createOnboarding(acct, vendorProgram, true);
 
         Test.startTest();
         Id avoId = VendorOnboardingWizardService.createAccountVendorProgramOnboarding(

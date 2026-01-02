@@ -11,7 +11,11 @@ public class TestOnboardingRulesFactory {
         Onboarding_Status_Rule__c onboardingStatusRule = new Onboarding_Status_Rule__c(
             Parent_Rule__c = onboardingStatusRulesEngineRule != null ? onboardingStatusRulesEngineRule.Id : null,
             Requirement__c = vendorProgramRequirement != null ? vendorProgramRequirement.Id : null,
-            Expected_Status__c = String.isNotBlank(expectedStatus) ? expectedStatus : 'New',
+            Expected_Status__c = String.isNotBlank(expectedStatus) ? expectedStatus : 
+                TestDataFactoryUtil.getFirstPicklistValue(
+                    Onboarding_Status_Rule__c.SObjectType,
+                    'Expected_Status__c'
+                ),
             Rule_Number__c = ruleNumber != null ? ruleNumber : 1
         );
 
@@ -22,7 +26,11 @@ public class TestOnboardingRulesFactory {
     public static Onboarding_Status_Rule__c create(Boolean doInsert) {
         Onboarding_Status_Rules_Engine__c onboardingStatusRulesEngineRule = TestOnboardingRulesEngineFactory.create(doInsert);
         Vendor_Program_Requirement__c requivendorProgramRequirementement = TestVendorProgramRequirementFactory.create(doInsert);
-        return create(doInsert, onboardingStatusRulesEngineRule, requivendorProgramRequirementement, 'New', 1);
+        String defaultStatus = TestDataFactoryUtil.getFirstPicklistValue(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        return create(doInsert, onboardingStatusRulesEngineRule, requivendorProgramRequirementement, defaultStatus, 1);
     }
 
     // ===========================================
@@ -62,7 +70,10 @@ public class TestOnboardingRulesFactory {
                     doInsert,
                     engine,
                     req,
-                    'New',
+                    TestDataFactoryUtil.getFirstPicklistValue(
+                        Onboarding_Status_Rule__c.SObjectType,
+                        'Expected_Status__c'
+                    ),
                     idx++
                 )
             );

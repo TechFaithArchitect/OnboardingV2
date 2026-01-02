@@ -213,10 +213,7 @@
             <sortOrder>9</sortOrder>
         </platformActionListItems>
     </platformActionList>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Site_Survey_Response__c.Service_Appointment__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>Name</fields>
         <fields>StartTime</fields>

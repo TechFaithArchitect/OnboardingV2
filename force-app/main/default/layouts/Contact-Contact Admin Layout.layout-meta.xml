@@ -517,18 +517,10 @@
         <sortField>LearnUponP__Date_Enrolled__c</sortField>
         <sortOrder>Desc</sortOrder>
     </relatedLists>
+    
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Message_Id__c</fields>
-        <fields>Service_Appointment__c</fields>
-        <fields>Status__c</fields>
-        <fields>CREATED_DATE</fields>
-        <relatedList>Message_Log__c.Contact__c</relatedList>
-        <sortField>CREATED_DATE</sortField>
-        <sortOrder>Desc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
+        <relatedList>Email_Communication_Log__c.Contact__c</relatedList>
     </relatedLists>
     <relatedObjects>AccountId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>

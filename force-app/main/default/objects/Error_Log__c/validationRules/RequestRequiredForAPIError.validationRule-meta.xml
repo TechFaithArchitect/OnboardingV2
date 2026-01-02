@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>RequestRequiredForAPIError</fullName>
-    <active>true</active>
-    <description>Makes Request field required when Type is API Error</description>
-    <errorConditionFormula>AND(ISPICKVAL( Type__c , &apos;API Error&apos;), Request__c = &apos;&apos;)</errorConditionFormula>
-    <errorDisplayField>Request__c</errorDisplayField>
-    <errorMessage>Request is required for API Error Logs</errorMessage>
-</ValidationRule>

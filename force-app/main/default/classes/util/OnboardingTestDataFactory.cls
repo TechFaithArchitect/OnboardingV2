@@ -19,11 +19,19 @@ public with sharing class OnboardingTestDataFactory {
         ctx.vendor = TestVendorFactory.createVendor(doInsert);
         ctx.vendorProgram = TestVendorProgramFactory.createVendorCustomization(ctx.vendor, 'Active', true, null, doInsert);
         ctx.onboarding = TestOnboardingFactory.create(ctx.account, ctx.vendorProgram, doInsert);
-        ctx.requirement = TestOnboardingRequirementFactory.create(doInsert, ctx.onboarding, null);
+        // Create Vendor_Program_Requirement__c so requirement can reference it
+        Vendor_Program_Requirement__c vpr = TestDataFactory.createVendorProgramRequirement(ctx.vendorProgram, true, doInsert);
+        ctx.requirement = TestOnboardingRequirementFactory.create(doInsert, ctx.onboarding, vpr);
         ctx.requirementField = new Requirement_Field__c(
+            Name = 'Test Field',
             Field_API_Name__c = 'Test_Field__c',
             Required__c = false,
-            Validation_Type__c = 'None'
+            Validation_Type__c = 'None',
+            Vendor_Program_Requirement__c = vpr.Id,
+            Field_Type__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Requirement_Field__c.SObjectType,
+                'Field_Type__c'
+            )
         );
         if (doInsert) {
             insert ctx.requirementField;

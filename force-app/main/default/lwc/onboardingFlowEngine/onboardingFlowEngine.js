@@ -10,11 +10,17 @@ import getStageCompletions from '@salesforce/apex/OnboardingApplicationService.g
 import autoCompleteStagesAndAdvanceProgress from '@salesforce/apex/OnboardingApplicationService.autoCompleteStagesAndAdvanceProgress';
 import isCurrentUserAdmin from '@salesforce/apex/OnboardingApplicationService.isCurrentUserAdmin';
 import getOnboardingContext from '@salesforce/apex/VendorOnboardingWizardController.getOnboardingContext';
-import canStartStage from '@salesforce/apex/OnboardingApplicationService.canStartStage';
 
 export default class OnboardingFlowEngine extends LightningElement {
   @api processId;
-  @api vendorProgramId;
+  _vendorProgramId;
+  @api
+  get vendorProgramId() {
+    return this._vendorProgramId;
+  }
+  set vendorProgramId(value) {
+    this._vendorProgramId = value;
+  }
 
   @track stages = [];
   @track activeStageIndex = 0;
@@ -25,6 +31,7 @@ export default class OnboardingFlowEngine extends LightningElement {
   @track isSaving = false;
   @track canProceed = false; // Track if current step allows proceeding
   @track validationTimeout = null; // For debouncing validation checks
+  saveIndicatorTimeout = null;
   
   // Expose footer state for parent components
   @api
@@ -71,6 +78,9 @@ export default class OnboardingFlowEngine extends LightningElement {
 
   // Computed: active stage record
   get activeStage() {
+    if (!this.stages || !Array.isArray(this.stages)) {
+      return {};
+    }
     return this.stages[this.activeStageIndex] || {};
   }
 
@@ -149,15 +159,13 @@ export default class OnboardingFlowEngine extends LightningElement {
     this.template.addEventListener('validationchanged', this.handleValidationChanged.bind(this));
     
     // Query step component for initial validation state after a brief delay
-    setTimeout(() => {
-      this.queryStepValidationState();
-    }, 500);
+    this.queueValidationCheck(500);
   }
 
   async checkAdminStatus() {
     try {
       this.isAdmin = await isCurrentUserAdmin();
-    } catch (error) {
+    } catch {
       // Default to non-admin on error
       this.isAdmin = false;
     }
@@ -259,7 +267,7 @@ export default class OnboardingFlowEngine extends LightningElement {
               }
             }
           }
-        } catch (autoCompleteError) {
+        } catch {
           // Continue with normal logic if auto-completion fails
         }
       }
@@ -313,14 +321,14 @@ export default class OnboardingFlowEngine extends LightningElement {
             // Auto-complete the skipped Recipient Groups stage
             try {
               await this.autoCompleteStage(currentStage.Id);
-            } catch (error) {
+            } catch {
               // Silently fail - stage will remain incomplete
             }
           }
         }
       }
 
-    } catch (error) {
+    } catch {
       this.showToast('Error', 'Failed to initialize onboarding flow. Please refresh the page.', 'error');
     }
 
@@ -355,7 +363,7 @@ export default class OnboardingFlowEngine extends LightningElement {
         this.statusRulesEngineId = eventDetail.statusRulesEngineId;
       }
       if (eventDetail.vendorProgramId) {
-        this.vendorProgramId = eventDetail.vendorProgramId;
+        this._vendorProgramId = eventDetail.vendorProgramId;
       }
 
       const nextStageId = this.activeStage?.Next_Stage__c;
@@ -406,7 +414,7 @@ export default class OnboardingFlowEngine extends LightningElement {
           // Mark current stage as complete by saving progress with current stage ID
           // This creates/updates the completion record for the current stage
           await this.persistProgressWithStageId(this.activeStage.Id);
-        } catch (error) {
+        } catch {
           // Log error but continue - we don't want to block progression
           // Error is already handled in persistProgressWithStageId
         }
@@ -422,9 +430,7 @@ export default class OnboardingFlowEngine extends LightningElement {
         this.dispatchFooterStateChanged(); // Notify parent of state change
         
         // Query validation state for new step
-        setTimeout(() => {
-          this.queryStepValidationState();
-        }, 300);
+        this.queueValidationCheck(300);
       }
 
       // Save progress with the NEXT stage ID (the one we just moved to)
@@ -432,12 +438,11 @@ export default class OnboardingFlowEngine extends LightningElement {
       if (targetStageId) {
         try {
           await this.persistProgressWithStageId(targetStageId);
-        } catch (error) {
+        } catch {
           // If save fails, revert to previous stage to keep UI and DB in sync
           this.activeStageIndex = previousIndex;
           this.dispatchFooterStateChanged();
           this.showToast('Error', 'Failed to save progress. Please try again.', 'error');
-          return; // Don't continue if save failed
         }
       } else {
         // If no next stage, this might be the last stage - mark as complete
@@ -463,10 +468,7 @@ export default class OnboardingFlowEngine extends LightningElement {
         stageId: stageId
       });
       this.lastSavedTime = new Date();
-      // Clear save indicator after 3 seconds
-      setTimeout(() => {
-        this.lastSavedTime = null;
-      }, 3000);
+      this.queueSaveIndicatorClear();
     } catch (error) {
       // Log error for debugging - progress save failures can cause sync issues
       console.error('Failed to save progress for stage:', stageId, error);
@@ -485,7 +487,8 @@ export default class OnboardingFlowEngine extends LightningElement {
     }
     
     // Set new timeout for auto-save (2 seconds after last change)
-    this.saveTimeout = setTimeout(() => {
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    this.saveTimeout = window.setTimeout(() => {
       this.autoSave();
     }, this.autoSaveDelay);
   }
@@ -503,11 +506,8 @@ export default class OnboardingFlowEngine extends LightningElement {
         stageId: this.activeStage.Id
       });
       this.lastSavedTime = new Date();
-      // Clear save indicator after 3 seconds
-      setTimeout(() => {
-        this.lastSavedTime = null;
-      }, 3000);
-    } catch (error) {
+      this.queueSaveIndicatorClear();
+    } catch {
       // Silently fail - auto-save is not critical
     } finally {
       this.isSaving = false;
@@ -576,7 +576,7 @@ export default class OnboardingFlowEngine extends LightningElement {
           if (this.activeStage?.Id) {
             try {
               await this.persistProgressWithStageId(this.activeStage.Id);
-            } catch (error) {
+            } catch {
               // Error is already handled in persistProgressWithStageId
             }
           }
@@ -593,12 +593,10 @@ export default class OnboardingFlowEngine extends LightningElement {
           }
           
           // Query validation state for new step
-          setTimeout(() => {
-            this.queryStepValidationState();
-          }, 300);
+          this.queueValidationCheck(300);
         }
       }
-    } catch (error) {
+    } catch {
       this.showToast('Error', 'Failed to go back to previous step.', 'error');
     }
   }
@@ -634,7 +632,7 @@ export default class OnboardingFlowEngine extends LightningElement {
       const stageRenderer = this.template.querySelector('c-onboarding-stage-renderer');
       if (!stageRenderer) {
         // Step component might not be loaded yet, try again
-        setTimeout(() => this.queryStepValidationState(), 300);
+        this.queueValidationCheck(300);
         return;
       }
 
@@ -648,7 +646,7 @@ export default class OnboardingFlowEngine extends LightningElement {
           this.canProceed = stepComponent.canProceed;
         }
       }
-    } catch (error) {
+    } catch {
       // Silently fail - validation state query is not critical
     }
   }
@@ -662,11 +660,8 @@ export default class OnboardingFlowEngine extends LightningElement {
         stageId: this.activeStage?.Id
       });
       this.lastSavedTime = new Date();
-      // Clear save indicator after 3 seconds
-      setTimeout(() => {
-        this.lastSavedTime = null;
-      }, 3000);
-    } catch (error) {
+      this.queueSaveIndicatorClear();
+    } catch {
       // Silently fail - progress save is not critical
     } finally {
       this.isSaving = false;
@@ -674,7 +669,7 @@ export default class OnboardingFlowEngine extends LightningElement {
   }
   
   // Listen for field changes from child components to trigger auto-save
-  handleFieldChange(event) {
+  handleFieldChange() {
     // Schedule auto-save when fields change
     this.scheduleAutoSave();
   }
@@ -688,7 +683,7 @@ export default class OnboardingFlowEngine extends LightningElement {
         vendorProgramId: this.vendorProgramId,
         stageId: stageId
       });
-    } catch (error) {
+    } catch {
       // Silently fail - auto-completion is not critical
     }
   }
@@ -702,5 +697,30 @@ export default class OnboardingFlowEngine extends LightningElement {
     if (this.validationTimeout) {
       clearTimeout(this.validationTimeout);
     }
+    if (this.saveIndicatorTimeout) {
+      clearTimeout(this.saveIndicatorTimeout);
+    }
+  }
+
+  queueValidationCheck(delayMs) {
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    this.validationTimeout = window.setTimeout(() => {
+      this.validationTimeout = null;
+      this.queryStepValidationState();
+    }, delayMs);
+  }
+
+  queueSaveIndicatorClear() {
+    if (this.saveIndicatorTimeout) {
+      clearTimeout(this.saveIndicatorTimeout);
+    }
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    this.saveIndicatorTimeout = window.setTimeout(() => {
+      this.lastSavedTime = null;
+      this.saveIndicatorTimeout = null;
+    }, 3000);
   }
 }

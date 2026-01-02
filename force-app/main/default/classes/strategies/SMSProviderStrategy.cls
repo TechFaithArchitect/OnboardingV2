@@ -28,4 +28,3 @@ public interface SMSProviderStrategy {
      */
     String validateConfig(Map<String, Object> providerConfig);
 }
-

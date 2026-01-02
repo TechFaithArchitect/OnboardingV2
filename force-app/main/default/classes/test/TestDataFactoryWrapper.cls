@@ -283,14 +283,19 @@ public class TestDataFactoryWrapper {
         Boolean createRequirements,
         Boolean doInsert
     ) {
+        Vendor_Program_Group__c vendorProgramGroup = createVendorProgramGroupForOnboarding(onboarding, doInsert);
+        String resolvedTargetStatus = resolveTargetStatus(expectedStatus);
+        String resolvedExpectedStatus = resolveExpectedStatus(expectedStatus);
+        String initialRequirementStatus = resolveRequirementStatus('New');
+
         // Create rules engine with ALL logic
         Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(
             doInsert,
             null, // requirementGroup
-            null, // vendorProgramGroup
+            vendorProgramGroup,
             'ALL',
             null, // requiredStatus
-            expectedStatus // targetStatus
+            resolvedTargetStatus
         );
 
         // Create vendor program requirements
@@ -308,7 +313,9 @@ public class TestDataFactoryWrapper {
                     onboarding,
                     vendorProgramRequirement
                 );
-                onboardingRequirement.Status__c = 'New';
+                if (String.isNotBlank(initialRequirementStatus)) {
+                    onboardingRequirement.Status__c = initialRequirementStatus;
+                }
                 if (doInsert) {
                     update onboardingRequirement;
                 }
@@ -319,7 +326,7 @@ public class TestDataFactoryWrapper {
                 doInsert,
                 engine,
                 vendorProgramRequirement,
-                expectedStatus,
+                resolvedExpectedStatus,
                 i + 1
             );
             statusRules.add(statusRule);
@@ -335,14 +342,18 @@ public class TestDataFactoryWrapper {
         Boolean createRequirements,
         Boolean doInsert
     ) {
+        Vendor_Program_Group__c vendorProgramGroup = createVendorProgramGroupForOnboarding(onboarding, doInsert);
+        String resolvedTargetStatus = resolveTargetStatus(targetStatus);
+        String initialRequirementStatus = resolveRequirementStatus('New');
+
         // Create rules engine with ANY logic
         Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(
             doInsert,
             null,
-            null,
+            vendorProgramGroup,
             'ANY',
             null,
-            targetStatus
+            resolvedTargetStatus
         );
 
         List<Vendor_Program_Requirement__c> vendorProgramRequirements = new List<Vendor_Program_Requirement__c>();
@@ -350,7 +361,14 @@ public class TestDataFactoryWrapper {
         List<Onboarding_Status_Rule__c> statusRules = new List<Onboarding_Status_Rule__c>();
 
         // Create rules with different expected statuses for ANY logic
-        List<String> expectedStatuses = new List<String>{ 'Setup Complete', 'In Process' };
+        List<String> validExpectedStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        String setupCompleteStatus = validExpectedStatuses.contains('Setup Complete') ? 'Setup Complete' : validExpectedStatuses[0];
+        String inProcessStatus = validExpectedStatuses.contains('In Process') ? 'In Process' :
+            (validExpectedStatuses.size() > 1 ? validExpectedStatuses[1] : validExpectedStatuses[0]);
+        List<String> expectedStatuses = new List<String>{ setupCompleteStatus, inProcessStatus };
         
         for (Integer i = 0; i < ruleCount; i++) {
             Vendor_Program_Requirement__c vendorProgramRequirement = TestVendorProgramRequirementFactory.create(doInsert);
@@ -362,7 +380,9 @@ public class TestDataFactoryWrapper {
                     onboarding,
                     vendorProgramRequirement
                 );
-                onboardingRequirement.Status__c = 'New';
+                if (String.isNotBlank(initialRequirementStatus)) {
+                    onboardingRequirement.Status__c = initialRequirementStatus;
+                }
                 if (doInsert) {
                     update onboardingRequirement;
                 }
@@ -392,18 +412,41 @@ public class TestDataFactoryWrapper {
         Boolean createRequirements,
         Integer ruleCount
     ) {
+        Vendor_Program_Group__c vendorProgramGroup = createVendorProgramGroupForOnboarding(onboarding, true);
+        String resolvedTargetStatus = resolveTargetStatus(targetStatus);
+        String initialRequirementStatus = resolveRequirementStatus('New');
+
         // Create rules engine with CUSTOM logic
-        Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(
-            true,
-            null,
-            null,
-            'CUSTOM',
-            null,
-            targetStatus
+        List<String> evaluationLogics = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rules_Engine__c.SObjectType,
+            'Evaluation_Logic__c'
         );
-        engine.Custom_Evaluation_Logic__c = customLogic;
+        String customLogicValue = evaluationLogics.contains('CUSTOM') ? 'CUSTOM' : evaluationLogics[0];
+        List<String> resolvedExpectedStatuses = new List<String>();
+        if (expectedStatuses != null) {
+            for (String status : expectedStatuses) {
+                resolvedExpectedStatuses.add(resolveExpectedStatus(status));
+            }
+        }
+        if (resolvedExpectedStatuses.isEmpty()) {
+            resolvedExpectedStatuses.add(resolveExpectedStatus(null));
+        }
+        
+        // Create engine without inserting first, so we can set Custom_Evaluation_Logic__c before insert
+        Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(
+            false,
+            null,
+            vendorProgramGroup,
+            customLogicValue,
+            null,
+            resolvedTargetStatus
+        );
+        // Only set Custom_Evaluation_Logic__c if Evaluation_Logic__c supports it
+        if (customLogicValue == 'CUSTOM') {
+            engine.Custom_Evaluation_Logic__c = customLogic;
+        }
         engine.Override_Status__c = overrideStatus;
-        update engine;
+        insert engine;
 
         List<Vendor_Program_Requirement__c> vendorProgramRequirements = new List<Vendor_Program_Requirement__c>();
         List<Onboarding_Requirement__c> onboardingRequirements = new List<Onboarding_Requirement__c>();
@@ -419,12 +462,14 @@ public class TestDataFactoryWrapper {
                     onboarding,
                     vendorProgramRequirement
                 );
-                onboardingRequirement.Status__c = 'New';
+                if (String.isNotBlank(initialRequirementStatus)) {
+                    onboardingRequirement.Status__c = initialRequirementStatus;
+                }
                 update onboardingRequirement;
                 onboardingRequirements.add(onboardingRequirement);
             }
 
-            String expectedStatus = expectedStatuses[Math.mod(i, expectedStatuses.size())];
+            String expectedStatus = resolvedExpectedStatuses[Math.mod(i, resolvedExpectedStatuses.size())];
             Onboarding_Status_Rule__c statusRule = TestOnboardingRulesFactory.create(
                 true,
                 engine,
@@ -436,6 +481,50 @@ public class TestDataFactoryWrapper {
         }
 
         return new OnboardingRulesSetupWrapper(engine, onboardingRequirements, statusRules);
+    }
+
+    private static Vendor_Program_Group__c createVendorProgramGroupForOnboarding(Onboarding__c onboarding, Boolean doInsert) {
+        Vendor_Program_Group__c vendorProgramGroup = TestVendorProgramGroupFactory.create(doInsert);
+        if (doInsert && onboarding != null && onboarding.Vendor_Customization__c != null) {
+            Vendor_Customization__c vendorProgram = new Vendor_Customization__c(
+                Id = onboarding.Vendor_Customization__c
+            );
+            TestVendorProgramGroupMemberFactory.create(true, vendorProgramGroup, vendorProgram, null, true);
+        }
+        return vendorProgramGroup;
+    }
+
+    private static String resolveExpectedStatus(String preferredStatus) {
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        if (String.isNotBlank(preferredStatus) && validStatuses.contains(preferredStatus)) {
+            return preferredStatus;
+        }
+        return validStatuses.isEmpty() ? null : validStatuses[0];
+    }
+
+    private static String resolveTargetStatus(String preferredStatus) {
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rules_Engine__c.SObjectType,
+            'Target_Onboarding_Status__c'
+        );
+        if (String.isNotBlank(preferredStatus) && validStatuses.contains(preferredStatus)) {
+            return preferredStatus;
+        }
+        return validStatuses.isEmpty() ? null : validStatuses[0];
+    }
+
+    private static String resolveRequirementStatus(String preferredStatus) {
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        if (String.isNotBlank(preferredStatus) && validStatuses.contains(preferredStatus)) {
+            return preferredStatus;
+        }
+        return validStatuses.isEmpty() ? null : validStatuses[0];
     }
 
     public static TerritoryAssignmentWrapper createTerritoryAssignmentWithUser(Boolean doInsert) {

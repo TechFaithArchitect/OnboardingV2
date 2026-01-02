@@ -284,10 +284,7 @@
         <fields>Owner__c</fields>
         <relatedList>RelatedOpportunityList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Zip_Code__c.Account__c</relatedList>
-    </relatedLists>
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showInteractionLogPanel>false</showInteractionLogPanel>

@@ -6,6 +6,8 @@ This guide explains how to configure status rules that automatically evaluate an
 
 Status rules define conditions that, when met, automatically update the onboarding status. Rules are evaluated whenever requirement statuses change, ensuring the onboarding status always reflects current completion state.
 
+See [User Journey Summary](./user-journey-summary.md) for the end-to-end flow.
+
 ## Understanding Status Rules
 
 ### Rule Components
@@ -21,6 +23,7 @@ Status rules define conditions that, when met, automatically update the onboardi
 - **Requirement Group**: Links rules to specific requirement groups
 - **Target Status**: Status to apply when rule conditions are met
 - **Evaluation Logic**: How to combine rule conditions
+- **Override Status**: Force the target status without evaluating requirements
 
 ## Accessing Rules Configuration
 
@@ -49,6 +52,8 @@ Status rules define conditions that, when met, automatically update the onboardi
    - **Vendor Program Group**: Select the program group
    - **Requirement Group**: Select the requirement group
    - **Target Onboarding Status**: Status to set (e.g., "Approved")
+   - **Override Status** (optional): Force the target status without evaluating requirements
+   - **Rule Evaluation Order** (optional): Sequence for evaluation within the program group
    - **Evaluation Logic**: Choose ALL, ANY, or CUSTOM
 4. Click **Save**
 
@@ -66,6 +71,11 @@ Status rules define conditions that, when met, automatically update the onboardi
 5. Repeat for each condition
 
 ## Evaluation Logic Types
+
+## Override Status (Force)
+
+Use **Override Status** on a rules engine to force the Target Status without evaluating requirements.
+This should be reserved for exceptional cases where a Dealer should pass even when criteria are not met.
 
 ### ALL Logic (AND)
 

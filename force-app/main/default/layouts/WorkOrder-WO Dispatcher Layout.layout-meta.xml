@@ -236,13 +236,7 @@
         <fields>QuantityRequired</fields>
         <relatedList>ProductsRequired</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Product_Name__c</fields>
-        <fields>Serial_Number__c</fields>
-        <fields>Location__c</fields>
-        <relatedList>Additional_Product__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>Name</fields>
         <fields>Equipment_Name__c</fields>
@@ -265,10 +259,7 @@
         <fields>sharinpix__Description__c</fields>
         <relatedList>sharinpix__SharinPixImage__c.Work_Order_Image__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Typeform_Responses__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>

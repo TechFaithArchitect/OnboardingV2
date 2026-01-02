@@ -13,28 +13,29 @@ private class RequirementFieldValueTriggerHandlerTest {
             testVendor, 'Active', true, null, true
         );
         Onboarding__c testOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        // Create Vendor_Program_Requirement__c for the requirement
+        Vendor_Program_Requirement__c vpr = TestDataFactory.createVendorProgramRequirement(testProgram, true, true);
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
-            true, testOnboarding, null
+            true, testOnboarding, vpr
         );
 
         // Create requirement field with Cross-Field validation type
-        Requirement_Field__c crossField = new Requirement_Field__c(
-            Name = 'Cross Field Test',
-            Field_API_Name__c = 'Cross_Field_Test__c',
-            Validation_Type__c = 'Cross-Field',
-            Required__c = false
+        Requirement_Field__c crossField = TestDataFactory.createRequirementField(
+            'Cross_Field_Test__c',
+            'Cross-Field',
+            false,
+            true
         );
-        insert crossField;
 
         // Create requirement field value
-        Requirement_Field_Value__c fieldValue = new Requirement_Field_Value__c(
-            Requirement_Field__c = crossField.Id,
-            Onboarding_Requirement__c = testRequirement.Id,
-            Value__c = 'test value'
+        Requirement_Field_Value__c fieldValue = TestDataFactory.createRequirementFieldValue(
+            crossField,
+            testRequirement,
+            'test value',
+            true
         );
 
         Test.startTest();
-        insert fieldValue;
         Test.stopTest();
 
         // Verify async validation was enqueued (check that status was updated)
@@ -57,24 +58,28 @@ private class RequirementFieldValueTriggerHandlerTest {
             testVendor, 'Active', true, null, true
         );
         Onboarding__c testOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        // Create Vendor_Program_Requirement__c for the requirement
+        Vendor_Program_Requirement__c vpr = TestDataFactory.createVendorProgramRequirement(testProgram, true, true);
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
-            true, testOnboarding, null
+            true, testOnboarding, vpr
         );
 
         Requirement_Field__c crossField = new Requirement_Field__c(
             Name = 'Cross Field Test',
             Field_API_Name__c = 'Cross_Field_Test__c',
             Validation_Type__c = 'Cross-Field',
-            Required__c = false
+            Required__c = false,
+            Vendor_Program_Requirement__c = vpr.Id,
+            Field_Type__c = 'Text'
         );
         insert crossField;
 
-        Requirement_Field_Value__c fieldValue = new Requirement_Field_Value__c(
-            Requirement_Field__c = crossField.Id,
-            Onboarding_Requirement__c = testRequirement.Id,
-            Value__c = 'original value'
+        Requirement_Field_Value__c fieldValue = TestDataFactory.createRequirementFieldValue(
+            crossField,
+            testRequirement,
+            'original value',
+            true
         );
-        insert fieldValue;
 
         Test.startTest();
         // Update value to trigger async validation
@@ -101,27 +106,28 @@ private class RequirementFieldValueTriggerHandlerTest {
             testVendor, 'Active', true, null, true
         );
         Onboarding__c testOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        // Create Vendor_Program_Requirement__c for the requirement
+        Vendor_Program_Requirement__c vpr = TestDataFactory.createVendorProgramRequirement(testProgram, true, true);
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
-            true, testOnboarding, null
+            true, testOnboarding, vpr
         );
 
         // Create requirement field with Format validation type (should not trigger async)
-        Requirement_Field__c formatField = new Requirement_Field__c(
-            Name = 'Format Field Test',
-            Field_API_Name__c = 'Format_Field_Test__c',
-            Validation_Type__c = 'Format',
-            Required__c = false
+        Requirement_Field__c formatField = TestDataFactory.createRequirementField(
+            'Format_Field_Test__c',
+            'Format',
+            false,
+            true
         );
-        insert formatField;
 
-        Requirement_Field_Value__c fieldValue = new Requirement_Field_Value__c(
-            Requirement_Field__c = formatField.Id,
-            Onboarding_Requirement__c = testRequirement.Id,
-            Value__c = 'test value'
+        Requirement_Field_Value__c fieldValue = TestDataFactory.createRequirementFieldValue(
+            formatField,
+            testRequirement,
+            'test value',
+            true
         );
 
         Test.startTest();
-        insert fieldValue;
         Test.stopTest();
 
         // Format validation is synchronous, so async validation should not be enqueued
@@ -144,25 +150,30 @@ private class RequirementFieldValueTriggerHandlerTest {
             testVendor, 'Active', true, null, true
         );
         Onboarding__c testOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        // Create Vendor_Program_Requirement__c for the requirement
+        Vendor_Program_Requirement__c vpr = TestDataFactory.createVendorProgramRequirement(testProgram, true, true);
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
-            true, testOnboarding, null
+            true, testOnboarding, vpr
         );
 
         Requirement_Field__c crossField = new Requirement_Field__c(
             Name = 'Cross Field Test',
             Field_API_Name__c = 'Cross_Field_Test__c',
             Validation_Type__c = 'Cross-Field',
-            Required__c = false
+            Required__c = false,
+            Vendor_Program_Requirement__c = vpr.Id,
+            Field_Type__c = 'Text'
         );
         insert crossField;
 
         // Create multiple field values for bulk testing
         List<Requirement_Field_Value__c> fieldValues = new List<Requirement_Field_Value__c>();
         for (Integer i = 0; i < 10; i++) {
-            fieldValues.add(new Requirement_Field_Value__c(
-                Requirement_Field__c = crossField.Id,
-                Onboarding_Requirement__c = testRequirement.Id,
-                Value__c = 'value ' + i
+            fieldValues.add(TestDataFactory.createRequirementFieldValue(
+                crossField,
+                testRequirement,
+                'value ' + i,
+                false
             ));
         }
 
@@ -183,4 +194,3 @@ private class RequirementFieldValueTriggerHandlerTest {
         }
     }
 }
-

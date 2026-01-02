@@ -15,24 +15,10 @@
  * 1. **Account Owner**
  *    - `Account__r.OwnerId` is always considered an owner.
  *
- * 2. **Onboarding Reps via Territory_Assignments__c**
- *    - Territory_Assignments__c links to Account__c through Zip Code Territory junction:
- *        - Territory_Assignments__c → Zip_Code_Territory__c → Zip_Code__c
- *        - Then query Accounts WHERE Zip_Code__c IN :zipCodeIds (Account has lookup TO Zip Code)
- *    - It has user lookups such as:
- *        - `Onboarding_Rep__c`
- *        - `Base_App_OB_Rep__c`
- *    - Any user referenced in those fields for a Territory Assignment is considered
- *      an "onboarding owner" for Accounts linked via Zip Codes in that territory.
- *
- * 3. **Territory_Role_Assignment__c (User-centric view)**
- *    - Territory_Role_Assignment__c is kept in sync with
- *      Territory_Assignments__c via Apex and is used primarily for
- *      user-centric selection and reporting.
- *    - The dashboard's ownership checks are Account-centric, so the SOQL
- *      owner clause uses Territory_Assignments__c (Account → Users).
- *      Territory_Role_Assignment__c remains the system-of-record for
- *      user-facing configuration but is not directly queried here.
+ * 2. **Additional ownership sources**
+ *    - For now, ownership is derived only from Account ownership.
+ *    - If we reintroduce territory-based ownership in the future, this is
+ *      the place to document it.
  *
  * ## View Filters
  *
@@ -84,17 +70,7 @@ public with sharing class OnboardingAccessService {
      * Returns the set of Account IDs that should be considered "owned" by the
      * given user IDs, based on Account ownership and territory assignments.
      *
-     * This method avoids SOQL subquery limitations by querying through junction objects
-     * separately and combining the results with Account owner checks.
-     *
-     * An Account is considered "owned" if:
-     * 1. The Account's OwnerId is in the userIds set, OR
-     * 2. The Account is linked via Zip Code to a Territory Assignment where either:
-     *    - Onboarding_Rep__c is in userIds, OR
-     *    - Base_App_OB_Rep__c is in userIds
-     *    
-     *    Path: Territory_Assignments__c → Zip_Code_Territory__c → Zip_Code__c
- *    Then: Accounts WHERE Zip_Code__c IN :zipCodeIds
+     * An Account is considered "owned" if the Account's OwnerId is in the userIds set.
      *
      * @param userIds Set of User Ids to treat as owners.
      * @return Set of Account IDs that are owned by the specified users.
@@ -107,8 +83,7 @@ public with sharing class OnboardingAccessService {
             return accountIds;
         }
 
-        // Performance Optimization: Combine Account owner query with bulk collection
-        // Get Accounts where the owner is in the userIds set
+        // Get Accounts where the owner is in the userIds set.
         for (Account acc : [
             SELECT Id
             FROM Account
@@ -117,57 +92,6 @@ public with sharing class OnboardingAccessService {
         ]) {
             accountIds.add(acc.Id);
         }
-
-        // Get Accounts from Territory_Assignments__c via Zip Code Territory junction
-        // Path: Territory_Assignments__c → Zip_Code_Territory__c → Zip_Code__c
-        // Then query Accounts WHERE Zip_Code__c IN :zipCodeIds (Account has lookup TO Zip Code)
-        // Performance Optimization: Single query with bulk collection
-        Set<Id> territoryAssignmentIds = new Set<Id>();
-        for (Territory_Assignments__c ta : [
-            SELECT Id
-            FROM Territory_Assignments__c
-            WHERE Onboarding_Rep__c IN :userIds 
-               OR Base_App_OB_Rep__c IN :userIds
-            LIMIT 10000
-        ]) {
-            territoryAssignmentIds.add(ta.Id);
-        }
-        
-        // Early exit if no territory assignments found
-        if (territoryAssignmentIds.isEmpty()) {
-            return accountIds;
-        }
-        
-        // Performance Optimization: Single query to get all Zip Code IDs
-        Set<Id> zipCodeIds = new Set<Id>();
-        for (Zip_Code_Territory__c junction : [
-            SELECT Zip_Code__c
-            FROM Zip_Code_Territory__c
-            WHERE Territory_Assignments__c IN :territoryAssignmentIds
-              AND Zip_Code__c != null
-            LIMIT 10000
-        ]) {
-            zipCodeIds.add(junction.Zip_Code__c);
-        }
-        
-        // Early exit if no zip codes found
-        if (zipCodeIds.isEmpty()) {
-            return accountIds;
-        }
-        
-        // Performance Optimization: Query Accounts directly via Zip Code lookup
-        // Account, Contact, Lead have lookup fields TO Zip Code (Account.Zip_Code__c)
-        // So 1 Zip Code can have many Accounts, Contacts, Leads
-        // Also handles deduplication automatically via Set
-        for (Account acc : [
-            SELECT Id
-            FROM Account
-            WHERE Zip_Code__c IN :zipCodeIds
-            LIMIT 10000
-        ]) {
-            accountIds.add(acc.Id);
-        }
-
         return accountIds;
     }
 
@@ -191,11 +115,8 @@ public with sharing class OnboardingAccessService {
         // NOTE: This method is deprecated because it creates nested subqueries
         // that violate SOQL limitations. Use getAccountIdsForOwners() instead.
         // 
-        // NOTE: This deprecated method cannot properly traverse junction objects in SOQL.
-        // The path would be: Territory_Assignments__c → Zip_Code_Territory__c → Zip_Code__c
-        // Then: Accounts WHERE Zip_Code__c IN :zipCodeIds
-        // which requires multiple queries that cannot be expressed in a single SOQL subquery.
-        // Use getAccountIdsForOwners() which handles the junction traversal properly.
+        // NOTE: This deprecated method only supports Account owner checks.
+        // Use getAccountIdsForOwners() for the canonical ownership lookup.
         return '(Account__r.OwnerId IN :userIds)';
     }
 

@@ -233,7 +233,7 @@ Tracks user progress.
 
 **Fields:**
 - `Onboarding_Application_Process__c` - Process being executed
-- `Vendor_Program__c` - Vendor program being onboarded
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` - Current stage ID
 
 ### Onboarding_Application_Stage_Completion__c
@@ -241,7 +241,7 @@ Tracks user progress.
 Audit log of completed stages.
 
 **Fields:**
-- `Vendor_Program__c` - Vendor program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` - Process
 - `Onboarding_Application_Stage__c` - Completed stage
 - `Completed_Date__c` - Completion timestamp

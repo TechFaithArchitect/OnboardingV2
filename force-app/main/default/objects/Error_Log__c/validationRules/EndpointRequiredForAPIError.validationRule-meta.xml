@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>EndpointRequiredForAPIError</fullName>
-    <active>true</active>
-    <description>Makes Endpoint field required when Type is API Error</description>
-    <errorConditionFormula>AND(ISPICKVAL( Type__c , &apos;API Error&apos;), Endpoint__c = &apos;&apos;)</errorConditionFormula>
-    <errorDisplayField>Endpoint__c</errorDisplayField>
-    <errorMessage>Endpoint is required for API Error Logs</errorMessage>
-</ValidationRule>

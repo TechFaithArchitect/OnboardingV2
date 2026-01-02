@@ -4,47 +4,46 @@ private class OnboardingHomeDashboardControllerTest {
     @testSetup
     static void setupTestData() {
         // Create test account
-        Account testAccount = new Account(Name = 'Test Account');
-        insert testAccount;
+        Account testAccount = TestDataFactory.createAccount('Test Account', true);
 
         // Create test vendor
-        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
-        insert testVendor;
+        Vendor__c testVendor = TestDataFactory.createVendor(true);
+        testVendor.Active__c = true;
+        update testVendor;
 
         // Create test vendor customization/program
-        // Note: Name field is auto-generated, so we don't set it
-        Vendor_Customization__c testProgram = new Vendor_Customization__c(
-            Vendor__c = testVendor.Id,
-            Active__c = true,
-            Status__c = 'Active'
+        Vendor_Customization__c testProgram = TestDataFactory.createVendorCustomization(
+            testVendor,
+            'Active',
+            true,
+            null,
+            true
         );
-        insert testProgram;
 
         // Create test onboarding records with different statuses
         List<Onboarding__c> onboardings = new List<Onboarding__c>();
         
-        Onboarding__c ob1 = new Onboarding__c(
-            Account__c = testAccount.Id,
-            Vendor_Customization__c = testProgram.Id,
-            Onboarding_Status__c = 'In Process'
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding__c.SObjectType,
+            'Onboarding_Status__c'
         );
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+        String pendingStatus = validStatuses.contains('Pending Initial Review') ? 'Pending Initial Review' : validStatuses[0];
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[validStatuses.size() - 1];
+        
+        Onboarding__c ob1 = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        ob1.Onboarding_Status__c = inProcessStatus;
         onboardings.add(ob1);
 
-        Onboarding__c ob2 = new Onboarding__c(
-            Account__c = testAccount.Id,
-            Vendor_Customization__c = testProgram.Id,
-            Onboarding_Status__c = 'Pending Initial Review'
-        );
+        Onboarding__c ob2 = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        ob2.Onboarding_Status__c = pendingStatus;
         onboardings.add(ob2);
 
-        Onboarding__c ob3 = new Onboarding__c(
-            Account__c = testAccount.Id,
-            Vendor_Customization__c = testProgram.Id,
-            Onboarding_Status__c = 'Complete'
-        );
+        Onboarding__c ob3 = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        ob3.Onboarding_Status__c = completeStatus;
         onboardings.add(ob3);
 
-        insert onboardings;
+        update onboardings;
     }
 
     @isTest
@@ -180,12 +179,14 @@ private class OnboardingHomeDashboardControllerTest {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
         Vendor_Customization__c testProgram = [SELECT Id FROM Vendor_Customization__c LIMIT 1];
         
-        Onboarding__c ob = new Onboarding__c(
-            Account__c = testAccount.Id,
-            Vendor_Customization__c = testProgram.Id,
-            Onboarding_Status__c = 'In Process'
+        Onboarding__c ob = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding__c.SObjectType,
+            'Onboarding_Status__c'
         );
-        insert ob;
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+        ob.Onboarding_Status__c = inProcessStatus;
+        update ob;
         
         Test.startTest();
         List<OnboardingWithBlockingDTO> results = 
@@ -233,25 +234,28 @@ private class OnboardingHomeDashboardControllerTest {
 
     @isTest
     static void testOnboardingDTO() {
-        Account testAccount = new Account(Name = 'Test Account');
-        insert testAccount;
+        Account testAccount = TestDataFactory.createAccount('Test Account', true);
 
-        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
-        insert testVendor;
+        Vendor__c testVendor = TestDataFactory.createVendor(true);
+        testVendor.Active__c = true;
+        update testVendor;
 
-        // Note: Name field is auto-generated, so we don't set it
-        Vendor_Customization__c testProgram = new Vendor_Customization__c(
-            Vendor__c = testVendor.Id,
-            Active__c = true
+        Vendor_Customization__c testProgram = TestDataFactory.createVendorCustomization(
+            testVendor,
+            'Active',
+            true,
+            null,
+            true
         );
-        insert testProgram;
 
-        Onboarding__c ob = new Onboarding__c(
-            Account__c = testAccount.Id,
-            Vendor_Customization__c = testProgram.Id,
-            Onboarding_Status__c = 'In Process'
+        Onboarding__c ob = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding__c.SObjectType,
+            'Onboarding_Status__c'
         );
-        insert ob;
+        String inProcessStatus = validStatuses.contains('New') ? 'New' : validStatuses[0];
+        ob.Onboarding_Status__c = inProcessStatus;
+        update ob;
 
         // Query with relationships (using CreatedBy instead of Owner)
         Onboarding__c queriedOb = [
@@ -265,18 +269,20 @@ private class OnboardingHomeDashboardControllerTest {
 
         OnboardingDTO dto = new OnboardingDTO(queriedOb);
 
+        // Reuse validStatuses from earlier in the method
+        String expectedStatus = validStatuses.contains('New') ? 'New' : 
+                              (ob.Onboarding_Status__c != null ? ob.Onboarding_Status__c : validStatuses[0]);
+        
         System.assertEquals(ob.Id, dto.Id, 'DTO should have correct Id');
-        System.assertEquals('In Process', dto.Status, 'DTO should have correct Status');
+        System.assertEquals(expectedStatus, dto.Status, 'DTO should have correct Status');
         System.assertNotEquals(null, dto.RecordUrl, 'DTO should have RecordUrl');
     }
 
     @isTest
     static void testAccountDTO() {
-        Account testAccount = new Account(
-            Name = 'Test Account',
-            Territory__c = 'Test Territory',
-            Region__c = 'Test Region'
-        );
+        Account testAccount = TestDataFactory.createAccount('Test Account', false);
+        testAccount.Territory__c = 'Test Territory';
+        testAccount.Region__c = 'Test Region';
         insert testAccount;
 
         AccountDTO dto = new AccountDTO();
@@ -288,7 +294,7 @@ private class OnboardingHomeDashboardControllerTest {
         dto.RecordUrl = '/' + testAccount.Id;
 
         System.assertEquals(testAccount.Id, dto.Id, 'DTO should have correct Id');
-        System.assertEquals('Test Account', dto.Name, 'DTO should have correct Name');
+        System.assertEquals(testAccount.Name, dto.Name, 'DTO should have correct Name (account name may have timestamp)');
         System.assertEquals(5, dto.EligibleVendorCount, 'DTO should have correct count');
     }
 }

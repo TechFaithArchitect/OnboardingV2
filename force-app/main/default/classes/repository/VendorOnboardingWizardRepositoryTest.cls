@@ -70,7 +70,12 @@ private class VendorOnboardingWizardRepositoryTest {
 
     @isTest
     static void testInsertAndFetchRequirementSet() {
-        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(Status__c = 'Draft');
+        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Onboarding_Requirement_Set__c.SObjectType,
+                'Status__c'
+            )
+        );
 
         Test.startTest();
         Id setId = VendorOnboardingWizardRepository.insertOnboardingRequirementSet(onboardingRequirementSet);
@@ -83,7 +88,12 @@ private class VendorOnboardingWizardRepositoryTest {
 
     @isTest
     static void testInsertAndFetchRequirementTemplate() {
-        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(Status__c = 'Draft');
+        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Onboarding_Requirement_Set__c.SObjectType,
+                'Status__c'
+            )
+        );
         insert onboardingRequirementSet;
 
         Vendor_Program_Onboarding_Req_Template__c vendorProgramOnboardingRequirementTemplate = TestDataFactory.createOnboardingRequirementTemplate(onboardingRequirementSet.Id, true);
@@ -99,7 +109,12 @@ private class VendorOnboardingWizardRepositoryTest {
 
     @isTest
     static void testAssignRequirementTemplatesToGroup() {
-        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(Status__c = 'Draft');
+        Onboarding_Requirement_Set__c onboardingRequirementSet = new Onboarding_Requirement_Set__c(
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Onboarding_Requirement_Set__c.SObjectType,
+                'Status__c'
+            )
+        );
         insert onboardingRequirementSet;
 
         Vendor_Program_Requirement_Group__c vendorProgramRequirementGroup = TestDataFactory.createVendorProgramRequirementGroup('Req Group', true);
@@ -120,7 +135,12 @@ private class VendorOnboardingWizardRepositoryTest {
 
         Test.startTest();
         Id ruleId = VendorOnboardingWizardRepository.insertStatusRule(onboardingStatusRule);
-        List<Onboarding_Status_Rule__c> result = VendorOnboardingWizardRepository.searchStatusRules('');
+        Onboarding_Status_Rule__c ruleWithName = [
+            SELECT Name
+            FROM Onboarding_Status_Rule__c
+            WHERE Id = :ruleId
+        ];
+        List<Onboarding_Status_Rule__c> result = VendorOnboardingWizardRepository.searchStatusRules(ruleWithName.Name);
         Test.stopTest();
 
         System.assertNotEquals(null, ruleId, 'Rule ID should not be null');

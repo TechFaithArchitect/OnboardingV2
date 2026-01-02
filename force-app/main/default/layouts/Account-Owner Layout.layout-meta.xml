@@ -315,25 +315,8 @@
         <fields>OPPORTUNITY.CLOSE_DATE</fields>
         <relatedList>Opportunity.POE_Dealer__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Partner_Category__c</fields>
-        <fields>Inception_Date__c</fields>
-        <fields>Program_ID__c</fields>
-        <fields>Program_Active_Flag__c</fields>
-        <fields>Program_Date__c</fields>
-        <fields>Program_Deactivated_Flag__c</fields>
-        <fields>Program_Deactivated_Date__c</fields>
-        <fields>Program_Deactivated_Reason__c</fields>
-        <fields>Program_Reactivated_Date__c</fields>
-        <relatedList>Program_Dates__c.Account__c</relatedList>
-        <sortField>Partner_Category__c</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Zip_Code__c.Account__c</relatedList>
-    </relatedLists>
+    
+    
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

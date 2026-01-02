@@ -10,34 +10,49 @@ The central object that tracks an onboarding request for a vendor.
 - `Account__c` (Master-Detail to Account) - The vendor account
 - `Onboarding_Status__c` - Current status (e.g., "Not Started", "In Progress", "Complete", "Denied", "Expired")
 - `Interview_Status__c` - Interview status (picklist)
-- `Interview__c` (Lookup) - Related interview record
 - `Vendor_Customization__c` (Lookup) - Related vendor customization
 
 **Relationships:**
 - Master-Detail to Account
 - Has many Onboarding_Requirement__c records
-- Has many Onboarding_Order__c records
 
-### Vendor_Program__c
+### Interview__c
 
-Represents a vendor program configuration.
+Tracks interview status for a Contact during onboarding.
+
+**Key Fields:**
+- `Contact__c` (Lookup to Contact) - Interviewed contact
+- `Interview_Status__c` (Picklist) - Interview status
+
+**Relationships:**
+- Belongs to Contact (Contact relates to Account via AccountContactRelation)
+
+**Note**: The mapping that selects the correct Onboarding__c (Account + Vendor Program) to update from Interview__c is not defined yet.
+
+### Vendor Program (Vendor_Customization__c)
+
+Represents a versioned vendor program configuration. The object label is "Vendor Program" while the API name is `Vendor_Customization__c`. Many lookup fields in this app are named `Vendor_Program__c` but reference `Vendor_Customization__c`.
 
 **Key Fields:**
 - `Name` - Program name
+- `Status__c` - Version status (Draft/Active/Deprecated)
 - `Active__c` - Whether the program is active
 - `Vendor__c` (Lookup) - Related vendor account
-- `Status__c` - Version status (Draft/Active/Deprecated)
+- `Vendor_Program_Group__c` (Lookup) - Default program group
+- `Vendor_Program_Requirement_Group__c` (Lookup) - Default requirement group
 - `Previous_Version__c` - Links to parent version for versioning
 
 **Relationships:**
-- Has many Vendor_Program_Group__c records
-- Has many Vendor_Customization__c records
-- Has many Onboarding__c records (via Vendor_Customization__c)
 - Has many Vendor_Program_Requirement__c records
+- Has many Vendor_Program_Requirement_Set__c records (links to Onboarding_Requirement_Set__c)
+- Has many Vendor_Program_Recipient_Group__c records
+- Has many Onboarding__c records (via `Vendor_Customization__c`)
+- Linked to Vendor_Program_Group__c via Vendor_Program_Group_Member__c
 
 **Activation Constraints:**
 - All child `Vendor_Program_Requirement__c` records must be active
 - All requirement templates referenced by requirements must be active
+- The linked `Vendor_Program_Requirement_Group__c` must be active (`AllRequirementGroupsMustBeActiveRule`)
 - Only one active version per parent (enforced by versioning handler)
 
 ### Vendor_Program_Group__c
@@ -45,15 +60,15 @@ Represents a vendor program configuration.
 Groups requirements and rules for a vendor program. Follows the Campaign/Campaign Member pattern for many-to-many relationships.
 
 **Key Fields:**
-- `Vendor_Program__c` (Lookup) - Parent program
 - `Name` - Group name
 - `Active__c` - Whether the group is active
-- `Status__c` - Version status (Draft/Active/Deprecated)
-- `Previous_Version__c` - Links to parent version for versioning
+- `Logic_Type__c` - Inheritance logic for group membership
+- `Parent_Group__c` (Lookup) - Optional parent group
 
 **Relationships:**
 - Has many Vendor_Program_Group_Member__c records (junction object)
 - Has many Onboarding_Status_Rules_Engine__c records
+- Referenced by Vendor_Customization__c as a default program group
 
 **Pattern:** Campaign/Campaign Member - allows many-to-many relationships between Groups and Vendor Programs
 
@@ -89,9 +104,65 @@ Tracks individual requirements for an onboarding record. Represents the completi
 
 **Purpose:** Tracks completion status for requirements during an onboarding process
 
+### Recipient_Group__c
+
+Reusable group used for onboarding communications.
+
+**Key Fields:**
+- `Name` - Group name
+- `Group_Type__c` - Group type
+- `Is_Active__c` - Active flag
+- `Description__c` - Description
+
+**Relationships:**
+- Has many Recipient_Group_Member__c records
+- Linked to Vendor_Customization__c via Vendor_Program_Recipient_Group__c
+
+### Recipient_Group_Member__c
+
+Membership record for a recipient group.
+
+**Key Fields:**
+- `Recipient_Group__c` (Lookup) - Parent group
+- `Recipient_User__c` (Lookup to User) - Recipient user when member type is User
+- `Member_Type__c` - Member type
+- `Recipient_Type__c` - Recipient type
+- `Role_Assignment__c` (Lookup) - Optional role assignment
+
+**Relationships:**
+- Belongs to Recipient_Group__c
+
+### Vendor_Program_Recipient_Group__c
+
+Versioned association between a Vendor Program and a Recipient Group.
+
+**Key Fields:**
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
+- `Recipient_Group__c` (Lookup) - Recipient group
+- `Status__c` - Version status
+- `Version__c` / `Parent_Version__c` - Versioning chain
+- `Is_Active__c` - Active flag
+- `Filter_Logic__c` - Filter/trigger logic
+- `Order__c` - Evaluation order
+
+**Relationships:**
+- Belongs to Vendor_Customization__c (via `Vendor_Program__c`)
+- Belongs to Recipient_Group__c
+
 ## Requirement Objects
 
 The requirement system uses a multi-layered approach with reusable bundles, templates, categorization, and instances.
+
+### Onboarding_Requirement_Dependency__c
+
+Defines prerequisite relationships between onboarding requirements.
+
+**Key Fields:**
+- `Onboarding_Requirement__c` (Lookup) - Parent requirement
+- `Dependent_Requirement__c` (Lookup) - Required/prerequisite requirement
+
+**Relationships:**
+- Links two Onboarding_Requirement__c records
 
 ### Onboarding_Requirement_Set__c ⭐ **Reusable Bundle/Starter Pack**
 
@@ -99,7 +170,7 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 
 **Key Fields:**
 - `Name` - Set name (e.g., "Enterprise Vendor Starter Pack")
-- `Vendor_Program__c` (Lookup, optional) - Can be program-specific or reusable
+- `Version__c` - Version number
 - `Status__c` - Version status (Draft/Active/Deprecated)
 - `Active__c` - Whether the requirement set is active
 
@@ -108,10 +179,11 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 **Example:** "Standard Vendor Onboarding Set" containing 10 common requirements that can be applied to any new vendor program.
 
 **Relationships:**
-- Has many Vendor_Program_Onboarding_Req_Template__c records
+- Has many Requirement_Set_Template__c records (junction to templates)
+- Linked to Vendor_Customization__c via Vendor_Program_Requirement_Set__c
 
 **Activation Constraints:**
-- Must be active before child templates can be activated (rule exists but not currently registered)
+- Must be active before linked templates can be activated (rule exists but is not currently registered in the activation registry)
 
 ### Vendor_Program_Onboarding_Req_Template__c
 
@@ -119,7 +191,7 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 
 **Key Fields:**
 - `Name` - Template name
-- `Onboarding_Requirement_Set__c` (Lookup) - Parent bundle/set
+- `Onboarding_Requirement_Set__c` (Lookup, legacy) - Optional parent bundle/set
 - `Category_Group__c` (Lookup to `Vendor_Program_Requirement_Group__c`) - Categorization
 - `Requirement_Label__c` - Display label
 - `Requirement_Type__c` - Type of requirement (e.g., "Document", "Training")
@@ -128,15 +200,16 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 - `Is_Current_Version__c` - Version flag
 
 **Relationships:**
-- Belongs to Onboarding_Requirement_Set__c
+- Linked to Onboarding_Requirement_Set__c via Requirement_Set_Template__c (primary)
+- Direct `Onboarding_Requirement_Set__c` lookup is retained for backward compatibility
 - Categorized by Vendor_Program_Requirement_Group__c
 - Referenced by Vendor_Program_Requirement__c (instances created from templates)
 
 **Pattern:** Template/Instance - Templates define what requirements exist, instances are created for specific programs
 
 **Activation Constraints:**
-- Parent `Onboarding_Requirement_Set__c` must be active (rule exists but not currently registered)
-- Must be active before parent `Vendor_Program__c` can be activated (via `AllTemplatesInReqSetMustBeActiveRule`)
+- Parent `Onboarding_Requirement_Set__c` must be active (rule exists but is not currently registered in the activation registry)
+- Must be active before linked vendor programs are activated when legacy activation rules are used (`AllTemplatesInReqSetMustBeActiveRule`)
 
 ### Vendor_Program_Requirement_Group__c ⭐ **Categorization/Organization**
 
@@ -144,7 +217,11 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 
 **Key Fields:**
 - `Name` - Group name (e.g., "Legal Requirements", "Financial Requirements")
+- `Status__c` - Version status (Draft/Active/Deprecated)
 - `Active__c` - Whether the group is active
+- `Version__c` - Version number
+- `Previous_Version__c` - Links to parent version for versioning
+- `Vendor__c` (Lookup) - Related vendor account
 
 **Use Case:** Organize requirements by category within a set or program.
 
@@ -154,12 +231,13 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 - Has many Vendor_Program_Requirement_Group_Member__c records (junction object)
 - Used to categorize Vendor_Program_Onboarding_Req_Template__c records
 - Linked to Vendor_Customization__c via `Vendor_Program_Requirement_Group__c` field
+- Referenced by Onboarding_Status_Rules_Engine__c via `Requirement_Group__c`
 
 **Pattern:** Campaign - parent object in Campaign/Campaign Member pattern
 
 **Activation Constraints:**
-- Must be active before linked `Vendor_Customization__c` can be activated
-- All templates in the group should be active (rule exists but not currently registered)
+- Must be active before linked `Vendor_Customization__c` can be activated (`AllRequirementGroupsMustBeActiveRule`)
+- All templates in the group should be active (enforced via requirement set/template rules)
 
 ### Vendor_Program_Requirement_Group_Member__c
 
@@ -167,39 +245,15 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 
 **Key Fields:**
 - `Vendor_Program_Requirement_Group__c` (Lookup) - Parent group
-- Links to requirement templates or instances (many-to-many)
+- `Vendor_Program_Requirement_Definition__c` (Lookup to `Vendor_Program_Onboarding_Req_Template__c`) - Requirement template
+- `Status__c` - Member status
+- `Sequence__c` - Display order
+- `Is_Required__c` - Whether the template is required
 
 **Relationships:**
-- Junction object for many-to-many relationships
-- Links requirements to categorization groups
+- Junction object between Vendor_Program_Requirement_Group__c and Vendor_Program_Onboarding_Req_Template__c
 
 **Pattern:** Campaign Member - junction object in Campaign/Campaign Member pattern
-
-### Vendor_Customization__c
-
-**Purpose:** Vendor program customization record (legacy naming - same as Vendor_Program__c). Represents a configured vendor program.
-
-**Key Fields:**
-- `Name` - Program name
-- `Vendor__c` (Lookup) - Related vendor account
-- `Vendor_Program_Group__c` (Lookup) - Associated program group
-- `Vendor_Program_Requirement_Group__c` (Lookup) - Associated requirement group
-- `Active__c` - Whether the program is active
-- `Status__c` - Version status (Draft/Active/Deprecated)
-- `Previous_Version__c` - Links to parent version for versioning
-
-**Relationships:**
-- Has many Vendor_Program_Requirement__c records
-- Has many Onboarding__c records
-- Linked to Vendor_Program_Group__c
-- Linked to Vendor_Program_Requirement_Group__c
-
-**Activation Constraints:**
-- The linked `Vendor_Program_Requirement_Group__c` must be active (`AllRequirementGroupsMustBeActiveRule`)
-- Only one active version per parent (enforced by `VersioningTriggerHandler`)
-- Prevents re-activation if already active
-
-**Note:** This object uses the same API name as `Vendor_Program__c` in some contexts. Activation rules are registered for `Vendor_Customization__c` and are executed by `VendorProgramActivationService` before activation.
 
 ### Vendor_Program_Requirement__c
 
@@ -208,7 +262,7 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 **Key Fields:**
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Parent program
 - `Requirement_Template__c` (Lookup to `Vendor_Program_Onboarding_Req_Template__c`) - Source template
-- `Requirement_Group_Member__c` (Lookup) - Links to group member
+- `Requirement_Group_Member__c` (Lookup to `Vendor_Program_Requirement_Group_Member__c`) - Links to group member
 - `Active__c` - Whether the requirement is active
 - `Is_Inherited__c` - Whether requirement is inherited
 - `Is_Overridden__c` - Whether requirement is overridden
@@ -225,18 +279,23 @@ The requirement system uses a multi-layered approach with reusable bundles, temp
 **Pattern:** Instance - Created from templates for specific programs
 
 **Activation Constraints:**
-- Must be active before parent `Vendor_Program__c` can be activated (`AllChildRequirementsMustBeActiveRule`)
+- Must be active before parent `Vendor_Customization__c` can be activated (`AllChildRequirementsMustBeActiveRule`)
 - Referenced requirement template must be active (`AllTemplatesInReqSetMustBeActiveRule`)
 
 ### Requirement Object Flow
 
 ```
 Onboarding_Requirement_Set__c (Reusable Bundle/Starter Pack)
-  └─ Vendor_Program_Onboarding_Req_Template__c (Templates in the bundle)
-       └─ Category_Group__c → Vendor_Program_Requirement_Group__c (Categorization)
+  └─ Requirement_Set_Template__c (Junction)
+       └─ Vendor_Program_Onboarding_Req_Template__c (Templates in the bundle)
+            └─ Category_Group__c → Vendor_Program_Requirement_Group__c (Categorization)
 
 Vendor_Program_Requirement_Group__c (Category/Organization - Campaign pattern)
   └─ Vendor_Program_Requirement_Group_Member__c (Junction - Campaign Member pattern)
+       └─ Vendor_Program_Requirement_Definition__c → Vendor_Program_Onboarding_Req_Template__c
+
+Vendor_Customization__c (Vendor Program)
+  └─ Vendor_Program_Requirement__c (Instance on Program)
 
 Vendor_Program_Requirement__c (Instance on Program)
   ├─ Vendor_Program__c → Vendor_Customization__c
@@ -247,6 +306,8 @@ Onboarding_Requirement__c (Completion Tracking)
   ├─ Onboarding__c
   └─ Vendor_Program_Requirement__c
 ```
+
+Onboarding_Requirement_Dependency__c links prerequisite Onboarding_Requirement__c records.
 
 ### Key Distinction: Set vs Group
 
@@ -361,19 +422,19 @@ Tracks user progress through an onboarding process.
 
 **Key Fields:**
 - `Onboarding_Application_Process__c` (Lookup) - Process being executed
-- `Vendor_Program__c` (Lookup) - Vendor program being onboarded
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` (Lookup) - Current stage
 
 **Relationships:**
 - Belongs to Onboarding_Application_Process__c
-- References Vendor_Program__c
+- References Vendor_Customization__c (via `Vendor_Program__c`)
 
 ### Onboarding_Application_Stage_Completion__c
 
 Audit log of completed stages.
 
 **Key Fields:**
-- `Vendor_Program__c` (Lookup) - Vendor program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` (Lookup) - Process
 - `Onboarding_Application_Stage__c` (Lookup) - Completed stage
 - `Completed_Date__c` - Completion timestamp
@@ -450,42 +511,50 @@ Maps field configurations to groups.
 ### Core Onboarding Objects
 Account
 ├── Onboarding__c (Master-Detail)
-│ ├── Onboarding_Requirement__c
-│ └── Onboarding_Order__c
+│ └── Onboarding_Requirement__c
 │
-└── Vendor_Program__c
-├── Vendor_Customization__c (legacy naming, same as Vendor_Program__c)
-│ └── Onboarding__c
-│
-└── Vendor_Program_Group__c (Campaign pattern)
-    ├── Vendor_Program_Group_Member__c (Campaign Member pattern)
-    │   └── Required_Program__c → Vendor_Customization__c
-    │   └── Inherited_Program_Requirement_Group__c
-    └── Onboarding_Status_Rules_Engine__c
-        └── Onboarding_Status_Rule__c
+└── Vendor_Customization__c (Vendor Program)
+    ├── Onboarding__c
+    ├── Vendor_Program_Requirement__c
+    └── Vendor_Program_Requirement_Set__c
+    └── Vendor_Program_Recipient_Group__c → Recipient_Group__c
+
+Vendor_Program_Group__c (Campaign pattern)
+└── Vendor_Program_Group_Member__c (Campaign Member pattern)
+    ├── Required_Program__c → Vendor_Customization__c
+    └── Inherited_Program_Requirement_Group__c
+└── Onboarding_Status_Rules_Engine__c
+    └── Onboarding_Status_Rule__c
+
+Recipient_Group__c
+├── Recipient_Group_Member__c
+└── Vendor_Program_Recipient_Group__c → Vendor_Customization__c
 
 ### Requirement Objects
 Onboarding_Requirement_Set__c (Bundle/Starter Pack)
-└── Vendor_Program_Onboarding_Req_Template__c (Templates)
-    └── Category_Group__c → Vendor_Program_Requirement_Group__c
+└── Requirement_Set_Template__c (Junction)
+    └── Vendor_Program_Onboarding_Req_Template__c (Templates)
+        └── Category_Group__c → Vendor_Program_Requirement_Group__c
 
 Vendor_Program_Requirement_Group__c (Category - Campaign pattern)
 └── Vendor_Program_Requirement_Group_Member__c (Junction - Campaign Member pattern)
+    └── Vendor_Program_Requirement_Definition__c → Vendor_Program_Onboarding_Req_Template__c
 
 Vendor_Customization__c
 └── Vendor_Program_Requirement__c (Instances from templates)
     └── Onboarding_Requirement__c (Completion tracking)
+        └── Onboarding_Requirement_Dependency__c
 
-Onboarding_Application_Process
-├── Onboarding_Application_Stage
-│ └── Onboarding_Component_Library
+Onboarding_Application_Process__c
+├── Onboarding_Application_Stage__c
+│ └── Onboarding_Component_Library__c
 │
-└── Onboarding_Application_Progress
-└── Onboarding_Application_Stage_Completion
+└── Onboarding_Application_Progress__c
+└── Onboarding_Application_Stage_Completion__c
 Contact
-├── Training_Assignment
-└── POE_External_Contact_Credential
-└── External_Contact_Credential_Type
+├── Training_Assignment__c
+└── POE_External_Contact_Credential__c
+└── External_Contact_Credential_Type__c
 
 
 ## Data Integrity
@@ -510,10 +579,12 @@ Validation rules execute on record save via triggers and prevent invalid data st
 
 Activation rules execute during the activation process (not on save) and prevent records from being activated if dependencies are not met. These rules are enforced by `OnboardingAppActivationService` and `VendorProgramActivationService`.
 
-**Vendor_Program__c / Vendor_Customization__c:**
+**Vendor_Customization__c (Vendor Program):**
+- `AllRequirementGroupsMustBeActiveRule` - The linked `Vendor_Program_Requirement_Group__c` must be active
+
+**Legacy registry key `Vendor_Program__c`:**
 - `AllChildRequirementsMustBeActiveRule` - All child `Vendor_Program_Requirement__c` records must be active
 - `AllTemplatesInReqSetMustBeActiveRule` - All requirement templates referenced by requirements must be active
-- `AllRequirementGroupsMustBeActiveRule` - The linked `Vendor_Program_Requirement_Group__c` must be active
 
 **Onboarding_Status_Rule__c:**
 - `AllLinkedEngineMustBeActiveRule` - Parent `Onboarding_Status_Rules_Engine__c` and related `Requirement__c` must be active

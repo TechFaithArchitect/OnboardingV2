@@ -11,7 +11,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Order__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -39,7 +38,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>POE_Dealer_Code__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>

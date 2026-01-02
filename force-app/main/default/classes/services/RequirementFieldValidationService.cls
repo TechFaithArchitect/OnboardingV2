@@ -103,7 +103,7 @@ public with sharing class RequirementFieldValidationService {
         Boolean isBlank = String.isBlank(value);
 
         if (requirementField.Required__c && isBlank) {
-            result.status = 'Needs_Correction';
+            result.status = 'Needs Correction';
             result.message = 'This field is required.';
             return result;
         }
@@ -129,7 +129,7 @@ public with sharing class RequirementFieldValidationService {
         }
 
         // If the field calls for cross-field or external validation, leave as Pending for downstream async validation.
-        if (validationType == 'Cross-Field' || validationType == 'External') {
+        if (validationType == 'Cross-Field' || isExternalValidation(validationType)) {
             result.status = 'Pending';
             return result;
         }
@@ -199,5 +199,9 @@ public with sharing class RequirementFieldValidationService {
             return String.valueOf(fv.Encrypted_Value__c);
         }
         return fv.Value__c;
+    }
+
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
     }
 }

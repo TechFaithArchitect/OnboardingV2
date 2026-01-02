@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Action_Plan_Template__c</fullName>
-    <description>Default action plan template tied to this program customization.</description>
     <deleteConstraint>SetNull</deleteConstraint>
+    <description>Default action plan template tied to this program customization.</description>
+    <externalId>false</externalId>
     <label>Action Plan Template</label>
     <referenceTo>ActionPlanTemplate</referenceTo>
     <relationshipName>Vendor_Customizations</relationshipName>

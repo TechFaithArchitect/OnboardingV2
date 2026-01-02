@@ -7,13 +7,22 @@ public class PreventDupRecGrpAssignmentRule implements OnboardingAppValidationRu
         Set<Id> groupIds = new Set<Id>();
         Map<String, Id> keyToExisting = new Map<String, Id>();
         Set<String> keysSeenThisBatch = new Set<String>();
+        List<Vendor_Program_Recipient_Group__c> recordsToCheck = new List<Vendor_Program_Recipient_Group__c>();
 
         // Extract keys
         for (Vendor_Program_Recipient_Group__c rec : newRecords) {
             if (rec.Vendor_Program__c != null && rec.Recipient_Group__c != null) {
+                if (rec.Parent_Version__c != null || rec.Status__c == 'Draft') {
+                    continue;
+                }
                 programIds.add(rec.Vendor_Program__c);
                 groupIds.add(rec.Recipient_Group__c);
+                recordsToCheck.add(rec);
             }
+        }
+
+        if (recordsToCheck.isEmpty()) {
+            return;
         }
 
         // Fetch existing assignments
@@ -30,7 +39,7 @@ public class PreventDupRecGrpAssignmentRule implements OnboardingAppValidationRu
             keyToExisting.put(key, rec.Id);
         }
 
-        for (Vendor_Program_Recipient_Group__c rec : newRecords) {
+        for (Vendor_Program_Recipient_Group__c rec : recordsToCheck) {
             if (rec.Vendor_Program__c != null && rec.Recipient_Group__c != null) {
                 String key = rec.Vendor_Program__c + ':' + rec.Recipient_Group__c;
                 Id existingId = keyToExisting.get(key);

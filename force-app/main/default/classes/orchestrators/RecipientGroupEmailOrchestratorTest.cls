@@ -3,17 +3,12 @@ public class RecipientGroupEmailOrchestratorTest {
 
     private static void setupRecipientGroupWithUser(Id vendorProgramId, Id userId) {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
+        User user = [SELECT Id FROM User WHERE Id = :userId];
 
-        insert new Vendor_Program_Recipient_Group__c(
-            Vendor_Program__c = vendorProgramId,
-            Recipient_Group__c = recipientGroup.Id,
-            Is_Active__c = true
-        );
+        Vendor_Customization__c vendorProgram = [SELECT Id FROM Vendor_Customization__c WHERE Id = :vendorProgramId];
+        TestDataFactory.createVendorProgramRecipientGroup(vendorProgram, recipientGroup, true);
 
-        insert new Recipient_Group_Member__c(
-            Recipient_Group__c = recipientGroup.Id,
-            Recipient_User__c = userId
-        );
+        TestDataFactory.createRecipientGroupMember(true, recipientGroup, user);
     }
 
     @isTest

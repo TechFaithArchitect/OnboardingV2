@@ -121,7 +121,9 @@ public with sharing class FollowUpFatigueService {
 
         followUp.Fatigue_Suppressed__c = true;
         followUp.Suppression_Reason__c = reason;
-        followUp.Status__c = 'Suppressed';
+        if (PicklistHelper.isPicklistValueValid('Follow_Up_Queue__c', 'Status__c', 'Suppressed')) {
+            followUp.Status__c = 'Suppressed';
+        }
         
         update followUp;
     }

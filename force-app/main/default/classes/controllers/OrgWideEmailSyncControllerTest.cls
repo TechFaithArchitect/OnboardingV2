@@ -4,7 +4,7 @@ private class OrgWideEmailSyncControllerTest {
     @isTest
     static void testScheduledExecution() {
         // Arrange
-        OrgWideEmailDTO orgWideEmailDTO = TestOrgWideEmailDTOFactory.create('Program Support');
+        OrgWideEmailDTO orgWideEmailDTO = TestDataFactory.createOrgWideEmailDTO('Program Support');
         OrgWideEmailSyncService.setMockDtos(new List<OrgWideEmailDTO>{ orgWideEmailDTO });
 
         // Act

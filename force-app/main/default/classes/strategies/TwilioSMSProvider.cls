@@ -93,9 +93,6 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
             // Parse response to get Message SID
             String messageSid = extractMessageSid(response);
             
-            // Log to Message_Log__c if object exists
-            logTwilioMessage(contactId, toPhoneNumber, fromPhoneNumber, messageContent, messageSid);
-            
             return messageSid != null ? messageSid : 'TWILIO-' + String.valueOf(DateTime.now().getTime());
         } catch (Exception e) {
             throw new FollowUpMessagingService.FollowUpMessagingException(
@@ -216,32 +213,6 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
     }
     
     /**
-     * Log Twilio message to Message_Log__c object (if it exists)
-     */
-    private void logTwilioMessage(Id contactId, String toPhone, String fromPhone, String message, String messageSid) {
-        try {
-            // Check if Message_Log__c object exists
-            Schema.SObjectType messageLogType = Schema.getGlobalDescribe().get('Message_Log__c');
-            if (messageLogType != null) {
-                SObject messageLog = messageLogType.newSObject();
-                messageLog.put('Contact__c', contactId);
-                messageLog.put('To_Phone__c', toPhone);
-                messageLog.put('From_Phone__c', fromPhone);
-                messageLog.put('Message_Body__c', message);
-                messageLog.put('Message_SID__c', messageSid);
-                messageLog.put('Provider__c', 'Twilio');
-                messageLog.put('Status__c', 'Sent');
-                messageLog.put('Sent_Date__c', DateTime.now());
-                
-                insert messageLog;
-            }
-        } catch (Exception e) {
-            // Message_Log__c may not exist or may have different fields - log and continue
-            System.debug('Could not log to Message_Log__c: ' + e.getMessage());
-        }
-    }
-    
-    /**
      * Check if Contact has active messaging endpoint (phone number) for Twilio
      * @param contactId Contact ID
      * @param providerConfig Map (not used for Twilio, but required by interface)
@@ -285,4 +256,3 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
         return null; // Valid
     }
 }
-

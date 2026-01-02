@@ -77,7 +77,10 @@ public with sharing class RequirementSetTriggerHandler {
         Set<Id> requirementSetIdsToUpdate = new Set<Id>();
         
         for (Onboarding_Requirement_Set__c reqSet : newList) {
-            Onboarding_Requirement_Set__c oldReqSet = oldMap.get(reqSet.Id);
+            // Handle case where oldMap might be null (insert context) or Id doesn't exist
+            Onboarding_Requirement_Set__c oldReqSet = (oldMap != null && oldMap.containsKey(reqSet.Id)) 
+                ? oldMap.get(reqSet.Id) 
+                : null;
             
             // Check if Version__c changed (if field exists)
             // Note: Version__c might not exist - handle gracefully

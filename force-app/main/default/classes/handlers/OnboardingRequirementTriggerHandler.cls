@@ -80,4 +80,3 @@ public with sharing class OnboardingRequirementTriggerHandler {
         }
     }
 }
-

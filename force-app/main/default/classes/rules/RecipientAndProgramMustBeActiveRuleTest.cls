@@ -5,16 +5,48 @@ private class RecipientAndProgramMustBeActiveRuleTest {
     static void testFailsIfRecipientOrProgramInactive() {
         Vendor__c vendor = TestDataFactory.createVendor(true);
 
-        Recipient_Group__c inactiveGroup = TestDataFactory.createRecipientGroup(false, true);
-        Vendor_Customization__c parent = TestDataFactory.createVendorCustomization(vendor, 'Draft', false, null, true);
-        Vendor_Customization__c inactiveProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', false, parent.Id, true);
+        Recipient_Group__c inactiveGroup = TestDataFactory.createRecipientGroup(true, false);
+        String inactiveProgramStatus = null;
+        List<String> validProgramStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Customization__c.SObjectType,
+            'Status__c'
+        );
+        if (validProgramStatuses.contains('Draft')) {
+            inactiveProgramStatus = 'Draft';
+        } else {
+            for (String status : validProgramStatuses) {
+                if (status != 'Active') {
+                    inactiveProgramStatus = status;
+                    break;
+                }
+            }
+        }
+        if (String.isBlank(inactiveProgramStatus) && !validProgramStatuses.isEmpty()) {
+            inactiveProgramStatus = validProgramStatuses[0];
+        }
 
-        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Recipient_Group__c = inactiveGroup.Id,
-            Vendor_Program__c = inactiveProgram.Id
+        Vendor_Customization__c inactiveProgram = TestDataFactory.createVendorCustomization(
+            vendor,
+            inactiveProgramStatus,
+            false,
+            null,
+            true
+        );
+
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
+        );
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        
+        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup = TestDataFactory.createVendorProgramRecipientGroup(
+            inactiveProgram,
+            inactiveGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            false
         );
 
         Test.startTest();

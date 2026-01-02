@@ -67,9 +67,17 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
             Requirement_Field_Validation_Rule__mdt rule = (fv.Requirement_Field__r != null)
                 ? rulesByApi.get(fv.Requirement_Field__r.Field_API_Name__c)
                 : null;
+            String validationType = rule != null
+                ? rule.Validation_Type__c
+                : (fv.Requirement_Field__r != null ? fv.Requirement_Field__r.Validation_Type__c : null);
+            Boolean isExternal = isExternalValidation(validationType);
+
+            if (isExternal && fv.Validation_Status__c != null && fv.Validation_Status__c != 'Pending') {
+                continue;
+            }
 
             if (fv.Requirement_Field__r != null && fv.Requirement_Field__r.Required__c && isBlank) {
-                fv.Validation_Status__c = 'Needs_Correction';
+                fv.Validation_Status__c = 'Needs Correction';
                 fv.Validation_Error_Message__c = 'This field is required.';
             } else if (rule != null && rule.Validation_Type__c == 'Cross-Field' && !String.isBlank(rule.Validation_Expression__c)) {
                 fv.Validation_Status__c = evaluateCrossField(rule.Validation_Expression__c, valuesByRequirement.get(fv.Onboarding_Requirement__c))
@@ -78,7 +86,7 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
                 fv.Validation_Error_Message__c = fv.Validation_Status__c == 'Valid'
                     ? null
                     : (String.isNotBlank(rule.Error_Message__c) ? rule.Error_Message__c : 'Cross-field validation failed.');
-            } else if (rule != null && rule.Validation_Type__c == 'External') {
+            } else if (isExternal) {
                 // External validation - enqueue for external validation service
                 // For now, mark as Pending. External validator will process separately
                 fv.Validation_Status__c = 'Pending';
@@ -167,23 +175,59 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
         
         expression = expression.trim();
         
+        // Handle OR operator (lower precedence than AND)
+        if (expression.contains(' OR ')) {
+            List<String> orParts = splitByOperator(expression, ' OR ');
+            if (orParts.size() > 1) {
+                return evaluateOrExpression(expression, valuesByApi);
+            }
+        }
+        
+        // Handle AND operator
+        if (expression.contains(' AND ')) {
+            List<String> andParts = splitByOperator(expression, ' AND ');
+            if (andParts.size() > 1) {
+                return evaluateAndExpression(expression, valuesByApi);
+            }
+        }
+
+        // Handle function-only expressions before parentheses evaluation
+        if (expression.startsWith('ISBLANK(') || expression.startsWith('ISNOTBLANK(')) {
+            return evaluateSimpleCondition(expression, valuesByApi);
+        }
+
+        if (isWrappedInParentheses(expression)) {
+            return evaluateExpression(expression.substring(1, expression.length() - 1), valuesByApi);
+        }
+
         // Handle parentheses - evaluate innermost first
         if (expression.contains('(')) {
             return evaluateWithParentheses(expression, valuesByApi);
         }
         
-        // Handle OR operator (lower precedence than AND)
-        if (expression.contains(' OR ')) {
-            return evaluateOrExpression(expression, valuesByApi);
-        }
-        
-        // Handle AND operator
-        if (expression.contains(' AND ')) {
-            return evaluateAndExpression(expression, valuesByApi);
-        }
-        
         // Base case: evaluate simple condition
         return evaluateSimpleCondition(expression, valuesByApi);
+    }
+
+    private static Boolean isWrappedInParentheses(String expression) {
+        if (String.isBlank(expression) || !expression.startsWith('(') || !expression.endsWith(')')) {
+            return false;
+        }
+
+        Integer depth = 0;
+        for (Integer i = 0; i < expression.length(); i++) {
+            String currentChar = expression.substring(i, i + 1);
+            if (currentChar == '(') {
+                depth++;
+            } else if (currentChar == ')') {
+                depth--;
+                if (depth == 0 && i < expression.length() - 1) {
+                    return false;
+                }
+            }
+        }
+
+        return depth == 0;
     }
 
     /**
@@ -374,5 +418,9 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
         if (a == null && b == null) return true;
         if (a == null || b == null) return false;
         return a.equalsIgnoreCase(b);
+    }
+
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
     }
 }

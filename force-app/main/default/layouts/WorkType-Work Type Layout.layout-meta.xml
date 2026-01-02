@@ -157,22 +157,8 @@
         <fields>IsActive</fields>
         <relatedList>WorkPlanSelectionRule</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Question__c</fields>
-        <fields>Options__c</fields>
-        <fields>Order__c</fields>
-        <relatedList>Audit_Question__c.WorkType__c</relatedList>
-        <sortField>Order__c</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Question__c</fields>
-        <fields>Options__c</fields>
-        <fields>Order__c</fields>
-        <relatedList>Site_Survey_Question__c.Work_Type__c</relatedList>
-    </relatedLists>
+    
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>

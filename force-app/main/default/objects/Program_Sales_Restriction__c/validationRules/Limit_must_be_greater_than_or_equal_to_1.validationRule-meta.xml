@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Limit_must_be_greater_than_or_equal_to_1</fullName>
-    <active>true</active>
-    <errorConditionFormula>Limit__c  &lt; 1</errorConditionFormula>
-    <errorMessage>Limit must be greater than or equal to 1</errorMessage>
-</ValidationRule>

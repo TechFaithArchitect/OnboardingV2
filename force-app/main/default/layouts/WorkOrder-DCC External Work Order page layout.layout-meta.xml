@@ -197,10 +197,7 @@
         <fields>QuantityRequired</fields>
         <relatedList>ProductsRequired</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Typeform_Responses__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>Name</fields>
         <fields>Product2</fields>
@@ -217,14 +214,7 @@
         <fields>sharinpix__Description__c</fields>
         <relatedList>sharinpix__SharinPixImage__c.Work_Order_Image__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
-        <excludeButtons>New</excludeButtons>
-        <fields>NAME</fields>
-        <fields>Description__c</fields>
-        <fields>Status__c</fields>
-        <relatedList>Claim__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>

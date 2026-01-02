@@ -116,21 +116,24 @@ public with sharing class VendorOnboardingWizardRepository {
 
         List<Vendor_Customization__c> filtered = new List<Vendor_Customization__c>();
         for (Vendor_Customization__c vp : programs) {
+            Boolean isPerfectVision = vp.Vendor__r != null && vp.Vendor__r.Name == 'PerfectVision';
+            if (!eligible) {
+                if (isPerfectVision) {
+                    filtered.add(vp);
+                }
+                continue;
+            }
+
+            if (isPerfectVision) {
+                continue;
+            }
+
             Boolean requiresNda = vp.Vendor_Program_Group__r != null && vp.Vendor_Program_Group__r.Requires_NDA__c;
             Boolean requiresBase = vp.Vendor_Program_Group__r != null && vp.Vendor_Program_Group__r.Requires_Program_Base__c;
             Boolean ndaOk = !requiresNda || hasNda;
             Boolean baseOk = !requiresBase || hasProgramBase;
             if (ndaOk && baseOk) {
                 filtered.add(vp);
-            }
-        }
-
-        // If no eligibility, optionally fall back to legacy PerfectVision programs
-        if (!eligible && filtered.isEmpty()) {
-            for (Vendor_Customization__c vp : programs) {
-                if (vp.Vendor__r != null && vp.Vendor__r.Name == 'PerfectVision') {
-                    filtered.add(vp);
-                }
             }
         }
 
@@ -195,11 +198,22 @@ public with sharing class VendorOnboardingWizardRepository {
         Id vendorProgramId,
         Id opportunityId
     ) {
+        String onboardingStatus = PicklistHelper.getValidPicklistValue(
+            'Onboarding__c',
+            'Onboarding_Status__c',
+            'Not Started'
+        );
+        String requirementStatus = PicklistHelper.getValidPicklistValue(
+            'Onboarding_Requirement__c',
+            'Status__c',
+            'Not Started'
+        );
+
         Onboarding__c onboarding = new Onboarding__c(
             Account__c = accountId,
             Vendor_Customization__c = vendorProgramId,
             Opportunity__c = opportunityId,
-            Onboarding_Status__c = 'Not Started'
+            Onboarding_Status__c = onboardingStatus
         );
         insert onboarding;
 
@@ -209,7 +223,7 @@ public with sharing class VendorOnboardingWizardRepository {
             Onboarding_Requirement__c req = new Onboarding_Requirement__c(
                 Onboarding__c = onboarding.Id,
                 Vendor_Program_Requirement__c = vpr.Id,
-                Status__c = 'Not Started'
+                Status__c = requirementStatus
             );
             onboardingReqs.add(req);
         }
@@ -1138,10 +1152,15 @@ public with sharing class VendorOnboardingWizardRepository {
     }
 
     public static Id insertVendorProgramRecipientGroupLink(Id vendorProgramId, Id recipientGroupId) {
+        String defaultStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Program_Recipient_Group__c',
+            'Status__c',
+            'Draft'
+        );
         Vendor_Program_Recipient_Group__c link = new Vendor_Program_Recipient_Group__c(
             Vendor_Program__c = vendorProgramId,
             Recipient_Group__c = recipientGroupId,
-            Status__c = 'Draft'
+            Status__c = defaultStatus
         );
         insert link;
         return link.Id;

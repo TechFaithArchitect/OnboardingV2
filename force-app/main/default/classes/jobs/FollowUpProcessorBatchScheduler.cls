@@ -130,4 +130,3 @@ public with sharing class FollowUpProcessorBatchScheduler implements Database.Ba
         return System.schedule('Follow-Up Processor Batch 15min', '0 */15 * * * ?', scheduler);
     }
 }
-

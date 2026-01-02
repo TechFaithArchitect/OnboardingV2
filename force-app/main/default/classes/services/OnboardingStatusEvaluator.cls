@@ -60,7 +60,6 @@ public with sharing class OnboardingStatusEvaluator {
         List<Onboarding__c> toUpdate = new List<Onboarding__c>();
         for (Onboarding__c onboarding : onboardings) {
             Map<Id, Onboarding_Requirement__c> reqByVPR = reqByOnboardingByVPR.get(onboarding.Id);
-            if (reqByVPR == null || reqByVPR.isEmpty()) continue;
             
             Id vendorProgramId = vendorProgramByOnboarding.get(onboarding.Id);
             if (vendorProgramId == null) continue;
@@ -83,8 +82,24 @@ public with sharing class OnboardingStatusEvaluator {
             for (Id groupId : groupIds) {
                 List<Onboarding_Status_Rules_Engine__c> rules = rulesByGroup.get(groupId);
                 if (rules == null) continue;
-                
+
+                // Override rules force a status without evaluating requirements
                 for (Onboarding_Status_Rules_Engine__c rule : rules) {
+                    if (rule.Override_Status__c == true && String.isNotBlank(rule.Target_Onboarding_Status__c)) {
+                        newStatus = rule.Target_Onboarding_Status__c;
+                        break;
+                    }
+                }
+                if (newStatus != null) break;
+
+                if (reqByVPR == null || reqByVPR.isEmpty()) {
+                    continue;
+                }
+
+                for (Onboarding_Status_Rules_Engine__c rule : rules) {
+                    if (rule.Override_Status__c == true) {
+                        continue;
+                    }
                     Boolean rulePassed = OnboardingRuleEvaluator.evaluateRule(rule, reqByVPR, fullOnboardingRecord);
                     if (rulePassed && String.isNotBlank(rule.Target_Onboarding_Status__c)) {
                         newStatus = rule.Target_Onboarding_Status__c;
@@ -94,7 +109,7 @@ public with sharing class OnboardingStatusEvaluator {
                 if (newStatus != null) break;
             }
 
-            if (newStatus == null && useProgressFallback) {
+            if (newStatus == null && useProgressFallback && reqByVPR != null && !reqByVPR.isEmpty()) {
                 newStatus = computeProgressStatus(reqByVPR.values());
             }
             

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-    <deploymentStatus>Deployed</deploymentStatus>
-    <description>Used to trigger SF Maps Permission Group assignation</description>
-    <eventType>HighVolume</eventType>
-    <label>Chuzo - Update SF Maps PG</label>
-    <pluralLabel>Chuzo - Update SF Maps PGs</pluralLabel>
-    <publishBehavior>PublishImmediately</publishBehavior>
-</CustomObject>

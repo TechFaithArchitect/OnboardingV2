@@ -23,7 +23,10 @@ private class OnboardingRulesRepositoryTest {
         Onboarding_Status_Rule__c onboardingStatusRule = new Onboarding_Status_Rule__c(
             Parent_Rule__c = onboardingStatusRulesEngine.Id,
             Rule_Number__c = 1,
-            Expected_Status__c = 'New'
+            Expected_Status__c = TestDataFactoryUtil.getFirstPicklistValue(
+                Onboarding_Status_Rule__c.SObjectType,
+                'Expected_Status__c'
+            )
         );
 
         Test.startTest();
@@ -40,7 +43,10 @@ private class OnboardingRulesRepositoryTest {
         Onboarding_Status_Rule__c onboardingStatusRule = new Onboarding_Status_Rule__c(
             Parent_Rule__c = onboardingStatusRulesEngine.Id,
             Rule_Number__c = 2,
-            Expected_Status__c = 'New'
+            Expected_Status__c = TestDataFactoryUtil.getFirstPicklistValue(
+                Onboarding_Status_Rule__c.SObjectType,
+                'Expected_Status__c'
+            )
         );
         insert onboardingStatusRule;
 

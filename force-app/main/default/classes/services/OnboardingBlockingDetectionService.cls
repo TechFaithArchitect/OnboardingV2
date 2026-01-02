@@ -54,6 +54,11 @@ public with sharing class OnboardingBlockingDetectionService {
 
             Onboarding__c onboarding = onboardings[0];
 
+            // Check if status is Denied (blocked status)
+            if (onboarding.Onboarding_Status__c == 'Denied') {
+                reasons.add('Onboarding status is Denied');
+            }
+
             // Check requirement statuses using OnboardingStatusEvaluator
             // Note: This assumes OnboardingStatusEvaluator exists and has a method to check blocking
             // If not available, we'll use a simplified check

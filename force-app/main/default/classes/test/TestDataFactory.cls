@@ -27,6 +27,32 @@ public class TestDataFactory {
         return recipientGroup;
     }
 
+    public static Recipient_Group_Member__c createRecipientGroupMember(Boolean doInsert, Recipient_Group__c recipientGroup, User user) {
+        Recipient_Group_Member__c member = new Recipient_Group_Member__c(
+            Recipient_Group__c = recipientGroup != null ? recipientGroup.Id : null,
+            Member_Type__c = 'User',
+            Recipient_Type__c = 'To',
+            Recipient_User__c = user != null ? user.Id : null
+        );
+        TestDataFactoryUtil.maybeInsert(member, doInsert);
+        return member;
+    }
+
+    public static Recipient_Group_Member__c createRecipientGroupMember(Boolean doInsert, Recipient_Group__c recipientGroup, User user, String memberType, String recipientType) {
+        Recipient_Group_Member__c member = new Recipient_Group_Member__c(
+            Recipient_Group__c = recipientGroup != null ? recipientGroup.Id : null,
+            Member_Type__c = memberType,
+            Recipient_Type__c = recipientType != null ? recipientType : 'To'
+        );
+        if (memberType == 'User') {
+            member.Recipient_User__c = user != null ? user.Id : null;
+        } else if (memberType == 'Group') {
+            // OwnerId would be set separately for Group type
+        }
+        TestDataFactoryUtil.maybeInsert(member, doInsert);
+        return member;
+    }
+
     public static Communication_Template__c createCommTemplate(Boolean doInsert) {
         return TestCommTemplateFactory.createTemplate(doInsert);
     }
@@ -133,6 +159,49 @@ public class TestDataFactory {
         return TestOnboardingFactory.create(account, vendorProgram, doInsert);
     }
 
+    public static Onboarding_Application_Process__c createOnboardingApplicationProcessWithStages(Integer numStages, Boolean doInsert) {
+        return TestOnboardingStageDependencyFactory.createProcessWithStages(numStages, doInsert);
+    }
+
+    public static Onboarding_Application_Stage_Dependency__c createOnboardingStageDependency(
+        Id targetStageId,
+        Id requiredStageId,
+        Boolean required,
+        Boolean doInsert
+    ) {
+        return TestOnboardingStageDependencyFactory.createStageDependency(
+            doInsert,
+            targetStageId,
+            requiredStageId,
+            required
+        );
+    }
+
+    public static Onboarding_Application_Stage_Dependency__c createOnboardingStageDependency(
+        Id targetStageId,
+        List<Id> requiredStageIds,
+        String logicType,
+        Boolean required,
+        Boolean doInsert
+    ) {
+        return TestOnboardingStageDependencyFactory.createStageDependency(
+            doInsert,
+            targetStageId,
+            requiredStageIds,
+            logicType,
+            required
+        );
+    }
+
+    public static Onboarding_Application_Stage_Completion__c createOnboardingStageCompletion(
+        Id vendorProgramId,
+        Id processId,
+        Id stageId,
+        Boolean doInsert
+    ) {
+        return TestOnboardingStageDependencyFactory.createStageCompletion(doInsert, vendorProgramId, processId, stageId);
+    }
+
     // ------------------------------------------------------------------------------------------
     // VENDOR / VENDOR PROGRAM
     // ------------------------------------------------------------------------------------------
@@ -160,6 +229,10 @@ public class TestDataFactory {
 
     public static Training_Requirement__c createTrainingRequirement(Vendor_Customization__c vendorProgram, Training_System__c trainingSystem, Boolean doInsert) {
         return TestTrainingRequirementFactory.create(doInsert, vendorProgram, trainingSystem);
+    }
+
+    public static Vendor_Program_Requirement__c createVendorProgramRequirement(Vendor_Customization__c vendorProgram, Boolean isActive, Boolean doInsert) {
+        return TestVendorProgramRequirementFactory.create(vendorProgram, isActive, doInsert);
     }
 
 
@@ -262,10 +335,121 @@ public class TestDataFactory {
         vendorProgramRequirementTemplate.Status__c = 'Draft';
         vendorProgramRequirementTemplate.Active__c = true;
         TestDataFactoryUtil.maybeInsert(vendorProgramRequirementTemplate, doInsert);
+        if (doInsert && requirementSetId != null && vendorProgramRequirementTemplate.Id != null) {
+            Requirement_Set_Template__c junction = new Requirement_Set_Template__c(
+                Requirement_Template__c = vendorProgramRequirementTemplate.Id,
+                Onboarding_Requirement_Set__c = requirementSetId
+            );
+            insert junction;
+        }
         return vendorProgramRequirementTemplate;
     }
 
     public static Vendor_Program_Group__c createVendorProgramGroup(Boolean doInsert) {
         return TestDataFactoryWrapper.createVendorProgramGroup(doInsert);
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // ACCOUNT VENDOR PROGRAM ONBOARDING (AVO)
+    // ------------------------------------------------------------------------------------------
+    public static Account_Vendor_Program_Onboarding__c createAccountVendorProgramOnboarding(
+        Account account,
+        Onboarding__c onboarding,
+        String status,
+        Boolean doInsert
+    ) {
+        return TestAVOFactory.create(account, onboarding, status, doInsert);
+    }
+
+    public static Account_Vendor_Program_Onboarding__c createAccountVendorProgramOnboarding(
+        Account account,
+        Onboarding__c onboarding,
+        Boolean doInsert
+    ) {
+        return TestAVOFactory.create(account, onboarding, null, doInsert);
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // REQUIREMENT FIELD VALUE
+    // ------------------------------------------------------------------------------------------
+    public static Requirement_Field_Value__c createRequirementFieldValue(
+        Requirement_Field__c requirementField,
+        Onboarding_Requirement__c onboardingRequirement,
+        String value,
+        String validationStatus,
+        Boolean doInsert
+    ) {
+        return TestRequirementFieldValueFactory.create(requirementField, onboardingRequirement, value, validationStatus, doInsert);
+    }
+
+    public static Requirement_Field_Value__c createRequirementFieldValue(
+        Requirement_Field__c requirementField,
+        Onboarding_Requirement__c onboardingRequirement,
+        Boolean doInsert
+    ) {
+        return TestRequirementFieldValueFactory.create(requirementField, onboardingRequirement, doInsert);
+    }
+
+    public static Requirement_Field_Value__c createRequirementFieldValue(
+        Requirement_Field__c requirementField,
+        Onboarding_Requirement__c onboardingRequirement,
+        String value,
+        Boolean doInsert
+    ) {
+        return TestRequirementFieldValueFactory.create(requirementField, onboardingRequirement, value, doInsert);
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // REQUIREMENT FIELD
+    // ------------------------------------------------------------------------------------------
+    public static Requirement_Field__c createRequirementField(
+        String fieldApiName,
+        String validationType,
+        Boolean required,
+        Boolean doInsert
+    ) {
+        return TestRequirementFieldFactory.create(fieldApiName, validationType, required, doInsert);
+    }
+
+    public static Requirement_Field__c createRequirementField(
+        String fieldApiName,
+        Boolean doInsert
+    ) {
+        return TestRequirementFieldFactory.create(fieldApiName, doInsert);
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // VENDOR PROGRAM RECIPIENT GROUP
+    // ------------------------------------------------------------------------------------------
+    public static Vendor_Program_Recipient_Group__c createVendorProgramRecipientGroup(
+        Vendor_Customization__c vendorProgram,
+        Recipient_Group__c recipientGroup,
+        Boolean doInsert
+    ) {
+        return TestVendorProgramRecipientGroupFactory.create(vendorProgram, recipientGroup, doInsert);
+    }
+
+    public static Vendor_Program_Recipient_Group__c createVendorProgramRecipientGroup(Boolean doInsert) {
+        return TestVendorProgramRecipientGroupFactory.create(doInsert);
+    }
+
+    public static Vendor_Program_Recipient_Group__c createVendorProgramRecipientGroup(
+        Vendor_Customization__c vendorProgram,
+        Recipient_Group__c recipientGroup,
+        String status,
+        String version,
+        Boolean isActive,
+        Id parentVersionId,
+        Boolean doInsert
+    ) {
+        return TestVendorProgramRecipientGroupFactory.create(
+            vendorProgram,
+            recipientGroup,
+            status,
+            version,
+            isActive,
+            parentVersionId,
+            doInsert
+        );
     }
 }

@@ -4,6 +4,8 @@
 
 The onboarding process is a metadata-driven workflow that guides users through structured stages to complete vendor program onboarding. The process is fully configurable through Custom Objects and supports progress tracking, auditability, and dynamic component rendering.
 
+See [User Journey Summary](../user-guides/user-journey-summary.md) for the end-to-end flow.
+
 ## Process Flow
 
 ```
@@ -72,7 +74,7 @@ The onboarding process is a metadata-driven workflow that guides users through s
 Tracks the current state of an onboarding process:
 - `Current_Stage__c` - Current stage ID
 - `Onboarding_Application_Process__c` - Process being executed
-- `Vendor_Program__c` - Vendor program being onboarded
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 
 ### Onboarding_Application_Stage_Completion__c
 

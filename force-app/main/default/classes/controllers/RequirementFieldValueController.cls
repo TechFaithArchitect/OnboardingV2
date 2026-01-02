@@ -48,8 +48,10 @@ public with sharing class RequirementFieldValueController {
             // Set value (encrypted or regular)
             if (isEncrypted) {
                 fieldValue.Encrypted_Value__c = value;
+                fieldValue.Value__c = null;
             } else {
                 fieldValue.Value__c = value;
+                fieldValue.Encrypted_Value__c = null;
             }
 
             upsert fieldValue;
@@ -71,7 +73,7 @@ public with sharing class RequirementFieldValueController {
                         WHERE Id = :requirementFieldId
                         LIMIT 1
                     ];
-                    if (reqField.Validation_Type__c == 'Cross-Field' || reqField.Validation_Type__c == 'External') {
+                    if (reqField.Validation_Type__c == 'Cross-Field' || isExternalValidation(reqField.Validation_Type__c)) {
                         RequirementFieldAsyncValidator.enqueue(new Set<Id>{ fieldValue.Id });
                     }
                 }
@@ -94,6 +96,10 @@ public with sharing class RequirementFieldValueController {
         }
 
         return result;
+    }
+
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
     }
 
     /**

@@ -7,4 +7,3 @@ trigger RequirementFieldValueTrigger on Requirement_Field_Value__c (after insert
         RequirementFieldValueTriggerHandler.handleAfterSave(Trigger.new, Trigger.oldMap);
     }
 }
-

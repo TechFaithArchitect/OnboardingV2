@@ -4,8 +4,8 @@ private class OnboardingAppVendorProgramReqCtlrTest {
     @isTest
     static void testGetRequiredCredentials() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         External_Contact_Credential_Type__c type1 = TestCredentialFactory.createCredentialType('Type A', 1, vendorProgram, true, true);
         Required_Credential__c rc = TestCredentialFactory.createRequiredCredential(type1, vendorProgram, true, true);
@@ -23,8 +23,8 @@ private class OnboardingAppVendorProgramReqCtlrTest {
     @isTest
     static void testGetTrainingRequirements() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         Training_System__c trainingSystem = TestTrainingSystemFactory.create(true);
         Training_Requirement__c trainingReq = TestTrainingRequirementFactory.create(true, vendorProgram, trainingSystem);
@@ -42,8 +42,8 @@ private class OnboardingAppVendorProgramReqCtlrTest {
     @isTest
     static void testCreateRequiredCredential() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         External_Contact_Credential_Type__c type1 = TestCredentialFactory.createCredentialType('Type A', 1, vendorProgram, true, true);
         Required_Credential__c newCredential = new Required_Credential__c(
@@ -63,13 +63,20 @@ private class OnboardingAppVendorProgramReqCtlrTest {
     @isTest
     static void testCreateTrainingRequirement() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         Training_System__c trainingSystem = TestTrainingSystemFactory.create(true);
+        List<String> trainingTypes = TestDataFactoryUtil.getPicklistValues(
+            Training_Requirement__c.SObjectType,
+            'Training_Type__c'
+        );
+        String trainingType = trainingTypes.contains('Internal') ? 'Internal' : trainingTypes[0];
+        
         Training_Requirement__c newTraining = new Training_Requirement__c(
             Vendor_Customization__c = vendorProgram.Id,
-            Training_System__c = trainingSystem.Id
+            Training_System__c = trainingSystem.Id,
+            Training_Type__c = trainingType
         );
         
         // Act

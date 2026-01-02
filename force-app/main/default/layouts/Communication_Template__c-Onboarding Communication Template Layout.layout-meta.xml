@@ -50,6 +50,18 @@
                 <behavior>Edit</behavior>
                 <field>Email_Template_Id__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Messaging_Template_Id__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Messaging_Channel_Id__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Message_Body__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -93,6 +105,7 @@
     </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
+        <relatedList>Email_Communication_Log__c.Communication_Template__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

@@ -6,6 +6,17 @@ Welcome to Onboarding V2! This guide will help you get started with the onboardi
 
 Onboarding V2 is a comprehensive, metadata-driven system for managing vendor program onboarding processes in Salesforce. It provides a flexible, configurable framework for guiding users through structured onboarding flows with full auditability and progress tracking.
 
+## Terminology (Quick Reference)
+
+- Dealer = Account.
+- Program Specialist (Sales): starts onboarding for Dealers and links them to Vendor Programs.
+- Program Manager: configures Vendor Programs, requirements, and rules.
+- Onboarding Manager (Account Services): drives requirement completion with Dealers.
+
+See [Terminology](../README.md#terminology) for full definitions.
+
+See [User Journey Summary](./user-journey-summary.md) for the end-to-end flow.
+
 ## Key Features
 
 - **Metadata-Driven Workflows**: Configure onboarding processes without code changes
@@ -42,7 +53,7 @@ Onboarding V2 is a comprehensive, metadata-driven system for managing vendor pro
 ## Basic Workflow
 
 1. **Start Onboarding**: 
-   - From the Home Dashboard, click **Start New Onboarding** and select an account
+   - From the Home Dashboard, click **Start New Onboarding** and select a Dealer (Account)
    - Or navigate directly to a Vendor Program record
 2. **Complete Stages**: Follow the guided flow through each stage
 3. **Update Requirements**: Mark requirements as complete as you progress
@@ -58,8 +69,8 @@ Onboarding V2 is a comprehensive, metadata-driven system for managing vendor pro
 **Option 1: From Home Dashboard (Recommended)**
 1. Go to your **Home** page with the Vendor Onboarding Dashboard
 2. Click **Start New Onboarding** button
-3. Select an account from the modal
-4. Navigate to the Account record and use the Quick Action to select vendor programs
+3. Select a Dealer (Account) from the modal
+4. Navigate to the Dealer (Account) record and use the Quick Action to select vendor programs
 
 **Option 2: From Vendor Program Record**
 1. Navigate directly to a Vendor Program record

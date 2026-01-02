@@ -16,12 +16,19 @@ private class OnboardingRequirementTriggerHandlerTest {
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
             true, testOnboarding, null
         );
-        testRequirement.Status__c = 'Not Started';
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        String notStartedStatus = validStatuses.contains('Not Started') ? 'Not Started' : validStatuses[0];
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+        
+        testRequirement.Status__c = notStartedStatus;
         update testRequirement;
 
         Test.startTest();
         // Change status to trigger follow-up evaluation
-        testRequirement.Status__c = 'In Process';
+        testRequirement.Status__c = inProcessStatus;
         update testRequirement;
         Test.stopTest();
 
@@ -50,12 +57,19 @@ private class OnboardingRequirementTriggerHandlerTest {
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
             true, testOnboarding, null
         );
-        testRequirement.Status__c = 'In Process';
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[validStatuses.size() - 1];
+        
+        testRequirement.Status__c = inProcessStatus;
         update testRequirement;
 
         Test.startTest();
         // Change to Complete - should not trigger follow-up
-        testRequirement.Status__c = 'Complete';
+        testRequirement.Status__c = completeStatus;
         update testRequirement;
         Test.stopTest();
 
@@ -85,15 +99,25 @@ private class OnboardingRequirementTriggerHandlerTest {
             Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(
                 false, testOnboarding, null
             );
-            req.Status__c = 'In Process';
+            List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+                Onboarding_Requirement__c.SObjectType,
+                'Status__c'
+            );
+            String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+            req.Status__c = inProcessStatus;
             requirements.add(req);
         }
         insert requirements;
 
         Test.startTest();
         // Update all to trigger evaluation
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        String pendingStatus = validStatuses.contains('Pending') ? 'Pending' : validStatuses[0];
         for (Onboarding_Requirement__c req : requirements) {
-            req.Status__c = 'Pending';
+            req.Status__c = pendingStatus;
         }
         update requirements;
         Test.stopTest();
@@ -113,4 +137,3 @@ private class OnboardingRequirementTriggerHandlerTest {
         System.assertNotEquals(null, followUps, 'Follow-ups list should exist');
     }
 }
-

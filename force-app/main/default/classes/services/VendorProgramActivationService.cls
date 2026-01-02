@@ -20,7 +20,11 @@ public with sharing class VendorProgramActivationService {
 
         // Deactivate siblings, enforce Vendor-specific constraints, do vendor-specific post-processing
         deactivateSiblings(record);
-        record.Status__c = 'Active';
+        record.Status__c = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Active'
+        );
         record.Active__c = true;
         VendorCustomizationRepository.updateRecord(record);
 
@@ -59,6 +63,11 @@ public with sharing class VendorProgramActivationService {
         }
 
         // Deactivate all siblings in bulk
+        String inactiveStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Draft'
+        );
         if (!parentVersionIds.isEmpty()) {
             List<Vendor_Customization__c> siblingsToDeactivate = new List<Vendor_Customization__c>();
             for (Id parentVersionId : parentVersionIds) {
@@ -68,6 +77,9 @@ public with sharing class VendorProgramActivationService {
                 // Filter out the records being activated
                 for (Vendor_Customization__c sibling : siblings) {
                     if (!recordIds.contains(sibling.Id)) {
+                        if (String.isNotBlank(inactiveStatus)) {
+                            sibling.Status__c = inactiveStatus;
+                        }
                         sibling.Active__c = false;
                         siblingsToDeactivate.add(sibling);
                     }
@@ -80,8 +92,13 @@ public with sharing class VendorProgramActivationService {
         }
 
         // Activate all records
+        String activeStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Active'
+        );
         for (Vendor_Customization__c record : records) {
-            record.Status__c = 'Active';
+            record.Status__c = activeStatus;
             record.Active__c = true;
         }
         VendorCustomizationRepository.updateRecords(records);
@@ -102,7 +119,15 @@ public with sharing class VendorProgramActivationService {
                 excludeIds
             );
         
+        String inactiveStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Draft'
+        );
         for (Vendor_Customization__c s : siblings) {
+            if (String.isNotBlank(inactiveStatus)) {
+                s.Status__c = inactiveStatus;
+            }
             s.Active__c = false;
         }
         if (!siblings.isEmpty()) {

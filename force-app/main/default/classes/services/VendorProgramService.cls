@@ -79,16 +79,34 @@ public with sharing class VendorProgramService {
         // Only apply the guard when using the default name pattern to avoid blocking
         // legitimate custom-named programs.
         if (effectiveName == 'New Vendor Program') {
-            List<Vendor_Customization__c> existingDrafts = [
-                SELECT Id
-                FROM Vendor_Customization__c
-                WHERE Vendor__c = :vendorId
-                  AND Name = :effectiveName
-                  AND Status__c = 'Draft'
-                  AND (Active__c = false OR Active__c = null)
-                ORDER BY CreatedDate DESC
-                LIMIT 1
-            ];
+            String draftStatus = PicklistHelper.getValidPicklistValue(
+                'Vendor_Customization__c',
+                'Status__c',
+                'Draft'
+            );
+            List<Vendor_Customization__c> existingDrafts;
+            if (String.isBlank(draftStatus)) {
+                existingDrafts = [
+                    SELECT Id
+                    FROM Vendor_Customization__c
+                    WHERE Vendor__c = :vendorId
+                      AND Name = :effectiveName
+                      AND (Active__c = false OR Active__c = null)
+                    ORDER BY CreatedDate DESC
+                    LIMIT 1
+                ];
+            } else {
+                existingDrafts = [
+                    SELECT Id
+                    FROM Vendor_Customization__c
+                    WHERE Vendor__c = :vendorId
+                      AND Name = :effectiveName
+                      AND Status__c = :draftStatus
+                      AND (Active__c = false OR Active__c = null)
+                    ORDER BY CreatedDate DESC
+                    LIMIT 1
+                ];
+            }
 
             if (!existingDrafts.isEmpty()) {
                 return existingDrafts[0].Id;

@@ -11,25 +11,21 @@ public class RecipientGroupEmailActionTest {
     static void testFetchEmailsFromFlow() {
         // Arrange
         User standardUser = TestUserFactory.createStandardUser(true);
-        Vendor__c vendor = TestVendorProgramFactory.createVendor(true);
-        Vendor_Customization__c vendorCustomization = TestVendorProgramFactory.createRootAndActiveChildCustomization(vendor, true);
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorCustomization = TestDataFactory.createRootAndActiveChildCustomization(vendor, true);
         Recipient_Group__c recipientGroup = TestRecipientGroupFactory.create(true, 'Queue');
 
-        insert new Vendor_Program_Recipient_Group__c(
-            Vendor_Program__c = vendorCustomization.Id,
-            Recipient_Group__c = recipientGroup.Id,
-            Is_Active__c = true,
-            Status__c = 'Active',
-            Filter_Logic__c = 'AND',
-            Version__c = '1.0'
+        TestDataFactory.createVendorProgramRecipientGroup(
+            vendorCustomization,
+            recipientGroup,
+            null, // Use default status
+            '1.0',
+            true,
+            null,
+            true
         );
 
-        insert new Recipient_Group_Member__c(
-            Recipient_Group__c = recipientGroup.Id,
-            Recipient_User__c = standardUser.Id,
-            Member_Type__c = 'User',
-            Recipient_Type__c = 'To'
-        );
+        TestDataFactory.createRecipientGroupMember(true, recipientGroup, standardUser, 'User', 'To');
 
         // Act
         List<RecipientGroupEmailResultDTO> results = RecipientGroupEmailAction.fetchEmails(
@@ -45,8 +41,8 @@ public class RecipientGroupEmailActionTest {
     @isTest
     static void testReturnsEmptyResultDTO() {
         // Arrange
-        Vendor__c vendor = TestVendorProgramFactory.createVendor(true);
-        Vendor_Customization__c vendorCustomization = TestVendorProgramFactory.createRootAndActiveChildCustomization(vendor, true);
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorCustomization = TestDataFactory.createRootAndActiveChildCustomization(vendor, true);
 
         List<RecipientGroupEmailRequestDTO> requests = new List<RecipientGroupEmailRequestDTO>{
             buildRequest(vendorCustomization.Id)

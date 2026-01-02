@@ -2,18 +2,21 @@
 private class RequirementValidationLoggerTest {
     @isTest
     static void logsEntries() {
-        Requirement_Field__c reqField = new Requirement_Field__c(
-            Name = 'Log Field',
-            Field_API_Name__c = 'Log_Field__c',
-            Validation_Type__c = 'Format'
+        OnboardingTestDataFactory.RequirementContext ctx = OnboardingTestDataFactory.createRequirementContext(true);
+        
+        Requirement_Field__c reqField = TestDataFactory.createRequirementField(
+            'Log_Field__c',
+            'Format',
+            false,
+            true
         );
-        insert reqField;
 
-        Requirement_Field_Value__c fv = new Requirement_Field_Value__c(
-            Requirement_Field__c = reqField.Id,
-            Value__c = 'abc'
+        Requirement_Field_Value__c fv = TestDataFactory.createRequirementFieldValue(
+            reqField,
+            ctx.requirement,
+            'abc',
+            true
         );
-        insert fv;
 
         RequirementValidationLogger.LogEntry entry = new RequirementValidationLogger.LogEntry();
         entry.fieldValueId = fv.Id;

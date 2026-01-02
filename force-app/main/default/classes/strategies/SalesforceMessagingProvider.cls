@@ -113,4 +113,3 @@ public with sharing class SalesforceMessagingProvider implements SMSProviderStra
         return null; // Valid
     }
 }
-

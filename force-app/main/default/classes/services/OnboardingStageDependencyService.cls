@@ -90,8 +90,7 @@ public with sharing class OnboardingStageDependencyService {
 
     /**
      * Evaluates a dependency based on its logic type.
-     * 
-     * @param logicType The logic type: ALL, ANY, or CUSTOM
+     * @param logicType The logic type: ALL/ANY (or AND/OR), or CUSTOM
      * @param requiredStageIds List of required stage IDs
      * @param completedStageIds Set of completed stage IDs
      * @return True if dependency is met, false otherwise
@@ -105,7 +104,14 @@ public with sharing class OnboardingStageDependencyService {
             return true; // No requirements means dependency is met
         }
 
-        if (logicType == 'ALL') {
+        String normalizedLogic = String.isBlank(logicType) ? null : logicType.trim().toUpperCase();
+        if (normalizedLogic == 'AND') {
+            normalizedLogic = 'ALL';
+        } else if (normalizedLogic == 'OR') {
+            normalizedLogic = 'ANY';
+        }
+
+        if (normalizedLogic == 'ALL') {
             // All required stages must be completed
             for (Id requiredId : requiredStageIds) {
                 if (!completedStageIds.contains(requiredId)) {
@@ -113,7 +119,7 @@ public with sharing class OnboardingStageDependencyService {
                 }
             }
             return true;
-        } else if (logicType == 'ANY') {
+        } else if (normalizedLogic == 'ANY') {
             // At least one required stage must be completed
             for (Id requiredId : requiredStageIds) {
                 if (completedStageIds.contains(requiredId)) {
@@ -121,7 +127,7 @@ public with sharing class OnboardingStageDependencyService {
                 }
             }
             return false;
-        } else if (logicType == 'CUSTOM') {
+        } else if (normalizedLogic == 'CUSTOM') {
             // Custom logic not yet implemented - default to ALL for safety
             // TODO: Implement custom logic evaluation if needed
             for (Id requiredId : requiredStageIds) {

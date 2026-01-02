@@ -27,8 +27,14 @@ public with sharing class RequirementValidationLogger {
             Validation_Failure__c vf = new Validation_Failure__c();
             vf.Requirement_Field_Value__c = entry.fieldValueId;
             vf.Requirement_Field__c = entry.fieldApiName;
-            vf.Validation_Result__c = entry.validationResult;
-            vf.Validation_Type__c = entry.validationType;
+            String normalizedResult = normalizeValidationResult(entry.validationResult);
+            if (String.isNotBlank(normalizedResult)) {
+                vf.Validation_Result__c = normalizedResult;
+            }
+            String normalizedType = normalizeValidationType(entry.validationType);
+            if (String.isNotBlank(normalizedType)) {
+                vf.Validation_Type__c = normalizedType;
+            }
             vf.Message__c = entry.message;
             vf.Rule_Name__c = entry.ruleName;
             vf.Correlation_Id__c = entry.correlationId;
@@ -38,5 +44,45 @@ public with sharing class RequirementValidationLogger {
         if (!records.isEmpty()) {
             insert records;
         }
+    }
+
+    private static String normalizeValidationType(String validationType) {
+        if (String.isBlank(validationType)) {
+            return null;
+        }
+        String lowered = validationType.toLowerCase();
+        if (lowered.startsWith('external')) {
+            return 'External';
+        }
+        if (lowered.contains('cross')) {
+            return 'Cross-Field';
+        }
+        if (lowered == 'format') {
+            return 'Format';
+        }
+        return 'Other';
+    }
+
+    private static String normalizeValidationResult(String validationResult) {
+        if (String.isBlank(validationResult)) {
+            return null;
+        }
+        String normalized = validationResult.replace('_', ' ').trim();
+        if (normalized.equalsIgnoreCase('pending')) {
+            return 'Pending';
+        }
+        if (normalized.equalsIgnoreCase('valid')) {
+            return 'Valid';
+        }
+        if (normalized.equalsIgnoreCase('invalid')) {
+            return 'Invalid';
+        }
+        if (normalized.equalsIgnoreCase('needs correction')) {
+            return 'Needs Correction';
+        }
+        if (normalized.equalsIgnoreCase('failed')) {
+            return 'Failed';
+        }
+        return null;
     }
 }

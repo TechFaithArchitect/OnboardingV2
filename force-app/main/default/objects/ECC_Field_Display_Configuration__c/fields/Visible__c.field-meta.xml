@@ -3,6 +3,7 @@
     <fullName>Visible__c</fullName>
     <defaultValue>true</defaultValue>
     <description>Show or hide</description>
+    <externalId>false</externalId>
     <label>Visible</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

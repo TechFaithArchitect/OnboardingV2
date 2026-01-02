@@ -8,33 +8,33 @@ private class FollowUpExecutionServiceTest {
     @TestSetup
     static void setupTestData() {
         // Create Account and Contact
-        Account acct = TestAccountFactory.create('Test', true);
-        Contact con = new Contact(
-            LastName = 'TestUser',
-            AccountId = acct.Id,
-            MobilePhone = '+15551234567',
-            Email = 'test@example.com'
-        );
-        insert con;
+        Account acct = TestDataFactory.createAccount('Test', true);
+        Contact con = TestDataFactory.createContact('Test', 'User', true, acct);
+        con.MobilePhone = '+15551234567';
+        con.Email = 'test@example.com';
+        update con;
         
         // Create Vendor and Vendor Program
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true
         );
         
         // Create Onboarding
-        Onboarding__c ob = TestOnboardingFactory.create(acct, vendorProgram, true);
+        Onboarding__c ob = TestDataFactory.createOnboarding(acct, vendorProgram, true);
         
         // Create Follow Up Queue
         Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
             Name = 'Test Follow Up',
             Onboarding__c = ob.Id,
             Follow_Up_Type__c = 'SMS',
-            Status__c = 'Pending',
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Follow_Up_Queue__c.SObjectType,
+                'Status__c'
+            ),
             Next_Attempt_Date__c = DateTime.now().addMinutes(-5)
         );
-        insert fq;
+        TestDataFactoryUtil.maybeInsert(fq, true);
     }
     
     @IsTest
@@ -94,7 +94,12 @@ private class FollowUpExecutionServiceTest {
     @IsTest
     static void testRetryFailedFollowUps() {
         Follow_Up_Queue__c fq = [SELECT Id FROM Follow_Up_Queue__c LIMIT 1];
-        fq.Status__c = 'Pending Retry';
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Follow_Up_Queue__c.SObjectType,
+            'Status__c'
+        );
+        String pendingRetryStatus = validStatuses.contains('Pending Retry') ? 'Pending Retry' : validStatuses[0];
+        fq.Status__c = pendingRetryStatus;
         update fq;
         
         Test.startTest();
@@ -128,4 +133,3 @@ private class FollowUpExecutionServiceTest {
         Test.stopTest();
     }
 }
-

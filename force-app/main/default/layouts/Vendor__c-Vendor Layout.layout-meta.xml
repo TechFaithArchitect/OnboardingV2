@@ -103,10 +103,7 @@
         <fields>NAME</fields>
         <relatedList>Vendor_Customization__c.Vendor__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>ERP_Setup__c.Vendor__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Vendor_Program_Requirement_Group__c.Vendor__c</relatedList>

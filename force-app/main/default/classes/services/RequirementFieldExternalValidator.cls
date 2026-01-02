@@ -40,11 +40,14 @@ public with sharing class RequirementFieldExternalValidator {
             }
             
             Requirement_Field_Validation_Rule__mdt rule = rulesByApi.get(fv.Requirement_Field__r.Field_API_Name__c);
-            if (rule == null || rule.Validation_Type__c != 'External') {
+            Boolean isExternal = rule != null
+                ? isExternalValidation(rule.Validation_Type__c)
+                : isExternalValidation(fv.Requirement_Field__r.Validation_Type__c);
+            if (!isExternal) {
                 continue;
             }
 
-            String ruleKey = rule.DeveloperName != null ? rule.DeveloperName : 'default';
+            String ruleKey = (rule != null && rule.DeveloperName != null) ? rule.DeveloperName : 'default';
             if (!valuesByRule.containsKey(ruleKey)) {
                 valuesByRule.put(ruleKey, new List<Requirement_Field_Value__c>());
             }
@@ -98,6 +101,10 @@ public with sharing class RequirementFieldExternalValidator {
         }
     }
 
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
+    }
+
     /**
      * Perform external validation for a single field value
      * This method should be extended to integrate with actual external systems
@@ -138,37 +145,41 @@ public with sharing class RequirementFieldExternalValidator {
             return result;
         }
 
-        // TODO: Add actual external API call here
-        // Example:
-        // try {
-        //     HttpRequest req = new HttpRequest();
-        //     req.setEndpoint('callout:ExternalValidationAPI/validate');
-        //     req.setMethod('POST');
-        //     req.setBody(JSON.serialize(new Map<String, Object>{
-        //         'fieldApiName' => fieldApiName,
-        //         'value' => value,
-        //         'ruleId' => rule.DeveloperName
-        //     }));
-        //     Http http = new Http();
-        //     HttpResponse res = http.send(req);
-        //     
-        //     if (res.getStatusCode() == 200) {
-        //         Map<String, Object> response = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
-        //         result.isValid = (Boolean)response.get('isValid');
-        //         result.errorMessage = (String)response.get('errorMessage');
-        //     } else {
-        //         result.isValid = false;
-        //         result.errorMessage = 'External validation service unavailable.';
-        //     }
-        // } catch (Exception e) {
-        //     result.isValid = false;
-        //     result.errorMessage = 'External validation error: ' + e.getMessage();
-        // }
+        String externalService = (rule != null && String.isNotBlank(rule.External_Service__c))
+            ? rule.External_Service__c
+            : 'ExternalValidationAPI';
+        String endpoint = 'callout:' + externalService + '/validate';
 
-        // Placeholder: Mark as valid for now (to be replaced with actual validation)
-        result.isValid = true;
-        result.errorMessage = null;
-        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint);
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody(JSON.serialize(new Map<String, Object>{
+            'fieldApiName' => fieldApiName,
+            'value' => value,
+            'ruleId' => rule != null ? rule.DeveloperName : null,
+            'correlationId' => result.correlationId
+        }));
+
+        try {
+            HttpResponse res = new Http().send(req);
+            Integer statusCode = res.getStatusCode();
+            if (statusCode >= 200 && statusCode < 300) {
+                Map<String, Object> response = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
+                Boolean isValidValue = response != null && response.get('isValid') != null
+                    ? (Boolean)response.get('isValid')
+                    : false;
+                result.isValid = isValidValue;
+                result.errorMessage = response != null ? (String)response.get('errorMessage') : 'External validation failed.';
+            } else {
+                result.isValid = false;
+                result.errorMessage = 'External validation service unavailable.';
+            }
+        } catch (Exception e) {
+            result.isValid = false;
+            result.errorMessage = 'External validation error: ' + e.getMessage();
+        }
+
         return result;
     }
 
@@ -181,4 +192,3 @@ public with sharing class RequirementFieldExternalValidator {
         public String correlationId;
     }
 }
-

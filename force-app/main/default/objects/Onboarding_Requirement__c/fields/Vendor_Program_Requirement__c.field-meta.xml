@@ -3,6 +3,7 @@
     <fullName>Vendor_Program_Requirement__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Lookup to the originating requirement definition</description>
+    <externalId>false</externalId>
     <label>Vendor Program Requirement</label>
     <referenceTo>Vendor_Program_Requirement__c</referenceTo>
     <relationshipLabel>Onboarding Requirements</relationshipLabel>
