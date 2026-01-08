@@ -66,8 +66,8 @@ public with sharing class OnboardingStageDependencyRepository {
             WHERE Vendor_Program__c = :vendorProgramId
               AND Onboarding_Application_Process__c = :processId
         ];
-        for (Onboarding_Application_Stage_Completion__c comp : completions) {
-            completedIds.add(comp.Onboarding_Application_Stage__c);
+        for (Onboarding_Application_Stage_Completion__c stageCompletion : completions) {
+            completedIds.add(stageCompletion.Onboarding_Application_Stage__c);
         }
         return completedIds;
     }

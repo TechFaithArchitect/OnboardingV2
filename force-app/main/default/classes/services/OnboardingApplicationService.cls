@@ -22,12 +22,12 @@ public with sharing class OnboardingApplicationService {
     @AuraEnabled(cacheable=true)
     public static List<RequirementDTO> getRequirements(Id onboardingId) {
         ValidationHelper.requireId(onboardingId, 'Onboarding ID');
-        List<RequirementDTO> result = new List<RequirementDTO>();
+        List<RequirementDTO> requirementDTOList = new List<RequirementDTO>();
         List<Onboarding_Requirement__c> requirements = OnboardingRulesRepository.fetchRequirementsByOnboardingId(onboardingId);
-        for (Onboarding_Requirement__c r : requirements) {
-            result.add(new RequirementDTO(r));
+        for (Onboarding_Requirement__c onboardingRequirement : requirements) {
+            requirementDTOList.add(new RequirementDTO(onboardingRequirement));
         }
-        return result;
+        return requirementDTOList;
     }
 
     /**
@@ -43,9 +43,9 @@ public with sharing class OnboardingApplicationService {
         // Build list of requirements to update
         List<Onboarding_Requirement__c> reqsToUpdate = new List<Onboarding_Requirement__c>();
         Set<Id> requirementIds = new Set<Id>();
-        for (RequirementDTO r : updates) {
-            reqsToUpdate.add(new Onboarding_Requirement__c(Id = r.Id, Status__c = r.Status));
-            requirementIds.add(r.Id);
+        for (RequirementDTO requirementDTO : updates) {
+            reqsToUpdate.add(new Onboarding_Requirement__c(Id = requirementDTO.Id, Status__c = requirementDTO.Status));
+            requirementIds.add(requirementDTO.Id);
         }
 
         // Update requirements via repository
@@ -69,9 +69,9 @@ public with sharing class OnboardingApplicationService {
     public static void runRuleEvaluation(Id onboardingId) {
         ValidationHelper.requireId(onboardingId, 'Onboarding ID');
 
-        Onboarding__c ob = OnboardingRepository.fetchOnboardingById(onboardingId);
-        if (ob != null) {
-            OnboardingStatusEvaluator.evaluateAndApplyStatus(new List<Onboarding__c>{ ob });
+        Onboarding__c onboardingRecord = OnboardingRepository.fetchOnboardingById(onboardingId);
+        if (onboardingRecord != null) {
+            OnboardingStatusEvaluator.evaluateAndApplyStatus(new List<Onboarding__c>{ onboardingRecord });
         }
     }
 
@@ -83,10 +83,10 @@ public with sharing class OnboardingApplicationService {
         @AuraEnabled public String Name;
         @AuraEnabled public String Status;
 
-        public RequirementDTO(Onboarding_Requirement__c r) {
-            Id = r.Id;
-            Name = r.Name;
-            Status = r.Status__c;
+        public RequirementDTO(Onboarding_Requirement__c onboardingRequirement) {
+            Id = onboardingRequirement.Id;
+            Name = onboardingRequirement.Name;
+            Status = onboardingRequirement.Status__c;
         }
     }
 
@@ -224,8 +224,8 @@ public with sharing class OnboardingApplicationService {
         List<Onboarding_Application_Stage_Completion__c> existingCompletions = 
             OnboardingApplicationRepository.fetchStageCompletions(vendorProgramId, processId);
         Set<Id> completedStageIds = new Set<Id>();
-        for (Onboarding_Application_Stage_Completion__c comp : existingCompletions) {
-            completedStageIds.add(comp.Onboarding_Application_Stage__c);
+        for (Onboarding_Application_Stage_Completion__c stageCompletion : existingCompletions) {
+            completedStageIds.add(stageCompletion.Onboarding_Application_Stage__c);
         }
 
         // Determine stages to auto-complete
@@ -234,30 +234,30 @@ public with sharing class OnboardingApplicationService {
 
         if (hasVendor) {
             // Find vendor-related stages and mark them as complete if not already
-            for (Onboarding_Application_Stage__c stage : stages) {
-                String componentName = stage.Onboarding_Component_Library__r?.Component_API_Name__c;
+            for (Onboarding_Application_Stage__c onboardingStage : stages) {
+                String componentName = onboardingStage.Onboarding_Component_Library__r?.Component_API_Name__c;
                 
                 // These stages are done if vendor program has a vendor
                 // Uses configuration class to check component type (OCP compliant)
                 if (StageCompletionConfig.isVendorSelectionComponent(componentName) &&
-                    !completedStageIds.contains(stage.Id)) {
+                    !completedStageIds.contains(onboardingStage.Id)) {
                     
                     // Create completion record
-                    Onboarding_Application_Stage_Completion__c completion = new Onboarding_Application_Stage_Completion__c(
+                    Onboarding_Application_Stage_Completion__c stageCompletion = new Onboarding_Application_Stage_Completion__c(
                         Vendor_Program__c = vendorProgramId,
                         Onboarding_Application_Process__c = processId,
-                        Onboarding_Application_Stage__c = stage.Id,
+                        Onboarding_Application_Stage__c = onboardingStage.Id,
                         Completed_Date__c = System.now(),
                         Completed_By__c = UserInfo.getUserId()
                     );
-                    toInsert.add(completion);
-                    completedStageIds.add(stage.Id);
+                    toInsert.add(stageCompletion);
+                    completedStageIds.add(onboardingStage.Id);
                 }
                 
                 // Find the first stage after vendor selection to set as current
                 // Uses configuration class to check component type (OCP compliant)
                 if (targetStageId == null && !StageCompletionConfig.isVendorSelectionComponent(componentName)) {
-                    targetStageId = stage.Id;
+                    targetStageId = onboardingStage.Id;
                 }
             }
         }
@@ -432,8 +432,8 @@ public with sharing class OnboardingApplicationService {
 
             // Get field values for all requirements
             Set<Id> requirementIds = new Set<Id>();
-            for (Onboarding_Requirement__c req : requirements) {
-                requirementIds.add(req.Id);
+            for (Onboarding_Requirement__c onboardingRequirement : requirements) {
+                requirementIds.add(onboardingRequirement.Id);
             }
 
             Map<Id, List<Requirement_Field_Value__c>> fieldValuesByRequirement = new Map<Id, List<Requirement_Field_Value__c>>();
@@ -445,11 +445,11 @@ public with sharing class OnboardingApplicationService {
                     // TODO: Add AND Is_Archived__c = false when field is created
                 ];
 
-                for (Requirement_Field_Value__c fv : allFieldValues) {
-                    if (!fieldValuesByRequirement.containsKey(fv.Onboarding_Requirement__c)) {
-                        fieldValuesByRequirement.put(fv.Onboarding_Requirement__c, new List<Requirement_Field_Value__c>());
+                for (Requirement_Field_Value__c fieldValue : allFieldValues) {
+                    if (!fieldValuesByRequirement.containsKey(fieldValue.Onboarding_Requirement__c)) {
+                        fieldValuesByRequirement.put(fieldValue.Onboarding_Requirement__c, new List<Requirement_Field_Value__c>());
                     }
-                    fieldValuesByRequirement.get(fv.Onboarding_Requirement__c).add(fv);
+                    fieldValuesByRequirement.get(fieldValue.Onboarding_Requirement__c).add(fieldValue);
                 }
             }
 
@@ -464,22 +464,22 @@ public with sharing class OnboardingApplicationService {
             Onboarding_Requirement__c lastCompleted = null;
             Onboarding_Requirement__c nextIncomplete = null;
 
-            for (Onboarding_Requirement__c req : requirements) {
+            for (Onboarding_Requirement__c onboardingRequirement : requirements) {
                 // Get field values for this requirement
-                List<Requirement_Field_Value__c> fieldValues = fieldValuesByRequirement.get(req.Id);
+                List<Requirement_Field_Value__c> fieldValues = fieldValuesByRequirement.get(onboardingRequirement.Id);
                 if (fieldValues == null) {
                     fieldValues = new List<Requirement_Field_Value__c>();
                 }
 
                 // Check if requirement is complete
-                Boolean isComplete = isRequirementCompleteForResume(req, fieldValues);
+                Boolean isComplete = isRequirementCompleteForResume(onboardingRequirement, fieldValues);
                 
                 if (isComplete) {
                     completedRequirements++;
-                    lastCompleted = req;
+                    lastCompleted = onboardingRequirement;
                 } else if (nextIncomplete == null) {
                     // First incomplete requirement
-                    nextIncomplete = req;
+                    nextIncomplete = onboardingRequirement;
                 }
             }
 
@@ -531,8 +531,8 @@ public with sharing class OnboardingApplicationService {
         // TODO: Query Requirement_Field__c records to get total field count
         // For now, check if all existing field values are populated
         if (fieldValues != null && !fieldValues.isEmpty()) {
-            for (Requirement_Field_Value__c fv : fieldValues) {
-                if (String.isBlank(fv.Value__c) && String.isBlank(fv.Encrypted_Value__c)) {
+            for (Requirement_Field_Value__c fieldValue : fieldValues) {
+                if (String.isBlank(fieldValue.Value__c) && String.isBlank(fieldValue.Encrypted_Value__c)) {
                     return false; // Found incomplete field
                 }
             }
@@ -557,9 +557,9 @@ public with sharing class OnboardingApplicationService {
             ORDER BY Requirement_Field__r.Sequence__c ASC NULLS LAST, CreatedDate ASC
         ];
 
-        for (Requirement_Field_Value__c fv : fieldValues) {
-            if (String.isBlank(fv.Value__c) && String.isBlank(fv.Encrypted_Value__c)) {
-                return fv;
+        for (Requirement_Field_Value__c fieldValue : fieldValues) {
+            if (String.isBlank(fieldValue.Value__c) && String.isBlank(fieldValue.Encrypted_Value__c)) {
+                return fieldValue;
             }
         }
 

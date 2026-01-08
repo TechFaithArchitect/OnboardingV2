@@ -11,15 +11,15 @@ public with sharing class OnboardingFollowUpTriggerHandler {
 
         Set<Id> onboardingIds = new Set<Id>();
 
-        for (Onboarding__c ob : newRecords) {
+        for (Onboarding__c onboardingRecord : newRecords) {
             // Only enqueue if status is in target list
-            if (ob.Onboarding_Status__c != null && TARGET_STATUSES.contains(ob.Onboarding_Status__c)) {
+            if (onboardingRecord.Onboarding_Status__c != null && TARGET_STATUSES.contains(onboardingRecord.Onboarding_Status__c)) {
                 if (Trigger.isInsert) {
-                    onboardingIds.add(ob.Id);
+                    onboardingIds.add(onboardingRecord.Id);
                 } else {
-                    Onboarding__c oldRec = oldMap != null ? oldMap.get(ob.Id) : null;
-                    if (oldRec == null || ob.Onboarding_Status__c != oldRec.Onboarding_Status__c) {
-                        onboardingIds.add(ob.Id);
+                    Onboarding__c oldOnboardingRecord = oldMap != null ? oldMap.get(onboardingRecord.Id) : null;
+                    if (oldOnboardingRecord == null || onboardingRecord.Onboarding_Status__c != oldOnboardingRecord.Onboarding_Status__c) {
+                        onboardingIds.add(onboardingRecord.Id);
                     }
                 }
             }

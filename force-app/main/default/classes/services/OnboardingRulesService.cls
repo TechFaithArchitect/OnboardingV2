@@ -30,8 +30,8 @@ public with sharing class OnboardingRulesService {
         context.vendorProgramId = onboarding.Vendor_Customization__c;
         
         context.requirementsByVPR = new Map<Id, Onboarding_Requirement__c>();
-        for (Onboarding_Requirement__c req : onboarding.Onboarding_Requirements__r) {
-            context.requirementsByVPR.put(req.Vendor_Program_Requirement__c, req);
+        for (Onboarding_Requirement__c onboardingRequirement : onboarding.Onboarding_Requirements__r) {
+            context.requirementsByVPR.put(onboardingRequirement.Vendor_Program_Requirement__c, onboardingRequirement);
         }
         
         context.groupIds = getVendorProgramGroupIds(context.vendorProgramId);
@@ -44,47 +44,47 @@ public with sharing class OnboardingRulesService {
     }
 
     public static Map<Id, Map<Id, Onboarding_Requirement__c>> getRequirementsByVPRBulk(Set<Id> onboardingIds) {
-        Map<Id, Map<Id, Onboarding_Requirement__c>> result = new Map<Id, Map<Id, Onboarding_Requirement__c>>();
+        Map<Id, Map<Id, Onboarding_Requirement__c>> requirementsByOnboardingByVPR = new Map<Id, Map<Id, Onboarding_Requirement__c>>();
         
         List<Onboarding_Requirement__c> requirements = OnboardingRulesRepository.fetchRequirementsByOnboardingIds(onboardingIds);
         
-        for (Onboarding_Requirement__c req : requirements) {
-            if (!result.containsKey(req.Onboarding__c)) {
-                result.put(req.Onboarding__c, new Map<Id, Onboarding_Requirement__c>());
+        for (Onboarding_Requirement__c onboardingRequirement : requirements) {
+            if (!requirementsByOnboardingByVPR.containsKey(onboardingRequirement.Onboarding__c)) {
+                requirementsByOnboardingByVPR.put(onboardingRequirement.Onboarding__c, new Map<Id, Onboarding_Requirement__c>());
             }
-            if (req.Vendor_Program_Requirement__c != null) {
-                result.get(req.Onboarding__c).put(req.Vendor_Program_Requirement__c, req);
+            if (onboardingRequirement.Vendor_Program_Requirement__c != null) {
+                requirementsByOnboardingByVPR.get(onboardingRequirement.Onboarding__c).put(onboardingRequirement.Vendor_Program_Requirement__c, onboardingRequirement);
             }
         }
         
-        return result;
+        return requirementsByOnboardingByVPR;
     }
 
     public static Map<Id, Id> getVendorProgramIdsBulk(Set<Id> onboardingIds) {
-        Map<Id, Id> result = new Map<Id, Id>();
+        Map<Id, Id> vendorProgramIdByOnboardingId = new Map<Id, Id>();
         
         List<Onboarding__c> onboardings = OnboardingRulesRepository.fetchOnboardingsByIds(onboardingIds);
         
-        for (Onboarding__c ob : onboardings) {
-            result.put(ob.Id, ob.Vendor_Customization__c);
+        for (Onboarding__c onboardingRecord : onboardings) {
+            vendorProgramIdByOnboardingId.put(onboardingRecord.Id, onboardingRecord.Vendor_Customization__c);
         }
         
-        return result;
+        return vendorProgramIdByOnboardingId;
     }
 
     public static Map<Id, List<Id>> getVendorProgramGroupIdsBulk(Set<Id> vendorProgramIds) {
-        Map<Id, List<Id>> result = new Map<Id, List<Id>>();
+        Map<Id, List<Id>> groupIdsByVendorProgramId = new Map<Id, List<Id>>();
         
         List<Vendor_Program_Group_Member__c> members = OnboardingRulesRepository.fetchGroupMembersByVendorProgramIds(vendorProgramIds);
         
-        for (Vendor_Program_Group_Member__c member : members) {
-            if (!result.containsKey(member.Required_Program__c)) {
-                result.put(member.Required_Program__c, new List<Id>());
+        for (Vendor_Program_Group_Member__c groupMember : members) {
+            if (!groupIdsByVendorProgramId.containsKey(groupMember.Required_Program__c)) {
+                groupIdsByVendorProgramId.put(groupMember.Required_Program__c, new List<Id>());
             }
-            result.get(member.Required_Program__c).add(member.Vendor_Program_Group__c);
+            groupIdsByVendorProgramId.get(groupMember.Required_Program__c).add(groupMember.Vendor_Program_Group__c);
         }
         
-        return result;
+        return groupIdsByVendorProgramId;
     }
     
     public static List<Id> getVendorProgramGroupIds(Id vendorProgramId) {
@@ -92,8 +92,8 @@ public with sharing class OnboardingRulesService {
         
         List<Vendor_Program_Group_Member__c> members = OnboardingRulesRepository.fetchGroupMembersByVendorProgramId(vendorProgramId);
         
-        for (Vendor_Program_Group_Member__c member : members) {
-            groupIds.add(member.Vendor_Program_Group__c);
+        for (Vendor_Program_Group_Member__c groupMember : members) {
+            groupIds.add(groupMember.Vendor_Program_Group__c);
         }
         
         return groupIds;

@@ -27,8 +27,8 @@ public with sharing class OnboardingStatusEvaluator {
         if (onboardings == null || onboardings.isEmpty()) return;
         
         Set<Id> onboardingIds = new Set<Id>();
-        for (Onboarding__c ob : onboardings) {
-            onboardingIds.add(ob.Id);
+        for (Onboarding__c onboardingRecord : onboardings) {
+            onboardingIds.add(onboardingRecord.Id);
         }
         
         Map<Id, Map<Id, Onboarding_Requirement__c>> reqByOnboardingByVPR = 
@@ -45,11 +45,11 @@ public with sharing class OnboardingStatusEvaluator {
         }
         List<Onboarding_Status_Rules_Engine__c> allRules = OnboardingRulesService.getRulesForGroups(new List<Id>(allGroupIds));
         Map<Id, List<Onboarding_Status_Rules_Engine__c>> rulesByGroup = new Map<Id, List<Onboarding_Status_Rules_Engine__c>>();
-        for (Onboarding_Status_Rules_Engine__c rule : allRules) {
-            if (!rulesByGroup.containsKey(rule.Vendor_Program_Group__c)) {
-                rulesByGroup.put(rule.Vendor_Program_Group__c, new List<Onboarding_Status_Rules_Engine__c>());
+        for (Onboarding_Status_Rules_Engine__c statusRule : allRules) {
+            if (!rulesByGroup.containsKey(statusRule.Vendor_Program_Group__c)) {
+                rulesByGroup.put(statusRule.Vendor_Program_Group__c, new List<Onboarding_Status_Rules_Engine__c>());
             }
-            rulesByGroup.get(rule.Vendor_Program_Group__c).add(rule);
+            rulesByGroup.get(statusRule.Vendor_Program_Group__c).add(statusRule);
         }
         
         // Fetch full Onboarding__c records with all fields for dynamic field access
@@ -84,9 +84,9 @@ public with sharing class OnboardingStatusEvaluator {
                 if (rules == null) continue;
 
                 // Override rules force a status without evaluating requirements
-                for (Onboarding_Status_Rules_Engine__c rule : rules) {
-                    if (rule.Override_Status__c == true && String.isNotBlank(rule.Target_Onboarding_Status__c)) {
-                        newStatus = rule.Target_Onboarding_Status__c;
+                for (Onboarding_Status_Rules_Engine__c statusRule : rules) {
+                    if (statusRule.Override_Status__c == true && String.isNotBlank(statusRule.Target_Onboarding_Status__c)) {
+                        newStatus = statusRule.Target_Onboarding_Status__c;
                         break;
                     }
                 }
@@ -96,13 +96,13 @@ public with sharing class OnboardingStatusEvaluator {
                     continue;
                 }
 
-                for (Onboarding_Status_Rules_Engine__c rule : rules) {
-                    if (rule.Override_Status__c == true) {
+                for (Onboarding_Status_Rules_Engine__c statusRule : rules) {
+                    if (statusRule.Override_Status__c == true) {
                         continue;
                     }
-                    Boolean rulePassed = OnboardingRuleEvaluator.evaluateRule(rule, reqByVPR, fullOnboardingRecord);
-                    if (rulePassed && String.isNotBlank(rule.Target_Onboarding_Status__c)) {
-                        newStatus = rule.Target_Onboarding_Status__c;
+                    Boolean rulePassed = OnboardingRuleEvaluator.evaluateRule(statusRule, reqByVPR, fullOnboardingRecord);
+                    if (rulePassed && String.isNotBlank(statusRule.Target_Onboarding_Status__c)) {
+                        newStatus = statusRule.Target_Onboarding_Status__c;
                         break;
                     }
                 }
@@ -129,14 +129,14 @@ public with sharing class OnboardingStatusEvaluator {
      * Simple fallback progression based on requirement completion.
      * Priority: Denied > Setup Complete/Complete > In Process > New.
      */
-    private static String computeProgressStatus(Iterable<Onboarding_Requirement__c> reqs) {
+    private static String computeProgressStatus(Iterable<Onboarding_Requirement__c> onboardingRequirements) {
         Integer total = 0;
         Integer completeCount = 0;
         Integer startedCount = 0;
         Boolean anyDenied = false;
 
-        for (Onboarding_Requirement__c req : reqs) {
-            String status = req.Status__c;
+        for (Onboarding_Requirement__c onboardingRequirement : onboardingRequirements) {
+            String status = onboardingRequirement.Status__c;
 
             if ('Denied' == status) {
                 anyDenied = true;
@@ -144,7 +144,7 @@ public with sharing class OnboardingStatusEvaluator {
 
             total++;
 
-            Boolean isComplete = ('Setup Complete' == status || 'Complete' == status || req.Completed__c == true);
+            Boolean isComplete = ('Setup Complete' == status || 'Complete' == status || onboardingRequirement.Completed__c == true);
             if (isComplete) {
                 completeCount++;
             } else if (status != null && status != 'New') {

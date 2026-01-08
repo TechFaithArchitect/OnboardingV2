@@ -22,9 +22,9 @@ export default class VendorProgramOnboardingStepOne extends OnboardingStepBase {
   @wire(searchVendors, { vendorNameSearchText: '$debouncedSearchText' })
   wiredVendors({ error, data }) {
     if (data) {
-      this.vendorOptions = data.map(v => ({
-        label: v.Name,
-        value: v.Id
+      this.vendorOptions = data.map(vendor => ({
+        label: vendor.Name,
+        value: vendor.Id
       }));
       this.isLoading = false;
     } else if (error) {

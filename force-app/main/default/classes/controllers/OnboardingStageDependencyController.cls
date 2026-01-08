@@ -13,7 +13,7 @@ public with sharing class OnboardingStageDependencyController {
     public static List<StageWithDependencyDTO> getStagesWithDependencies(Id processId, Id vendorProgramId) {
         ValidationHelper.requireId(processId, 'Process ID');
         
-        List<StageWithDependencyDTO> result = new List<StageWithDependencyDTO>();
+        List<StageWithDependencyDTO> stageWithDependencyDTOList = new List<StageWithDependencyDTO>();
         
         // Get all stages for the process
         // Note: Repository returns Display_Order__c, not Sequence__c
@@ -27,8 +27,8 @@ public with sharing class OnboardingStageDependencyController {
         
         // Get all dependencies for all stages (bulk query)
         Set<Id> stageIds = new Set<Id>();
-        for (Onboarding_Application_Stage__c stage : stages) {
-            stageIds.add(stage.Id);
+        for (Onboarding_Application_Stage__c onboardingStage : stages) {
+            stageIds.add(onboardingStage.Id);
         }
         List<Onboarding_Application_Stage_Dependency__c> allDependencies = 
             OnboardingStageDependencyRepository.getDependenciesForTargetStages(stageIds);
@@ -36,36 +36,36 @@ public with sharing class OnboardingStageDependencyController {
         // Build map of dependencies by target stage
         Map<Id, List<Onboarding_Application_Stage_Dependency__c>> dependenciesByStage = 
             new Map<Id, List<Onboarding_Application_Stage_Dependency__c>>();
-        for (Onboarding_Application_Stage_Dependency__c dep : allDependencies) {
-            if (!dependenciesByStage.containsKey(dep.Target_Stage__c)) {
-                dependenciesByStage.put(dep.Target_Stage__c, new List<Onboarding_Application_Stage_Dependency__c>());
+        for (Onboarding_Application_Stage_Dependency__c stageDependency : allDependencies) {
+            if (!dependenciesByStage.containsKey(stageDependency.Target_Stage__c)) {
+                dependenciesByStage.put(stageDependency.Target_Stage__c, new List<Onboarding_Application_Stage_Dependency__c>());
             }
-            dependenciesByStage.get(dep.Target_Stage__c).add(dep);
+            dependenciesByStage.get(stageDependency.Target_Stage__c).add(stageDependency);
         }
         
         // Build DTOs
-        for (Onboarding_Application_Stage__c stage : stages) {
-            StageWithDependencyDTO dto = new StageWithDependencyDTO();
-            dto.stageId = stage.Id;
-            dto.stageName = stage.Name;
+        for (Onboarding_Application_Stage__c onboardingStage : stages) {
+            StageWithDependencyDTO stageDTO = new StageWithDependencyDTO();
+            stageDTO.stageId = onboardingStage.Id;
+            stageDTO.stageName = onboardingStage.Name;
             // Use Display_Order__c as sequence (repository doesn't query Sequence__c)
-            dto.sequence = stage.Display_Order__c != null ? Integer.valueOf(stage.Display_Order__c) : 0;
-            dto.isCompleted = completedStageIds.contains(stage.Id);
-            dto.isBlocked = false;
-            dto.requiredStageIds = new List<Id>();
+            stageDTO.sequence = onboardingStage.Display_Order__c != null ? Integer.valueOf(onboardingStage.Display_Order__c) : 0;
+            stageDTO.isCompleted = completedStageIds.contains(onboardingStage.Id);
+            stageDTO.isBlocked = false;
+            stageDTO.requiredStageIds = new List<Id>();
             
             // Get dependencies for this stage
-            List<Onboarding_Application_Stage_Dependency__c> deps = dependenciesByStage.get(stage.Id);
-            if (deps != null && !deps.isEmpty()) {
-                for (Onboarding_Application_Stage_Dependency__c dep : deps) {
-                    if (dep.Required__c == true) {
-                        for (Onboarding_App_Stage_Dependency_Member__c member : dep.Onboarding_App_Stage_Dependency_Members__r) {
-                            if (member.Required_Stage__c != null && member.Required__c != false) {
-                                dto.requiredStageIds.add(member.Required_Stage__c);
+            List<Onboarding_Application_Stage_Dependency__c> stageDependencies = dependenciesByStage.get(onboardingStage.Id);
+            if (stageDependencies != null && !stageDependencies.isEmpty()) {
+                for (Onboarding_Application_Stage_Dependency__c stageDependency : stageDependencies) {
+                    if (stageDependency.Required__c == true) {
+                        for (Onboarding_App_Stage_Dependency_Member__c dependencyMember : stageDependency.Onboarding_App_Stage_Dependency_Members__r) {
+                            if (dependencyMember.Required_Stage__c != null && dependencyMember.Required__c != false) {
+                                stageDTO.requiredStageIds.add(dependencyMember.Required_Stage__c);
                                 
                                 // Check if blocked (dependency not met)
-                                if (!completedStageIds.contains(member.Required_Stage__c)) {
-                                    dto.isBlocked = true;
+                                if (!completedStageIds.contains(dependencyMember.Required_Stage__c)) {
+                                    stageDTO.isBlocked = true;
                                 }
                             }
                         }
@@ -73,13 +73,13 @@ public with sharing class OnboardingStageDependencyController {
                 }
             }
             
-            result.add(dto);
+            stageWithDependencyDTOList.add(stageDTO);
         }
         
         // Sort by sequence
-        result.sort(new StageSequenceComparator());
+        stageWithDependencyDTOList.sort(new StageSequenceComparator());
         
-        return result;
+        return stageWithDependencyDTOList;
     }
 
     /**

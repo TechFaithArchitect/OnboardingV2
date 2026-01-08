@@ -139,13 +139,13 @@ public with sharing class OnboardingRulesRepository {
         if (requirementIds == null || requirementIds.isEmpty()) {
             return onboardingIds;
         }
-        for (AggregateResult ar : [
+        for (AggregateResult aggregateResult : [
             SELECT Onboarding__c 
             FROM Onboarding_Requirement__c
             WHERE Id IN :requirementIds
             GROUP BY Onboarding__c
         ]) {
-            onboardingIds.add((Id) ar.get('Onboarding__c'));
+            onboardingIds.add((Id) aggregateResult.get('Onboarding__c'));
         }
         return onboardingIds;
     }

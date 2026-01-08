@@ -268,7 +268,7 @@ public with sharing class VendorOnboardingWizardController {
         String defaultStatus,
         Boolean defaultIsRequired
     ) {
-        VendorOnboardingWizardService.BulkCreateRequirementsResult result = 
+        VendorOnboardingWizardService.BulkCreateRequirementsResult bulkCreateResult = 
             VendorOnboardingWizardService.bulkCreateRequirementsFromTemplates(
                 vendorProgramId,
                 templateIds,
@@ -277,10 +277,10 @@ public with sharing class VendorOnboardingWizardController {
             );
         
         return new Map<String, Object>{
-            'success' => result.success,
-            'createdRequirementIds' => result.createdRequirementIds,
-            'skippedTemplateIds' => result.skippedTemplateIds,
-            'errorMessage' => result.errorMessage
+            'success' => bulkCreateResult.success,
+            'createdRequirementIds' => bulkCreateResult.createdRequirementIds,
+            'skippedTemplateIds' => bulkCreateResult.skippedTemplateIds,
+            'errorMessage' => bulkCreateResult.errorMessage
         };
     }
 
@@ -816,12 +816,12 @@ public with sharing class VendorOnboardingWizardController {
             if (!programs.isEmpty() && programs[0].Vendor__c != null) {
                 // Vendor program exists and has a vendor - skip vendor selection stages
                 // Find first non-vendor-selection stage
-                for (Onboarding_Application_Stage__c stage : stages) {
-                    String componentName = stage.Onboarding_Component_Library__r?.Component_API_Name__c;
+                for (Onboarding_Application_Stage__c onboardingStage : stages) {
+                    String componentName = onboardingStage.Onboarding_Component_Library__r?.Component_API_Name__c;
                     // Skip: vendorProgramOnboardingVendor and vendorProgramOnboardingVendorProgramSearchOrCreate
                     if (componentName != 'vendorProgramOnboardingVendor' && 
                         componentName != 'vendorProgramOnboardingVendorProgramSearchOrCreate') {
-                        startingStageId = stage.Id;
+                        startingStageId = onboardingStage.Id;
                         break;
                     }
                 }

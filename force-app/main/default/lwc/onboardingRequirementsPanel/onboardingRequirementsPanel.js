@@ -32,7 +32,7 @@ export default class OnboardingRequirementsPanel extends LightningElement {
                 getRequirements({ onboardingId: this.recordId }),
                 getInvalidFieldValues({ onboardingId: this.recordId })
             ]);
-            this.requirements = (reqs || []).map(r => ({ ...r }));
+            this.requirements = (reqs || []).map(requirement => ({ ...requirement }));
             this.invalidFields = invalids || [];
         } catch (error) {
             this.showToast(

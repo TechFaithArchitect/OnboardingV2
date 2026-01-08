@@ -483,13 +483,13 @@ public with sharing class VendorOnboardingWizardRepository {
         
         // Get Vendor Program Groups for this Vendor Program
         List<Id> vendorProgramGroupIds = new List<Id>();
-        for (Vendor_Program_Group_Member__c member : [
+        for (Vendor_Program_Group_Member__c groupMember : [
             SELECT Vendor_Program_Group__c
             FROM Vendor_Program_Group_Member__c
             WHERE Required_Program__c = :vendorProgramId
             AND Active__c = true
         ]) {
-            vendorProgramGroupIds.add(member.Vendor_Program_Group__c);
+            vendorProgramGroupIds.add(groupMember.Vendor_Program_Group__c);
         }
         
         if (vendorProgramGroupIds.isEmpty()) {
@@ -589,10 +589,10 @@ public with sharing class VendorOnboardingWizardRepository {
         ];
         
         // Handle null relationship safely
-        for (Vendor_Program_Requirement__c req : requirements) {
-            if (req.Requirement_Template__r == null) {
+        for (Vendor_Program_Requirement__c vendorProgramRequirement : requirements) {
+            if (vendorProgramRequirement.Requirement_Template__r == null) {
                 // This shouldn't happen, but handle gracefully
-                System.debug('Warning: Requirement ' + req.Id + ' has no Requirement_Template__r');
+                System.debug('Warning: Requirement ' + vendorProgramRequirement.Id + ' has no Requirement_Template__r');
             }
         }
         

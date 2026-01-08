@@ -180,8 +180,8 @@ export default class OnboardingWorkQueue extends LightningElement {
             return;
         }
 
-        let filtered = this.records.map(record => {
-            const processed = { ...record };
+        let filtered = this.records.map(onboardingRecord => {
+            const processed = { ...onboardingRecord };
             
             // Calculate age if not present
             if (!processed.AgeInDays && processed.CreatedDate) {
@@ -226,26 +226,26 @@ export default class OnboardingWorkQueue extends LightningElement {
 
         // Apply status filter
         if (this.statusFilter) {
-            filtered = filtered.filter(r => r.Status === this.statusFilter);
+            filtered = filtered.filter(onboardingRecord => onboardingRecord.Status === this.statusFilter);
         }
 
         // Apply blocked filter
         if (this.blockedFilter === 'blocked') {
-            filtered = filtered.filter(r => r.IsBlocked === true);
+            filtered = filtered.filter(onboardingRecord => onboardingRecord.IsBlocked === true);
         } else if (this.blockedFilter === 'not-blocked') {
-            filtered = filtered.filter(r => !r.IsBlocked);
+            filtered = filtered.filter(onboardingRecord => !onboardingRecord.IsBlocked);
         }
 
         // Apply age filter
         if (this.ageFilter) {
             if (this.ageFilter === '0-7') {
-                filtered = filtered.filter(r => r.AgeInDays >= 0 && r.AgeInDays <= 7);
+                filtered = filtered.filter(onboardingRecord => onboardingRecord.AgeInDays >= 0 && onboardingRecord.AgeInDays <= 7);
             } else if (this.ageFilter === '8-14') {
-                filtered = filtered.filter(r => r.AgeInDays >= 8 && r.AgeInDays <= 14);
+                filtered = filtered.filter(onboardingRecord => onboardingRecord.AgeInDays >= 8 && onboardingRecord.AgeInDays <= 14);
             } else if (this.ageFilter === '15-30') {
-                filtered = filtered.filter(r => r.AgeInDays >= 15 && r.AgeInDays <= 30);
+                filtered = filtered.filter(onboardingRecord => onboardingRecord.AgeInDays >= 15 && onboardingRecord.AgeInDays <= 30);
             } else if (this.ageFilter === '30+') {
-                filtered = filtered.filter(r => r.AgeInDays > 30);
+                filtered = filtered.filter(onboardingRecord => onboardingRecord.AgeInDays > 30);
             }
         }
 

@@ -133,11 +133,11 @@ public with sharing class RequirementFieldValueController {
             Integer completedFields = 0;
             Integer validatedFields = 0;
 
-            for (Requirement_Field_Value__c fv : fieldValues) {
-                if (String.isNotBlank(fv.Value__c) || String.isNotBlank(fv.Encrypted_Value__c)) {
+            for (Requirement_Field_Value__c fieldValue : fieldValues) {
+                if (String.isNotBlank(fieldValue.Value__c) || String.isNotBlank(fieldValue.Encrypted_Value__c)) {
                     completedFields++;
                 }
-                if (fv.Validation_Status__c == 'Valid') {
+                if (fieldValue.Validation_Status__c == 'Valid') {
                     validatedFields++;
                 }
             }
