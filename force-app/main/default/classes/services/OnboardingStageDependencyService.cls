@@ -204,17 +204,17 @@ public with sharing class OnboardingStageDependencyService {
         Onboarding_App_Stage_Dependency_Member__c dependencyMember : dependency.Onboarding_App_Stage_Dependency_Members__r
       ) {
         if (dependencyMember.Required_Stage__c != null) {
-          info.requiredStageIds.add(dependencyMember.Required_Stage__c);
+          dependencyInfo.requiredStageIds.add(dependencyMember.Required_Stage__c);
 
           if (completedStageIds.contains(dependencyMember.Required_Stage__c)) {
-            info.completedStageIds.add(dependencyMember.Required_Stage__c);
+            dependencyInfo.completedStageIds.add(dependencyMember.Required_Stage__c);
           } else {
-            info.missingStageIds.add(dependencyMember.Required_Stage__c);
+            dependencyInfo.missingStageIds.add(dependencyMember.Required_Stage__c);
           }
         }
       }
 
-      dependencyInfoList.add(info);
+      dependencyInfoList.add(dependencyInfo);
     }
 
     return dependencyInfoList;

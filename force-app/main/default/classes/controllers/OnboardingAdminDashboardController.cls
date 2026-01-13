@@ -79,11 +79,11 @@ public with sharing class OnboardingAdminDashboardController {
       (String) filters.get('dateRange')
     );
 
-    List<Validation_Failure__c> records = OnboardingMetricsRepository.getValidationFailures(
+    List<Validation_Failure__c> validationFailures = OnboardingMetricsRepository.getValidationFailures(
       startDate,
       filters
     );
-    for (Validation_Failure__c failure : records) {
+    for (Validation_Failure__c failure : validationFailures) {
       failures.add(new ValidationFailureDTO(failure));
     }
 
@@ -153,7 +153,7 @@ public with sharing class OnboardingAdminDashboardController {
     @AuraEnabled
     public String requirementFieldApiName;
     @AuraEnabled
-    public String result;
+    public String validationResult;
     @AuraEnabled
     public String message;
     @AuraEnabled
@@ -172,7 +172,7 @@ public with sharing class OnboardingAdminDashboardController {
       this.name = failure.Name;
       this.ruleName = failure.Rule_Name__c;
       this.requirementFieldApiName = failure.Requirement_Field__c;
-      this.result = failure.Validation_Result__c;
+      this.validationResult = failure.Validation_Result__c;
       this.message = failure.Message__c;
       this.createdBy = failure.CreatedBy != null
         ? failure.CreatedBy.Name
@@ -225,8 +225,8 @@ public with sharing class OnboardingAdminDashboardController {
 
     query += 'ORDER BY CreatedDate DESC LIMIT 1000';
 
-    List<Follow_Up_Queue__c> records = Database.query(query);
-    for (Follow_Up_Queue__c issue : records) {
+    List<Follow_Up_Queue__c> followUpQueueRecords = Database.query(query);
+    for (Follow_Up_Queue__c issue : followUpQueueRecords) {
       issues.add(new MessagingIssueDTO(issue));
     }
 
@@ -381,8 +381,8 @@ public with sharing class OnboardingAdminDashboardController {
         
         query += 'ORDER BY CreatedDate DESC LIMIT 1000';
         
-        List<AdobeSyncFailure__c> records = Database.query(query);
-        for (AdobeSyncFailure__c failure : records) {
+        List<AdobeSyncFailure__c> adobeSyncFailures = Database.query(query);
+        for (AdobeSyncFailure__c failure : adobeSyncFailures) {
             failures.add(new AdobeSyncFailureDTO(failure));
         }
         */

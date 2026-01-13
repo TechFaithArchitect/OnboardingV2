@@ -51,7 +51,7 @@ public with sharing class OnboardingBlockingDetectionService {
         return reasons;
       }
 
-      Onboarding__c onboarding = onboardings[0];
+      Onboarding__c onboardingRecord = onboardings[0];
 
       // Check if status is Denied (blocked status)
       if (onboardingRecord.Onboarding_Status__c == 'Denied') {

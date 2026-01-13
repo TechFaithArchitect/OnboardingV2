@@ -10,38 +10,38 @@ public with sharing class OrgWideEmailRepository {
             return testMockEmails;
         }
 
-        Map<String, OrgWideEmail__c> result = new Map<String, OrgWideEmail__c>();
-        for (OrgWideEmail__c o : [
+        Map<String, OrgWideEmail__c> orgWideEmailMap = new Map<String, OrgWideEmail__c>();
+        for (OrgWideEmail__c orgWideEmail : [
             SELECT Id, Developer_Name__c, Email_Address__c, MasterLabel__c, Active__c
             FROM OrgWideEmail__c
         ]) {
-            if (String.isNotBlank(o.Developer_Name__c)) {
-                result.put(o.Developer_Name__c, o);
+            if (String.isNotBlank(orgWideEmail.Developer_Name__c)) {
+                orgWideEmailMap.put(orgWideEmail.Developer_Name__c, orgWideEmail);
             }
         }
-        return result;
+        return orgWideEmailMap;
     }
 
-    public static void upsertEmails(List<OrgWideEmail__c> records) {
-        if (records == null || records.isEmpty()) return;
+    public static void upsertEmails(List<OrgWideEmail__c> orgWideEmailRecords) {
+        if (orgWideEmailRecords == null || orgWideEmailRecords.isEmpty()) return;
 
         List<OrgWideEmail__c> toInsert = new List<OrgWideEmail__c>();
         List<OrgWideEmail__c> toUpdate = new List<OrgWideEmail__c>();
 
         Map<String, OrgWideEmail__c> existing = getAll();
 
-        for (OrgWideEmail__c rec : records) {
-            String key = rec.Developer_Name__c;
-            if (existing.containsKey(key)) {
-                OrgWideEmail__c old = existing.get(key);
-                if (rec.Email_Address__c != old.Email_Address__c ||
-                    rec.MasterLabel__c != old.MasterLabel__c ||
-                    rec.Active__c != old.Active__c) {
-                    rec.Id = old.Id;
-                    toUpdate.add(rec);
+        for (OrgWideEmail__c orgWideEmailRecord : orgWideEmailRecords) {
+            String developerNameKey = orgWideEmailRecord.Developer_Name__c;
+            if (existing.containsKey(developerNameKey)) {
+                OrgWideEmail__c existingOrgWideEmail = existing.get(developerNameKey);
+                if (orgWideEmailRecord.Email_Address__c != existingOrgWideEmail.Email_Address__c ||
+                    orgWideEmailRecord.MasterLabel__c != existingOrgWideEmail.MasterLabel__c ||
+                    orgWideEmailRecord.Active__c != existingOrgWideEmail.Active__c) {
+                    orgWideEmailRecord.Id = existingOrgWideEmail.Id;
+                    toUpdate.add(orgWideEmailRecord);
                 }
             } else {
-                toInsert.add(rec);
+                toInsert.add(orgWideEmailRecord);
             }
         }
 

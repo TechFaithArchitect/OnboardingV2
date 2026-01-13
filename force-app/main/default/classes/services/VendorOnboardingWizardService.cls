@@ -469,8 +469,8 @@ public with sharing class VendorOnboardingWizardService {
   // Onboarding Status Rules - Delegates to StatusRulesEngineService
   // -------------------------------
 
-  public static Id createStatusRule(Onboarding_Status_Rule__c rule) {
-    return StatusRulesEngineService.createStatusRule(rule);
+  public static Id createStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
+    return StatusRulesEngineService.createStatusRule(statusRuleRecord);
   }
 
   public static List<Onboarding_Status_Rule__c> searchStatusRules(
@@ -940,9 +940,9 @@ public with sharing class VendorOnboardingWizardService {
     OnboardingApplicationRepository.insertStages(stages);
 
     // Step 8: Update Next_Stage links (each stage points to the next one in sequence)
-    // Stage at index i points to stage at index i+1
-    for (Integer i = 0; i < stages.size() - 1; i++) {
-      stages[i].Next_Stage__c = stages[i + 1].Id;
+    // Stage at index stageIndex points to stage at index stageIndex+1
+    for (Integer stageIndex = 0; stageIndex < stages.size() - 1; stageIndex++) {
+      stages[stageIndex].Next_Stage__c = stages[stageIndex + 1].Id;
     }
     // Last stage (index stages.size()-1) has no next stage (remains null)
 

@@ -65,8 +65,8 @@ public with sharing class VendorProgramGroupService {
             if (!picklistValues.isEmpty()) {
                 return picklistValues[0].getValue();
             }
-        } catch (Exception e) {
-            System.debug('Error getting default Logic_Type__c: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting default Logic_Type__c: ' + ex.getMessage());
         }
         
         // Fallback to 'ALL' if unable to get from picklist

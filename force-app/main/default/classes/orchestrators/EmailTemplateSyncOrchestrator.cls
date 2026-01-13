@@ -13,9 +13,9 @@ public with sharing class EmailTemplateSyncOrchestrator {
             UtilitiesSyncLogHelper.updateLogRecord(logRec.Id, summary);
             System.debug('Sync completed successfully: ' + summary.toString());
 
-        } catch (Exception e) {
-            UtilitiesSyncLogHelper.markFailed(logRec.Id, e);
-            System.debug('Sync failed: ' + e.getMessage());
+        } catch (Exception ex) {
+            UtilitiesSyncLogHelper.markFailed(logRec.Id, ex);
+            System.debug('Sync failed: ' + ex.getMessage());
         }
 
         System.debug('Email Template Sync finished at ' + Datetime.now().format());

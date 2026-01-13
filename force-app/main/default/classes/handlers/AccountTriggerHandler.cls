@@ -9,13 +9,13 @@ public with sharing class AccountTriggerHandler {
         }
 
         List<Account> toProcess = new List<Account>();
-        for (Account acc : newList) {
-            Account oldRecord = oldMap.get(acc.Id);
-            if (oldRecord == null) {
+        for (Account accountRecord : newList) {
+            Account oldAccountRecord = oldMap.get(accountRecord.Id);
+            if (oldAccountRecord == null) {
                 continue;
             }
-            if (postalChanged(acc.BillingPostalCode, oldRecord.BillingPostalCode)) {
-                toProcess.add(acc);
+            if (postalChanged(accountRecord.BillingPostalCode, oldAccountRecord.BillingPostalCode)) {
+                toProcess.add(accountRecord);
             }
         }
 

@@ -10,7 +10,7 @@ public with sharing class AllStatusRulesMustBeActiveRule implements OnboardingAp
         }
 
         // Query all child status rules for all parent engines in one query
-        List<Onboarding_Status_Rule__c> rules = [
+        List<Onboarding_Status_Rule__c> statusRules = [
             SELECT Id, Active__c, Parent_Rule__c
             FROM Onboarding_Status_Rule__c
             WHERE Parent_Rule__c IN :recordIds
@@ -18,7 +18,7 @@ public with sharing class AllStatusRulesMustBeActiveRule implements OnboardingAp
 
         // Group rules by parent engine
         Map<Id, List<Onboarding_Status_Rule__c>> rulesByParent = new Map<Id, List<Onboarding_Status_Rule__c>>();
-        for (Onboarding_Status_Rule__c statusRule : rules) {
+        for (Onboarding_Status_Rule__c statusRule : statusRules) {
             if (!rulesByParent.containsKey(statusRule.Parent_Rule__c)) {
                 rulesByParent.put(statusRule.Parent_Rule__c, new List<Onboarding_Status_Rule__c>());
             }

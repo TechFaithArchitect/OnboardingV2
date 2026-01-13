@@ -619,7 +619,7 @@ public with sharing class OnboardingApplicationService {
     } catch (Exception ex) {
       System.debug('Error getting resume context: ' + ex.getMessage());
       throw new AuraHandledException(
-        'Error loading resume context: ' + e.getMessage()
+        'Error loading resume context: ' + ex.getMessage()
       );
     }
 

@@ -17,11 +17,32 @@
                 onchange={handleRequirementGroupChange}>
             </lightning-combobox>
 
-            <lightning-button 
-                label="Load Rules" 
-                onclick={loadRules} 
-                class="slds-m-top_medium">
-            </lightning-button>
+            <div class="slds-grid slds-gutters slds-m-top_medium">
+                <div class="slds-col">
+                    <lightning-button 
+                        label="Load Rules" 
+                        onclick={loadRules}>
+                    </lightning-button>
+                </div>
+                <div class="slds-col">
+                    <lightning-combobox
+                        label="Select Onboarding for Preview"
+                        value={selectedOnboardingId}
+                        options={onboardingOptions}
+                        onchange={handleOnboardingSelection}
+                        placeholder="Choose an onboarding record">
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col">
+                    <lightning-button 
+                        label="Preview Evaluation" 
+                        variant="brand"
+                        icon-name="utility:preview"
+                        onclick={handlePreviewClick}
+                        disabled={!selectedOnboardingId}>
+                    </lightning-button>
+                </div>
+            </div>
 
             <template if:true={rules.length}>
                 <lightning-datatable
@@ -35,4 +56,13 @@
             </template>
         </div>
     </lightning-card>
+
+    <!-- Preview Evaluation Modal -->
+    <template if:true={showPreviewModal}>
+        <c-status-evaluation-preview-modal
+            onboarding-id={selectedOnboardingId}
+            is-open={showPreviewModal}
+            onclose={handlePreviewModalClose}>
+        </c-status-evaluation-preview-modal>
+    </template>
 </template>

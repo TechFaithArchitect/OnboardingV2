@@ -24,13 +24,13 @@ public with sharing class FollowUpFatigueService {
         Boolean fatigueEnabled = true;
 
         if (String.isNotBlank(followUpRuleDeveloperName)) {
-            Follow_Up_Rule__mdt rule = FollowUpRuleRepository.getRuleByDeveloperName(followUpRuleDeveloperName);
-            if (rule != null) {
-                if (rule.Fatigue_Suppression_Enabled__c == false) {
+            Follow_Up_Rule__mdt followUpRule = FollowUpRuleRepository.getRuleByDeveloperName(followUpRuleDeveloperName);
+            if (followUpRule != null) {
+                if (followUpRule.Fatigue_Suppression_Enabled__c == false) {
                     return false;
                 }
-                maxAttempts = rule.Max_Attempts_Per_Window__c != null ? rule.Max_Attempts_Per_Window__c.intValue() : maxAttempts;
-                fatigueWindowDays = rule.Fatigue_Window_Days__c != null ? rule.Fatigue_Window_Days__c.intValue() : fatigueWindowDays;
+                maxAttempts = followUpRule.Max_Attempts_Per_Window__c != null ? followUpRule.Max_Attempts_Per_Window__c.intValue() : maxAttempts;
+                fatigueWindowDays = followUpRule.Fatigue_Window_Days__c != null ? followUpRule.Fatigue_Window_Days__c.intValue() : fatigueWindowDays;
             }
         }
 
@@ -179,25 +179,25 @@ public with sharing class FollowUpFatigueService {
      */
     private static String getDealerTimezone(Id accountId) {
         try {
-            Account acc = [
+            Account accountRecord = [
                 SELECT Time_zone__pc
                 FROM Account
                 WHERE Id = :accountId
                 LIMIT 1
             ];
 
-            if (String.isNotBlank(acc.Time_zone__pc)) {
+            if (String.isNotBlank(accountRecord.Time_zone__pc)) {
                 // Time_zone__pc uses Global Value Set PV_TimeZone
                 // The value should be a valid timezone ID (e.g., 'America/New_York')
-                return acc.Time_zone__pc;
+                return accountRecord.Time_zone__pc;
             }
 
             // Fallback: Could check Field Service timezone here
             // TODO: Consider querying ServiceTerritory or ServiceResource timezone if needed
             // For now, return null to let caller handle fallback
             return null;
-        } catch (Exception e) {
-            System.debug('Error getting dealer timezone: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting dealer timezone: ' + ex.getMessage());
             return null;
         }
     }

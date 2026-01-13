@@ -16,8 +16,8 @@ public with sharing class OnboardingStatusRuleController {
     }
 
     @AuraEnabled
-    public static void saveRule(Onboarding_Status_Rules_Engine__c rule) {
-        OnboardingRulesService.saveRulesEngine(rule);
+    public static void saveRule(Onboarding_Status_Rules_Engine__c statusRulesEngineRecord) {
+        OnboardingRulesService.saveRulesEngine(statusRulesEngineRecord);
     }
 
     @AuraEnabled

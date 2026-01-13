@@ -47,12 +47,12 @@ global class OnboardingCleanupScheduler implements Database.Batchable<SObject>, 
         List<Onboarding_Requirement__c> toArchive = new List<Onboarding_Requirement__c>();
         List<Task> followUpTasks = new List<Task>();
 
-        for (Onboarding_Requirement__c req : scope) {
+        for (Onboarding_Requirement__c onboardingRequirement : scope) {
             // Check if status indicates abandonment
             // TODO: Update when status values are added
-            Boolean isAbandoned = req.Status__c == 'Draft' || 
-                                 req.Status__c == 'Partially_Completed' ||
-                                 (req.Status__c != 'Complete' && req.Status__c != 'Approved');
+            Boolean isAbandoned = onboardingRequirement.Status__c == 'Draft' || 
+                                 onboardingRequirement.Status__c == 'Partially_Completed' ||
+                                 (onboardingRequirement.Status__c != 'Complete' && onboardingRequirement.Status__c != 'Approved');
 
             if (!isAbandoned) {
                 continue;
@@ -60,20 +60,20 @@ global class OnboardingCleanupScheduler implements Database.Batchable<SObject>, 
 
             // Soft delete: Mark as archived
             // TODO: Uncomment when Is_Archived__c field is created
-            // req.Is_Archived__c = true;
-            // req.Status__c = 'Abandoned';
-            toArchive.add(req);
+            // onboardingRequirement.Is_Archived__c = true;
+            // onboardingRequirement.Status__c = 'Abandoned';
+            toArchive.add(onboardingRequirement);
 
             // Create follow-up task for Onboarding Rep
-            Task t = new Task(
-                WhatId = req.Id,
+            Task followUpTask = new Task(
+                WhatId = onboardingRequirement.Id,
                 Subject = 'Abandoned Onboarding - Follow Up Required',
                 Priority = 'Normal',
                 Status = 'Not Started',
                 Description = 'This onboarding requirement has been inactive for ' + 
                              getAbandonmentThreshold() + ' days. Please follow up with the dealer.'
             );
-            followUpTasks.add(t);
+            followUpTasks.add(followUpTask);
         }
 
         if (!toArchive.isEmpty()) {

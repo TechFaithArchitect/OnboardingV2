@@ -30,14 +30,14 @@ public with sharing class LeadAssignmentService {
      * @param records SObjects to assign
      * @param postalField API name of the postal code field to read
      */
-    private static void assignOwnersInternal(List<SObject> records, String postalField) {
-        if (records == null || records.isEmpty()) {
+    private static void assignOwnersInternal(List<SObject> sObjectRecords, String postalField) {
+        if (sObjectRecords == null || sObjectRecords.isEmpty()) {
             return;
         }
-        for (SObject record : records) {
-            if ((Id) record.get('OwnerId') == null) {
+        for (SObject sObjectRecord : sObjectRecords) {
+            if ((Id) sObjectRecord.get('OwnerId') == null) {
                 // Default assignment: Created By user (same as current user in before insert)
-                record.put('OwnerId', UserInfo.getUserId());
+                sObjectRecord.put('OwnerId', UserInfo.getUserId());
             }
         }
     }

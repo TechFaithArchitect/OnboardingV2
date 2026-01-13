@@ -12,8 +12,8 @@ public with sharing class OnboardingAppActivationAction {
         }
 
         // Validate all requests first
-        for (Request req : requestList) {
-            if (req.recordId == null || String.isBlank(req.objectApiName)) {
+        for (Request activationRequest : requestList) {
+            if (activationRequest.recordId == null || String.isBlank(activationRequest.objectApiName)) {
                 throw new AuraHandledException('Object API Name and Record Id are required.');
             }
         }
@@ -22,16 +22,16 @@ public with sharing class OnboardingAppActivationAction {
         Map<String, Set<Id>> bulkRecords = new Map<String, Set<Id>>();
         Set<Id> vendorProgramIds = new Set<Id>();
 
-        for (Request req : requestList) {
+        for (Request activationRequest : requestList) {
             // Vendor_Customization__c uses specialized service with bulk support
-            if (req.objectApiName == 'Vendor_Customization__c') {
-                vendorProgramIds.add(req.recordId);
+            if (activationRequest.objectApiName == 'Vendor_Customization__c') {
+                vendorProgramIds.add(activationRequest.recordId);
             } else {
                 // Group by object type for bulk processing
-                if (!bulkRecords.containsKey(req.objectApiName)) {
-                    bulkRecords.put(req.objectApiName, new Set<Id>());
+                if (!bulkRecords.containsKey(activationRequest.objectApiName)) {
+                    bulkRecords.put(activationRequest.objectApiName, new Set<Id>());
                 }
-                bulkRecords.get(req.objectApiName).add(req.recordId);
+                bulkRecords.get(activationRequest.objectApiName).add(activationRequest.recordId);
             }
         }
 

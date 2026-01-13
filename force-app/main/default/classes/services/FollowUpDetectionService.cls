@@ -67,8 +67,8 @@ public with sharing class FollowUpDetectionService {
       for (Onboarding_Requirement__c onboardingRequirement : requirements) {
         requirementIds.add(onboardingRequirement.Id);
       }
-    } catch (Exception e) {
-      System.debug('Error querying requirements: ' + e.getMessage());
+    } catch (Exception ex) {
+      System.debug('Error querying requirements: ' + ex.getMessage());
       return;
     }
 
@@ -156,8 +156,8 @@ public with sharing class FollowUpDetectionService {
         LIMIT 1
       ];
       return requirements.isEmpty() ? null : requirements[0];
-    } catch (Exception e) {
-      System.debug('Error querying requirement: ' + e.getMessage());
+    } catch (Exception ex) {
+      System.debug('Error querying requirement: ' + ex.getMessage());
       return null;
     }
   }
@@ -189,8 +189,8 @@ public with sharing class FollowUpDetectionService {
       ) {
         requirements.put(onboardingRequirement.Id, onboardingRequirement);
       }
-    } catch (Exception e) {
-      System.debug('Error querying requirements: ' + e.getMessage());
+    } catch (Exception ex) {
+      System.debug('Error querying requirements: ' + ex.getMessage());
     }
     return requirements;
   }
@@ -358,9 +358,9 @@ public with sharing class FollowUpDetectionService {
         ];
         // Timezone stored in custom field - adjust if field name differs
         // followUp.Timezone__c = account.Time_zone__pc;
-      } catch (Exception e) {
+      } catch (Exception ex) {
         // Timezone field may not exist or be accessible
-        System.debug('Could not set timezone: ' + e.getMessage());
+        System.debug('Could not set timezone: ' + ex.getMessage());
       }
     }
 
@@ -410,8 +410,8 @@ public with sharing class FollowUpDetectionService {
         LIMIT 1
       ];
       return count > 0;
-    } catch (Exception e) {
-      System.debug('Error checking existing follow-up: ' + e.getMessage());
+    } catch (Exception ex) {
+      System.debug('Error checking existing follow-up: ' + ex.getMessage());
       return false;
     }
   }

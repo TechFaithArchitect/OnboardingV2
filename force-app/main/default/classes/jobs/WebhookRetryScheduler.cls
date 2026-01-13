@@ -60,9 +60,9 @@ global class WebhookRetryScheduler implements Database.Batchable<SObject>, Sched
                 
                 retry.Status__c = 'Resolved';
                 retry.Resolved_Date__c = DateTime.now();
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 retry.Retry_Count__c = (retry.Retry_Count__c == null ? 0 : retry.Retry_Count__c) + 1;
-                retry.Error_Message__c = e.getMessage();
+                retry.Error_Message__c = ex.getMessage();
                 
                 if (retry.Retry_Count__c >= 5) {
                     retry.Status__c = 'Failed';

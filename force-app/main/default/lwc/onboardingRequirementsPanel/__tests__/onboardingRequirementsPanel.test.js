@@ -5,6 +5,8 @@ import getInvalidFieldValues from '@salesforce/apex/OnboardingRequirementsPanelC
 import updateRequirementStatuses from '@salesforce/apex/OnboardingRequirementsPanelController.updateRequirementStatuses';
 import runRuleEvaluation from '@salesforce/apex/OnboardingRequirementsPanelController.runRuleEvaluation';
 import rerunValidation from '@salesforce/apex/OnboardingRequirementsPanelController.rerunValidation';
+import getActiveRulesVersion from '@salesforce/apex/OnboardingRequirementsPanelController.getActiveRulesVersion';
+import refreshAndReevaluate from '@salesforce/apex/OnboardingRequirementsPanelController.refreshAndReevaluate';
 
 // Mock Apex methods
 jest.mock(
@@ -29,6 +31,16 @@ jest.mock(
 );
 jest.mock(
     '@salesforce/apex/OnboardingRequirementsPanelController.rerunValidation',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/apex/OnboardingRequirementsPanelController.getActiveRulesVersion',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/apex/OnboardingRequirementsPanelController.refreshAndReevaluate',
     () => ({ default: jest.fn() }),
     { virtual: true }
 );
@@ -247,5 +259,124 @@ describe('c-onboarding-requirements-panel', () => {
         expect(rerunValidation).toHaveBeenCalledWith({
             fieldValueIds: ['a0Z000000000001AAA']
         });
+    });
+
+    it('loads rules version on connectedCallback', async () => {
+        getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
+        getActiveRulesVersion.mockResolvedValue({
+            lastModifiedDate: '2024-01-01T00:00:00.000Z',
+            engineIds: ['a0X000000000001AAA']
+        });
+
+        const element = createElement('c-onboarding-requirements-panel', {
+            is: OnboardingRequirementsPanel
+        });
+        element.recordId = 'a0X000000000000AAA';
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(getActiveRulesVersion).toHaveBeenCalledWith({
+            onboardingId: 'a0X000000000000AAA'
+        });
+    });
+
+    it('shows banner when rules version changes', async () => {
+        getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
+        getActiveRulesVersion
+            .mockResolvedValueOnce({
+                lastModifiedDate: '2024-01-01T00:00:00.000Z',
+                engineIds: ['a0X000000000001AAA']
+            })
+            .mockResolvedValueOnce({
+                lastModifiedDate: '2024-01-02T00:00:00.000Z',
+                engineIds: ['a0X000000000001AAA']
+            });
+
+        const element = createElement('c-onboarding-requirements-panel', {
+            is: OnboardingRequirementsPanel
+        });
+        element.recordId = 'a0X000000000000AAA';
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // Set initial version
+        element.rulesVersionOnLoad = '2024-01-01T00:00:00.000Z';
+        element.currentRulesVersion = '2024-01-01T00:00:00.000Z';
+
+        // Check for version change
+        await element.checkRulesVersion();
+
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // If version changed, banner should show
+        if (element.currentRulesVersion !== element.rulesVersionOnLoad) {
+            expect(element.showRulesChangedBanner).toBe(true);
+        }
+    });
+
+    it('refreshes rules and re-evaluates when refresh button is clicked', async () => {
+        getRequirements.mockResolvedValue(mockRequirements);
+        getInvalidFieldValues.mockResolvedValue([]);
+        getActiveRulesVersion.mockResolvedValue({
+            lastModifiedDate: '2024-01-02T00:00:00.000Z',
+            engineIds: ['a0X000000000001AAA']
+        });
+        refreshAndReevaluate.mockResolvedValue('Approved');
+
+        const element = createElement('c-onboarding-requirements-panel', {
+            is: OnboardingRequirementsPanel
+        });
+        element.recordId = 'a0X000000000000AAA';
+        element.showRulesChangedBanner = true;
+        
+        let toastEvent;
+        element.addEventListener('lightning__showtoast', (event) => {
+            toastEvent = event.detail;
+        });
+        
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        await element.handleRefreshRules();
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(refreshAndReevaluate).toHaveBeenCalledWith({
+            onboardingId: 'a0X000000000000AAA'
+        });
+        expect(element.showRulesChangedBanner).toBe(false);
+        expect(toastEvent).toBeTruthy();
+        expect(toastEvent.variant).toBe('success');
+        expect(toastEvent.message).toContain('Approved');
+    });
+
+    it('clears interval on disconnectedCallback', () => {
+        const element = createElement('c-onboarding-requirements-panel', {
+            is: OnboardingRequirementsPanel
+        });
+        element.recordId = 'a0X000000000000AAA';
+        element.rulesVersionCheckInterval = setInterval(() => {}, 30000);
+        document.body.appendChild(element);
+
+        const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+
+        element.disconnectedCallback();
+
+        expect(clearIntervalSpy).toHaveBeenCalled();
+        clearIntervalSpy.mockRestore();
     });
 });

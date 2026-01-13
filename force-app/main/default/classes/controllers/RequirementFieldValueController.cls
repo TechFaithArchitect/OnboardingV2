@@ -23,7 +23,7 @@ public with sharing class RequirementFieldValueController {
     String value,
     Boolean isEncrypted
   ) {
-    SaveResult result = new SaveResult();
+    SaveResult saveResult = new SaveResult();
 
     try {
       // Upsert Requirement_Field_Value__c
@@ -62,7 +62,7 @@ public with sharing class RequirementFieldValueController {
         );
       } catch (Exception validationEx) {
         // Surface validation error in the response but do not block persistence
-        result.message =
+        saveResult.message =
           'Field saved, but validation failed: ' + validationEx.getMessage();
       }
 
@@ -94,16 +94,16 @@ public with sharing class RequirementFieldValueController {
       // Update Onboarding_Requirement__c status
       updateRequirementStatus(onboardingRequirementId);
 
-      result.id = fieldValue.Id;
-      result.success = true;
-      result.message = 'Field value saved successfully';
+      saveResult.id = fieldValue.Id;
+      saveResult.success = true;
+      saveResult.message = 'Field value saved successfully';
     } catch (Exception ex) {
-      result.success = false;
-      result.message = 'Error saving field value: ' + ex.getMessage();
-      throw new AuraHandledException(result.message);
+      saveResult.success = false;
+      saveResult.message = 'Error saving field value: ' + ex.getMessage();
+      throw new AuraHandledException(saveResult.message);
     }
 
-    return result;
+    return saveResult;
   }
 
   private static Boolean isExternalValidation(String validationType) {
@@ -180,8 +180,8 @@ public with sharing class RequirementFieldValueController {
         requirement.Status__c = newStatus;
         update requirement;
       }
-    } catch (Exception e) {
-      System.debug('Error updating requirement status: ' + e.getMessage());
+    } catch (Exception ex) {
+      System.debug('Error updating requirement status: ' + ex.getMessage());
       // Don't throw - status update is not critical for save operation
     }
   }

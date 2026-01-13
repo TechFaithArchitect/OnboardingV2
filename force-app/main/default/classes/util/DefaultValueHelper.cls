@@ -91,19 +91,19 @@ public with sharing class DefaultValueHelper {
      * Applies default values to a Recipient_Group_Member__c record
      * @param member The recipient group member to set defaults on
      */
-    public static void applyRecipientGroupMemberDefaults(Recipient_Group_Member__c member) {
-        if (member == null) {
+    public static void applyRecipientGroupMemberDefaults(Recipient_Group_Member__c recipientGroupMember) {
+        if (recipientGroupMember == null) {
             return;
         }
         
         // Set default Member_Type__c if not provided
-        if (String.isBlank(member.Member_Type__c)) {
-            member.Member_Type__c = 'User';
+        if (String.isBlank(recipientGroupMember.Member_Type__c)) {
+            recipientGroupMember.Member_Type__c = 'User';
         }
         
         // Set default Recipient_Type__c if not provided
-        if (String.isBlank(member.Recipient_Type__c)) {
-            member.Recipient_Type__c = 'To';
+        if (String.isBlank(recipientGroupMember.Recipient_Type__c)) {
+            recipientGroupMember.Recipient_Type__c = 'To';
         }
     }
     

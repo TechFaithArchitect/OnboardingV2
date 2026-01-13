@@ -4,6 +4,7 @@ import getVendorProgramGroups from '@salesforce/apex/OnboardingStatusRulesEngine
 import getRequirementGroups from '@salesforce/apex/OnboardingStatusRulesEngineController.getRequirementGroups';
 import getRules from '@salesforce/apex/OnboardingStatusRulesEngineController.getRules';
 import saveRules from '@salesforce/apex/OnboardingStatusRulesEngineController.saveRules';
+import getOnboardingOptions from '@salesforce/apex/OnboardingStatusRulesEngineController.getOnboardingOptions';
 
 // Mock Apex methods
 jest.mock(
@@ -23,6 +24,11 @@ jest.mock(
 );
 jest.mock(
     '@salesforce/apex/OnboardingStatusRulesEngineController.saveRules',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/apex/OnboardingStatusRulesEngineController.getOnboardingOptions',
     () => ({ default: jest.fn() }),
     { virtual: true }
 );
@@ -66,9 +72,15 @@ describe('c-onboarding-status-rules-engine', () => {
         });
     });
 
-    it('loads vendor program groups and requirement groups on connectedCallback', async () => {
+    const mockOnboardingOptions = [
+        { value: 'a0X000000000000AAA', label: 'Account 1 - Program 1' },
+        { value: 'a0X000000000000BBB', label: 'Account 2 - Program 2' }
+    ];
+
+    it('loads vendor program groups, requirement groups, and onboarding options on connectedCallback', async () => {
         getVendorProgramGroups.mockResolvedValue(mockVendorProgramGroups);
         getRequirementGroups.mockResolvedValue(mockRequirementGroups);
+        getOnboardingOptions.mockResolvedValue(mockOnboardingOptions);
 
         const element = createElement('c-onboarding-status-rules-engine', {
             is: OnboardingStatusRulesEngine
@@ -79,15 +91,18 @@ describe('c-onboarding-status-rules-engine', () => {
         await Promise.resolve();
         await Promise.resolve();
 
-        // Test the actual functionality: connectedCallback calls both Apex methods
+        // Test the actual functionality: connectedCallback calls all three Apex methods
         expect(getVendorProgramGroups).toHaveBeenCalled();
         expect(getRequirementGroups).toHaveBeenCalled();
+        expect(getOnboardingOptions).toHaveBeenCalledWith({ limitCount: 50 });
         
         // Verify the data returned from Apex methods
         const vendorGroups = await getVendorProgramGroups();
         const requirementGroups = await getRequirementGroups();
+        const onboardingOpts = await getOnboardingOptions({ limitCount: 50 });
         expect(vendorGroups).toEqual(mockVendorProgramGroups);
         expect(requirementGroups).toEqual(mockRequirementGroups);
+        expect(onboardingOpts).toEqual(mockOnboardingOptions);
     });
 
     it('handles vendor program group selection change', async () => {
@@ -230,5 +245,90 @@ describe('c-onboarding-status-rules-engine', () => {
         // We verify the condition that triggers the warning
         expect(element.selectedVendorProgramGroup).toBeTruthy();
         expect(element.selectedRequirementGroup).toBeFalsy();
+    });
+
+    it('handles onboarding selection change', async () => {
+        getVendorProgramGroups.mockResolvedValue(mockVendorProgramGroups);
+        getRequirementGroups.mockResolvedValue(mockRequirementGroups);
+        getOnboardingOptions.mockResolvedValue(mockOnboardingOptions);
+
+        const element = createElement('c-onboarding-status-rules-engine', {
+            is: OnboardingStatusRulesEngine
+        });
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        const mockEvent = {
+            detail: { value: 'a0X000000000000AAA' }
+        };
+        
+        element.handleOnboardingSelection(mockEvent);
+        
+        expect(element.selectedOnboardingId).toBe('a0X000000000000AAA');
+    });
+
+    it('opens preview modal when preview button is clicked with onboarding selected', async () => {
+        getVendorProgramGroups.mockResolvedValue(mockVendorProgramGroups);
+        getRequirementGroups.mockResolvedValue(mockRequirementGroups);
+        getOnboardingOptions.mockResolvedValue(mockOnboardingOptions);
+
+        const element = createElement('c-onboarding-status-rules-engine', {
+            is: OnboardingStatusRulesEngine
+        });
+        element.selectedOnboardingId = 'a0X000000000000AAA';
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        element.handlePreviewClick();
+
+        expect(element.showPreviewModal).toBe(true);
+    });
+
+    it('shows warning when preview button is clicked without onboarding selected', async () => {
+        getVendorProgramGroups.mockResolvedValue(mockVendorProgramGroups);
+        getRequirementGroups.mockResolvedValue(mockRequirementGroups);
+        getOnboardingOptions.mockResolvedValue(mockOnboardingOptions);
+
+        const element = createElement('c-onboarding-status-rules-engine', {
+            is: OnboardingStatusRulesEngine
+        });
+        element.selectedOnboardingId = null;
+        
+        let toastEvent;
+        element.addEventListener('lightning__showtoast', (event) => {
+            toastEvent = event.detail;
+        });
+        
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        element.handlePreviewClick();
+
+        expect(element.showPreviewModal).toBe(false);
+        expect(toastEvent).toBeTruthy();
+        expect(toastEvent.variant).toBe('warning');
+    });
+
+    it('closes preview modal', async () => {
+        const element = createElement('c-onboarding-status-rules-engine', {
+            is: OnboardingStatusRulesEngine
+        });
+        element.showPreviewModal = true;
+        document.body.appendChild(element);
+
+        await Promise.resolve();
+
+        element.handlePreviewModalClose();
+
+        expect(element.showPreviewModal).toBe(false);
     });
 });

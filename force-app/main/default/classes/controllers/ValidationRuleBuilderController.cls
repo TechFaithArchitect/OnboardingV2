@@ -30,8 +30,8 @@ public with sharing class ValidationRuleBuilderController {
                 fm.type = rf.Field_Type__c;
                 fields.add(fm);
             }
-        } catch (Exception e) {
-            System.debug('Error loading requirement fields: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error loading requirement fields: ' + ex.getMessage());
         }
         
         return fields;
@@ -45,12 +45,12 @@ public with sharing class ValidationRuleBuilderController {
      */
     @AuraEnabled
     public static ValidationResult validateExpression(String expression, String validationType) {
-        ValidationResult result = new ValidationResult();
+        ValidationResult validationResult = new ValidationResult();
         
         if (String.isBlank(expression)) {
-            result.isValid = false;
-            result.errorMessage = 'Expression cannot be blank';
-            return result;
+            validationResult.isValid = false;
+            validationResult.errorMessage = 'Expression cannot be blank';
+            return validationResult;
         }
         
         try {
@@ -59,18 +59,18 @@ public with sharing class ValidationRuleBuilderController {
             Integer openParens = expression.countMatches('(');
             Integer closeParens = expression.countMatches(')');
             if (openParens != closeParens) {
-                result.isValid = false;
-                result.errorMessage = 'Unbalanced parentheses';
-                return result;
+                validationResult.isValid = false;
+                validationResult.errorMessage = 'Unbalanced parentheses';
+                return validationResult;
             }
             
             // Check for balanced brackets
             Integer openBrackets = expression.countMatches('[');
             Integer closeBrackets = expression.countMatches(']');
             if (openBrackets != closeBrackets) {
-                result.isValid = false;
-                result.errorMessage = 'Unbalanced brackets';
-                return result;
+                validationResult.isValid = false;
+                validationResult.errorMessage = 'Unbalanced brackets';
+                return validationResult;
             }
             
             // Validate common function names
@@ -82,15 +82,15 @@ public with sharing class ValidationRuleBuilderController {
             // Basic validation - check if expression contains valid patterns
             // More sophisticated validation would require expression parsing
             
-            result.isValid = true;
-            result.message = 'Expression syntax is valid';
+            validationResult.isValid = true;
+            validationResult.message = 'Expression syntax is valid';
             
-        } catch (Exception e) {
-            result.isValid = false;
-            result.errorMessage = 'Validation error: ' + e.getMessage();
+        } catch (Exception ex) {
+            validationResult.isValid = false;
+            validationResult.errorMessage = 'Validation error: ' + ex.getMessage();
         }
         
-        return result;
+        return validationResult;
     }
 
     /**
@@ -101,12 +101,12 @@ public with sharing class ValidationRuleBuilderController {
      */
     @AuraEnabled
     public static ValidationTestResult testRuleExpression(String expression, Map<String, Object> testValues) {
-        ValidationTestResult result = new ValidationTestResult();
+        ValidationTestResult validationTestResult = new ValidationTestResult();
         
         if (String.isBlank(expression)) {
-            result.isValid = false;
-            result.errorMessage = 'Expression cannot be blank';
-            return result;
+            validationTestResult.isValid = false;
+            validationTestResult.errorMessage = 'Expression cannot be blank';
+            return validationTestResult;
         }
         
         try {
@@ -128,23 +128,23 @@ public with sharing class ValidationRuleBuilderController {
             for (String field : referencedFields) {
                 String testKey = field.replace('__c', '');
                 if (!testValues.containsKey(testKey) && !testValues.containsKey(field)) {
-                    result.isValid = false;
-                    result.errorMessage = 'Missing test value for field: ' + field;
-                    return result;
+                    validationTestResult.isValid = false;
+                    validationTestResult.errorMessage = 'Missing test value for field: ' + field;
+                    return validationTestResult;
                 }
             }
             
             // Basic validation - in production, use a proper expression evaluator
             // For now, just check if expression structure is valid
-            result.isValid = true;
-            result.message = 'Test passed (simplified validation - full evaluation requires expression parser)';
+            validationTestResult.isValid = true;
+            validationTestResult.message = 'Test passed (simplified validation - full evaluation requires expression parser)';
             
-        } catch (Exception e) {
-            result.isValid = false;
-            result.errorMessage = 'Test error: ' + e.getMessage();
+        } catch (Exception ex) {
+            validationTestResult.isValid = false;
+            validationTestResult.errorMessage = 'Test error: ' + ex.getMessage();
         }
         
-        return result;
+        return validationTestResult;
     }
 
     /**
@@ -156,7 +156,7 @@ public with sharing class ValidationRuleBuilderController {
      */
     @AuraEnabled
     public static SaveResult saveValidationRule(Map<String, Object> ruleData, String recordId) {
-        SaveResult result = new SaveResult();
+        SaveResult saveResult = new SaveResult();
         
         try {
             // Validate required fields
@@ -196,17 +196,17 @@ public with sharing class ValidationRuleBuilderController {
             // Use Metadata API to deploy
             Id asyncResultId = Metadata.Operations.enqueueDeployment(container, null);
             
-            result.success = true;
-            result.id = developerName;
-            result.message = 'Validation rule queued for deployment. Deployment ID: ' + asyncResultId;
+            saveResult.success = true;
+            saveResult.id = developerName;
+            saveResult.message = 'Validation rule queued for deployment. Deployment ID: ' + asyncResultId;
             
-        } catch (Exception e) {
-            result.success = false;
-            result.message = 'Error saving validation rule: ' + e.getMessage();
-            throw new AuraHandledException(result.message);
+        } catch (Exception ex) {
+            saveResult.success = false;
+            saveResult.message = 'Error saving validation rule: ' + ex.getMessage();
+            throw new AuraHandledException(saveResult.message);
         }
         
-        return result;
+        return saveResult;
     }
 
     /**
@@ -214,8 +214,8 @@ public with sharing class ValidationRuleBuilderController {
      */
     @AuraEnabled(cacheable=true)
     public static List<RuleDTO> getValidationRules() {
-        List<RuleDTO> rules = new List<RuleDTO>();
-        for (Requirement_Field_Validation_Rule__mdt rule : [
+        List<RuleDTO> ruleDTOList = new List<RuleDTO>();
+        for (Requirement_Field_Validation_Rule__mdt validationRule : [
             SELECT DeveloperName, MasterLabel, Requirement_Field__c, Validation_Type__c,
                    Validation_Expression__c, Error_Message__c, Is_Active__c,
                    Validation_Mode__c, External_Service__c, Sequence__c, Description__c
@@ -223,21 +223,21 @@ public with sharing class ValidationRuleBuilderController {
             ORDER BY Sequence__c ASC NULLS LAST, MasterLabel ASC
             LIMIT 200
         ]) {
-            RuleDTO dto = new RuleDTO();
-            dto.developerName = rule.DeveloperName;
-            dto.label = rule.MasterLabel;
-            dto.requirementField = rule.Requirement_Field__c;
-            dto.validationType = rule.Validation_Type__c;
-            dto.validationExpression = rule.Validation_Expression__c;
-            dto.errorMessage = rule.Error_Message__c;
-            dto.isActive = rule.Is_Active__c;
-            dto.validationMode = rule.Validation_Mode__c;
-            dto.externalService = rule.External_Service__c;
-            dto.sequence = rule.Sequence__c;
-            dto.description = rule.Description__c;
-            rules.add(dto);
+            RuleDTO ruleDTO = new RuleDTO();
+            ruleDTO.developerName = validationRule.DeveloperName;
+            ruleDTO.label = validationRule.MasterLabel;
+            ruleDTO.requirementField = validationRule.Requirement_Field__c;
+            ruleDTO.validationType = validationRule.Validation_Type__c;
+            ruleDTO.validationExpression = validationRule.Validation_Expression__c;
+            ruleDTO.errorMessage = validationRule.Error_Message__c;
+            ruleDTO.isActive = validationRule.Is_Active__c;
+            ruleDTO.validationMode = validationRule.Validation_Mode__c;
+            ruleDTO.externalService = validationRule.External_Service__c;
+            ruleDTO.sequence = validationRule.Sequence__c;
+            ruleDTO.description = validationRule.Description__c;
+            ruleDTOList.add(ruleDTO);
         }
-        return rules;
+        return ruleDTOList;
     }
 
     /**

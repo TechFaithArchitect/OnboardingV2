@@ -19,30 +19,30 @@ public with sharing class RequirementValidationLogger {
         if (entries == null || entries.isEmpty()) {
             return;
         }
-        List<Validation_Failure__c> records = new List<Validation_Failure__c>();
-        for (LogEntry entry : entries) {
-            if (entry == null || entry.fieldValueId == null) {
+        List<Validation_Failure__c> validationFailureRecords = new List<Validation_Failure__c>();
+        for (LogEntry logEntry : entries) {
+            if (logEntry == null || logEntry.fieldValueId == null) {
                 continue;
             }
-            Validation_Failure__c vf = new Validation_Failure__c();
-            vf.Requirement_Field_Value__c = entry.fieldValueId;
-            vf.Requirement_Field__c = entry.fieldApiName;
-            String normalizedResult = normalizeValidationResult(entry.validationResult);
+            Validation_Failure__c validationFailure = new Validation_Failure__c();
+            validationFailure.Requirement_Field_Value__c = logEntry.fieldValueId;
+            validationFailure.Requirement_Field__c = logEntry.fieldApiName;
+            String normalizedResult = normalizeValidationResult(logEntry.validationResult);
             if (String.isNotBlank(normalizedResult)) {
-                vf.Validation_Result__c = normalizedResult;
+                validationFailure.Validation_Result__c = normalizedResult;
             }
-            String normalizedType = normalizeValidationType(entry.validationType);
+            String normalizedType = normalizeValidationType(logEntry.validationType);
             if (String.isNotBlank(normalizedType)) {
-                vf.Validation_Type__c = normalizedType;
+                validationFailure.Validation_Type__c = normalizedType;
             }
-            vf.Message__c = entry.message;
-            vf.Rule_Name__c = entry.ruleName;
-            vf.Correlation_Id__c = entry.correlationId;
-            vf.Validated_On__c = entry.validatedOn != null ? entry.validatedOn : Datetime.now();
-            records.add(vf);
+            validationFailure.Message__c = logEntry.message;
+            validationFailure.Rule_Name__c = logEntry.ruleName;
+            validationFailure.Correlation_Id__c = logEntry.correlationId;
+            validationFailure.Validated_On__c = logEntry.validatedOn != null ? logEntry.validatedOn : Datetime.now();
+            validationFailureRecords.add(validationFailure);
         }
-        if (!records.isEmpty()) {
-            insert records;
+        if (!validationFailureRecords.isEmpty()) {
+            insert validationFailureRecords;
         }
     }
 

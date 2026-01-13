@@ -36,14 +36,14 @@ public with sharing class AVOTriggerHandler {
         }
 
         Map<Id, Integer> openRequirementCountByOnboarding = new Map<Id, Integer>();
-        for (AggregateResult ar : [
+        for (AggregateResult aggregateResult : [
             SELECT Onboarding__c onboardingId, COUNT(Id) openCount
             FROM Onboarding_Requirement__c
             WHERE Onboarding__c IN :onboardingIdsNeedingCheck
               AND (Status__c != 'Complete' OR Status__c = null)
             GROUP BY Onboarding__c
         ]) {
-            openRequirementCountByOnboarding.put((Id)ar.get('onboardingId'), (Integer)ar.get('openCount'));
+            openRequirementCountByOnboarding.put((Id)aggregateResult.get('onboardingId'), (Integer)aggregateResult.get('openCount'));
         }
 
         for (Account_Vendor_Program_Onboarding__c avo : toValidate.values()) {

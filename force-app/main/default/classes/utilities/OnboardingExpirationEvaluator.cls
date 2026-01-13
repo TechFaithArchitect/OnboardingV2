@@ -84,16 +84,16 @@ public class OnboardingExpirationEvaluator {
         List<Onboarding__c> toExpire = new List<Onboarding__c>();
         Set<String> requiredFields = thresholdByField.keySet();
 
-        for (Onboarding__c o : activeList) {
-            Set<String> freshFields = onboardingToFreshFields.get(o.Id);
+        for (Onboarding__c onboardingRecord : activeList) {
+            Set<String> freshFields = onboardingToFreshFields.get(onboardingRecord.Id);
 
             // If any required field is missing, expire the onboarding
             if (freshFields == null || !freshFields.containsAll(requiredFields)) {
-                o.Onboarding_Status__c = 'Expired';
-                toExpire.add(o);
-                System.debug('💡 Expiring onboarding ' + o.Id);
+                onboardingRecord.Onboarding_Status__c = 'Expired';
+                toExpire.add(onboardingRecord);
+                System.debug('💡 Expiring onboarding ' + onboardingRecord.Id);
             } else {
-                System.debug('✅ Onboarding ' + o.Id + ' is up to date');
+                System.debug('✅ Onboarding ' + onboardingRecord.Id + ' is up to date');
             }
         }
 

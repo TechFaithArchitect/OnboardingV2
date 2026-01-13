@@ -9,13 +9,13 @@ public with sharing class VendorCustomizationRepository {
         if (recordId == null) {
             return null;
         }
-        List<Vendor_Customization__c> records = [
+        List<Vendor_Customization__c> vendorCustomizationRecords = [
             SELECT Id, Status__c, Active__c, Previous_Version__c
             FROM Vendor_Customization__c
             WHERE Id = :recordId
             LIMIT 1
         ];
-        return records.isEmpty() ? null : records[0];
+        return vendorCustomizationRecords.isEmpty() ? null : vendorCustomizationRecords[0];
     }
     
     /**
@@ -98,19 +98,19 @@ public with sharing class VendorCustomizationRepository {
      * Updates Vendor_Customization__c records.
      * @param records List of records to update
      */
-    public static void updateRecords(List<Vendor_Customization__c> records) {
-        if (records != null && !records.isEmpty()) {
-            update records;
+    public static void updateRecords(List<Vendor_Customization__c> vendorCustomizationRecords) {
+        if (vendorCustomizationRecords != null && !vendorCustomizationRecords.isEmpty()) {
+            update vendorCustomizationRecords;
         }
     }
     
     /**
      * Updates a single Vendor_Customization__c record.
-     * @param record The record to update
+     * @param vendorCustomizationRecord The record to update
      */
-    public static void updateRecord(Vendor_Customization__c record) {
-        if (record != null) {
-            update record;
+    public static void updateRecord(Vendor_Customization__c vendorCustomizationRecord) {
+        if (vendorCustomizationRecord != null) {
+            update vendorCustomizationRecord;
         }
     }
     
@@ -123,13 +123,13 @@ public with sharing class VendorCustomizationRepository {
         if (recordId == null) {
             return null;
         }
-        List<Vendor_Customization__c> records = [
+        List<Vendor_Customization__c> vendorCustomizationRecords = [
             SELECT Id, Vendor__c, Name
             FROM Vendor_Customization__c
             WHERE Id = :recordId
             LIMIT 1
         ];
-        return records.isEmpty() ? null : records[0];
+        return vendorCustomizationRecords.isEmpty() ? null : vendorCustomizationRecords[0];
     }
     
     /**
@@ -141,13 +141,13 @@ public with sharing class VendorCustomizationRepository {
         if (recordId == null) {
             return null;
         }
-        List<Vendor_Customization__c> records = [
+        List<Vendor_Customization__c> vendorCustomizationRecords = [
             SELECT Id, Name, CreatedById, CreatedBy.Name, CreatedDate,
                    LastModifiedById, LastModifiedBy.Name, LastModifiedDate
             FROM Vendor_Customization__c
             WHERE Id = :recordId
             LIMIT 1
         ];
-        return records.isEmpty() ? null : records[0];
+        return vendorCustomizationRecords.isEmpty() ? null : vendorCustomizationRecords[0];
     }
 }

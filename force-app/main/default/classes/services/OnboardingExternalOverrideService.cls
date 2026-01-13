@@ -28,7 +28,7 @@ public with sharing class OnboardingExternalOverrideService {
             return resp;
         }
 
-        Onboarding__c ob = [
+        Onboarding__c onboardingRecord = [
             SELECT Id, Onboarding_Status__c, External_Override_Enabled__c,
                    External_Override_Programs__c
             FROM Onboarding__c
@@ -36,26 +36,26 @@ public with sharing class OnboardingExternalOverrideService {
             LIMIT 1
         ];
 
-        String prevStatus = ob.Onboarding_Status__c;
-        ob.External_Override_Enabled__c = true;
-        ob.External_Override_Reason__c = request.reason;
-        ob.External_Override_Date__c = Datetime.now();
-        ob.External_Override_Source__c = request.sourceSystem;
-        ob.External_Override_Programs__c = request.allowedPrograms != null ? String.join(request.allowedPrograms, ',') : null;
-        ob.Previous_Status_Before_Override__c = prevStatus;
-        ob.External_Override_Request_ID__c = request.requestId;
-        update ob;
+        String prevStatus = onboardingRecord.Onboarding_Status__c;
+        onboardingRecord.External_Override_Enabled__c = true;
+        onboardingRecord.External_Override_Reason__c = request.reason;
+        onboardingRecord.External_Override_Date__c = Datetime.now();
+        onboardingRecord.External_Override_Source__c = request.sourceSystem;
+        onboardingRecord.External_Override_Programs__c = request.allowedPrograms != null ? String.join(request.allowedPrograms, ',') : null;
+        onboardingRecord.Previous_Status_Before_Override__c = prevStatus;
+        onboardingRecord.External_Override_Request_ID__c = request.requestId;
+        update onboardingRecord;
 
         // Audit log
         OnboardingOverrideAuditService.AuditEntry entry = new OnboardingOverrideAuditService.AuditEntry();
-        entry.onboardingId = ob.Id;
+        entry.onboardingId = onboardingRecord.Id;
         entry.action = 'Applied';
         entry.sourceSystem = request.sourceSystem;
         entry.requestId = request.requestId;
         entry.reason = request.reason;
-        entry.allowedPrograms = ob.External_Override_Programs__c;
+        entry.allowedPrograms = onboardingRecord.External_Override_Programs__c;
         entry.previousStatus = prevStatus;
-        entry.newStatus = ob.Onboarding_Status__c;
+        entry.newStatus = onboardingRecord.Onboarding_Status__c;
         entry.requestedBy = UserInfo.getName();
         entry.processedBy = UserInfo.getUserId();
         entry.processedDate = Datetime.now();
@@ -63,9 +63,9 @@ public with sharing class OnboardingExternalOverrideService {
 
         resp.success = true;
         resp.message = 'Override applied';
-        resp.onboardingId = ob.Id;
+        resp.onboardingId = onboardingRecord.Id;
         resp.previousStatus = prevStatus;
-        resp.newStatus = ob.Onboarding_Status__c;
+        resp.newStatus = onboardingRecord.Onboarding_Status__c;
         return resp;
     }
 
@@ -76,7 +76,7 @@ public with sharing class OnboardingExternalOverrideService {
             resp.message = 'onboardingId is required';
             return resp;
         }
-        Onboarding__c ob = [
+        Onboarding__c onboardingRecord = [
             SELECT Id, Onboarding_Status__c, External_Override_Enabled__c,
                    Previous_Status_Before_Override__c
             FROM Onboarding__c
@@ -84,26 +84,26 @@ public with sharing class OnboardingExternalOverrideService {
             LIMIT 1
         ];
 
-        String prevStatus = ob.Onboarding_Status__c;
-        ob.External_Override_Enabled__c = false;
-        ob.External_Override_Reason__c = reason;
-        ob.External_Override_Date__c = Datetime.now();
-        ob.External_Override_Source__c = null;
-        ob.External_Override_Programs__c = null;
-        ob.External_Override_Request_ID__c = null;
-        ob.Onboarding_Status__c = ob.Previous_Status_Before_Override__c;
-        update ob;
+        String prevStatus = onboardingRecord.Onboarding_Status__c;
+        onboardingRecord.External_Override_Enabled__c = false;
+        onboardingRecord.External_Override_Reason__c = reason;
+        onboardingRecord.External_Override_Date__c = Datetime.now();
+        onboardingRecord.External_Override_Source__c = null;
+        onboardingRecord.External_Override_Programs__c = null;
+        onboardingRecord.External_Override_Request_ID__c = null;
+        onboardingRecord.Onboarding_Status__c = onboardingRecord.Previous_Status_Before_Override__c;
+        update onboardingRecord;
 
         // Audit log
         OnboardingOverrideAuditService.AuditEntry entry = new OnboardingOverrideAuditService.AuditEntry();
-        entry.onboardingId = ob.Id;
+        entry.onboardingId = onboardingRecord.Id;
         entry.action = 'Removed';
         entry.sourceSystem = null;
         entry.requestId = null;
         entry.reason = reason;
         entry.allowedPrograms = null;
         entry.previousStatus = prevStatus;
-        entry.newStatus = ob.Onboarding_Status__c;
+        entry.newStatus = onboardingRecord.Onboarding_Status__c;
         entry.requestedBy = UserInfo.getName();
         entry.processedBy = UserInfo.getUserId();
         entry.processedDate = Datetime.now();
@@ -111,9 +111,9 @@ public with sharing class OnboardingExternalOverrideService {
 
         resp.success = true;
         resp.message = 'Override removed';
-        resp.onboardingId = ob.Id;
+        resp.onboardingId = onboardingRecord.Id;
         resp.previousStatus = prevStatus;
-        resp.newStatus = ob.Onboarding_Status__c;
+        resp.newStatus = onboardingRecord.Onboarding_Status__c;
         return resp;
     }
 
@@ -121,26 +121,26 @@ public with sharing class OnboardingExternalOverrideService {
         if (onboardingId == null || String.isBlank(programName)) {
             return false;
         }
-        List<Onboarding__c> obs = [
+        List<Onboarding__c> onboardingRecords = [
             SELECT External_Override_Enabled__c, External_Override_Programs__c
             FROM Onboarding__c
             WHERE Id = :onboardingId
             LIMIT 1
         ];
-        if (obs.isEmpty()) {
+        if (onboardingRecords.isEmpty()) {
             return false;
         }
-        Onboarding__c ob = obs[0];
-        if (ob.External_Override_Enabled__c != true) {
+        Onboarding__c onboardingRecord = onboardingRecords[0];
+        if (onboardingRecord.External_Override_Enabled__c != true) {
             return true; // no override restriction
         }
-        if (String.isBlank(ob.External_Override_Programs__c)) {
+        if (String.isBlank(onboardingRecord.External_Override_Programs__c)) {
             return true; // override enabled but no restriction specified
         }
         Set<String> allowed = new Set<String>();
-        for (String p : ob.External_Override_Programs__c.split(',')) {
-            if (!String.isBlank(p)) {
-                allowed.add(p.trim().toLowerCase());
+        for (String programNameInList : onboardingRecord.External_Override_Programs__c.split(',')) {
+            if (!String.isBlank(programNameInList)) {
+                allowed.add(programNameInList.trim().toLowerCase());
             }
         }
         return allowed.isEmpty() ? true : allowed.contains(programName.toLowerCase());

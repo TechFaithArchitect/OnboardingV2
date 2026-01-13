@@ -71,8 +71,8 @@ public with sharing class OnboardingHealthService {
       );
     }
 
-    for (Integer i = 0; i < EXPECTED_COMPONENTS.size(); i++) {
-      Integer order = i + 1;
+    for (Integer componentIndex = 0; componentIndex < EXPECTED_COMPONENTS.size(); componentIndex++) {
+      Integer order = componentIndex + 1;
       Onboarding_Application_Stage__c onboardingStage = stagesByOrder.get(
         order
       );
@@ -80,7 +80,7 @@ public with sharing class OnboardingHealthService {
         healthItems.add(item('stage', 'Missing stage at order ' + order));
         continue;
       }
-      String expectedApi = EXPECTED_COMPONENTS[i];
+      String expectedApi = EXPECTED_COMPONENTS[componentIndex];
       if (onboardingStage.Onboarding_Component_Library__c == null) {
         healthItems.add(
           item('stage', 'Stage ' + order + ' has no component link')
@@ -119,10 +119,10 @@ public with sharing class OnboardingHealthService {
     return healthItems;
   }
 
-  private static HealthItem item(String type, String msg) {
+  private static HealthItem item(String type, String healthItemMessage) {
     HealthItem healthItem = new HealthItem();
     healthItem.type = type;
-    healthItem.message = msg;
+    healthItem.message = healthItemMessage;
     return healthItem;
   }
 }

@@ -58,9 +58,9 @@ public with sharing class OnboardingAppActivationRepository {
    *
    * @param records List of SObject records to update
    */
-  public static void updateRecords(List<SObject> records) {
-    if (records != null && !records.isEmpty()) {
-      update records;
+  public static void updateRecords(List<SObject> sObjectRecords) {
+    if (sObjectRecords != null && !sObjectRecords.isEmpty()) {
+      update sObjectRecords;
     }
   }
 

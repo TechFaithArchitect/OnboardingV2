@@ -43,7 +43,7 @@ public class VendorProgramReqGroupTriggerHandler {
                         if (!nameToMaxVersion.containsKey(name) || nameToMaxVersion.get(name) < versionNum) {
                             nameToMaxVersion.put(name, versionNum);
                         }
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         // If version format is invalid, skip it
                         System.debug('Invalid version format: ' + versionStr);
                     }
@@ -61,7 +61,7 @@ public class VendorProgramReqGroupTriggerHandler {
                         if (!nameToMaxVersion.containsKey(newRecord.Name) || nameToMaxVersion.get(newRecord.Name) < versionNum) {
                             nameToMaxVersion.put(newRecord.Name, versionNum);
                         }
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         System.debug('Invalid provided version format: ' + versionStr);
                     }
                 }

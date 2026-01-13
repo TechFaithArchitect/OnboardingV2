@@ -139,11 +139,11 @@ public with sharing class OnboardingHomeDashboardController {
         }
       } catch (Exception ex) {
         // Log error and return empty list if service fails
-        System.debug('Error getting eligible accounts: ' + e.getMessage());
+        System.debug('Error getting eligible accounts: ' + ex.getMessage());
       }
     }
 
-    return results;
+    return accountDTOList;
   }
 
   /**
@@ -440,6 +440,78 @@ public with sharing class OnboardingHomeDashboardController {
   }
 
   /**
+   * Get IDs of blocked onboarding records
+   * Used by At-Risk panel to fetch detailed blocking information
+   *
+   * @param timeFilter Time range filter - optional, defaults to LAST_90_DAYS
+   * @param vendorIds List of vendor IDs to filter by (optional)
+   * @param programIds List of vendor program IDs to filter by (optional)
+   * @return List of Onboarding__c IDs that are blocked
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<Id> getBlockedOnboardingIds(
+    String timeFilter,
+    List<Id> vendorIds,
+    List<Id> programIds
+  ) {
+    // Handle null/empty parameters
+    if (String.isBlank(timeFilter)) {
+      timeFilter = 'LAST_90_DAYS';
+    }
+
+    Date startDate = getStartDateForFilter(timeFilter);
+
+    // Build WHERE clause for active onboarding
+    String whereClause = 'Onboarding_Status__c != \'Complete\' AND Onboarding_Status__c != \'Expired\'';
+
+    if (startDate != null) {
+      whereClause += ' AND CreatedDate >= :startDate';
+    }
+
+    if (vendorIds != null && !vendorIds.isEmpty()) {
+      whereClause += ' AND Vendor_Customization__r.Vendor__c IN :vendorIds';
+    }
+
+    if (programIds != null && !programIds.isEmpty()) {
+      whereClause += ' AND Vendor_Customization__c IN :programIds';
+    }
+
+    // Query onboarding records
+    String query =
+      'SELECT Id, Onboarding_Status__c ' +
+      'FROM Onboarding__c WHERE ' +
+      whereClause +
+      ' LIMIT 200';
+
+    List<Onboarding__c> onboardings = Database.query(query);
+
+    if (onboardings.isEmpty()) {
+      return new List<Id>();
+    }
+
+    Set<Id> onboardingIds = new Set<Id>();
+    for (Onboarding__c onboardingRecord : onboardings) {
+      onboardingIds.add(onboardingRecord.Id);
+    }
+
+    // Use blocking detection service to identify blocked onboarding
+    List<Id> blockedIds = new List<Id>();
+    Set<Id> blockedIdSet = OnboardingBlockingDetectionService.getBlockedOnboardingIds(
+      new List<Id>(onboardingIds)
+    );
+    blockedIds.addAll(blockedIdSet);
+
+    // Also include onboarding with Denied status
+    for (Onboarding__c onboardingRecord : onboardings) {
+      if (onboardingRecord.Onboarding_Status__c == 'Denied' && !blockedIdSet.contains(onboardingRecord.Id)) {
+        blockedIds.add(onboardingRecord.Id);
+      }
+    }
+
+    return blockedIds;
+  }
+
+  /**
    * Get team/org onboarding queue
    *
    * @param viewFilter View filter (MY_TEAM, ORG_WIDE) - optional, defaults to MY_TEAM
@@ -683,7 +755,7 @@ public with sharing class OnboardingHomeDashboardController {
     for (Vendor__c vendorRecord : vendors) {
       FilterOption filterOption = new FilterOption();
       filterOption.label = vendorRecord.Name;
-      filterOption.value = vendorRecord.Id;
+      filterOption.optionValue = vendorRecord.Id;
       filterOptionList.add(filterOption);
     }
 
@@ -718,7 +790,7 @@ public with sharing class OnboardingHomeDashboardController {
         displayName += ' (' + vendorProgram.Vendor__r.Name + ')';
       }
       filterOption.label = displayName;
-      filterOption.value = vendorProgram.Id;
+      filterOption.optionValue = vendorProgram.Id;
       filterOptionList.add(filterOption);
     }
 
@@ -732,7 +804,7 @@ public with sharing class OnboardingHomeDashboardController {
     @AuraEnabled
     public String label;
     @AuraEnabled
-    public String value;
+    public String optionValue;
   }
 
   /**

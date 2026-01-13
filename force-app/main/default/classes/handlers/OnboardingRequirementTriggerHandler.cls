@@ -80,8 +80,8 @@ public with sharing class OnboardingRequirementTriggerHandler {
       FollowUpDetectionService.evaluateAndCreateFollowUpsBulk(requirementIds);
     } catch (Exception ex) {
       // Log error but don't throw - follow-up failure shouldn't block requirement updates
-      System.debug('Error evaluating follow-ups: ' + e.getMessage());
-      System.debug('Stack trace: ' + e.getStackTraceString());
+      System.debug('Error evaluating follow-ups: ' + ex.getMessage());
+      System.debug('Stack trace: ' + ex.getStackTraceString());
     }
   }
 }

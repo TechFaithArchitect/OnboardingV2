@@ -37,8 +37,8 @@ public with sharing class PicklistHelper {
                     });
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error getting picklist values for ' + objectApiName + '.' + fieldApiName + ': ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting picklist values for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
         }
         
         return options;
@@ -95,8 +95,8 @@ public with sharing class PicklistHelper {
                     });
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error getting picklist values: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting picklist values: ' + ex.getMessage());
         }
         
         // If no values found and fallback provided, use fallback
@@ -133,8 +133,8 @@ public with sharing class PicklistHelper {
                     return true;
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error validating picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error validating picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
         }
 
         return false;
@@ -179,8 +179,8 @@ public with sharing class PicklistHelper {
             if (firstActive != null) {
                 return firstActive;
             }
-        } catch (Exception e) {
-            System.debug('Error getting picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
         }
 
         return preferredValue;

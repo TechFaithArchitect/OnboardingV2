@@ -6,8 +6,8 @@ public with sharing class OnboardingRulesService {
     }
 
     @AuraEnabled
-    public static Onboarding_Status_Rule__c createOrUpdateRule(Onboarding_Status_Rule__c rule) {
-        return OnboardingRulesRepository.upsertRule(rule);
+    public static Onboarding_Status_Rule__c createOrUpdateRule(Onboarding_Status_Rule__c statusRuleRecord) {
+        return OnboardingRulesRepository.upsertRule(statusRuleRecord);
     }
 
     @AuraEnabled

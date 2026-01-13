@@ -11,12 +11,12 @@ public with sharing class EmailTemplateRepository {
         }
 
         List<EmailTemplateDTO> dtos = new List<EmailTemplateDTO>();
-        for (EmailTemplate t : [
+        for (EmailTemplate emailTemplate : [
             SELECT Id, DeveloperName, Name, FolderName, Subject, IsActive
             FROM EmailTemplate
             WHERE IsActive = true
         ]) {
-            dtos.add(new EmailTemplateDTO(t));
+            dtos.add(new EmailTemplateDTO(emailTemplate));
         }
         return dtos;
     }

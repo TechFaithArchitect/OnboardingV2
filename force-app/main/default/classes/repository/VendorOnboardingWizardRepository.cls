@@ -153,13 +153,13 @@ public with sharing class VendorOnboardingWizardRepository {
     ];
 
     List<Vendor_Customization__c> filtered = new List<Vendor_Customization__c>();
-    for (Vendor_Customization__c vp : programs) {
+    for (Vendor_Customization__c vendorProgram : programs) {
       Boolean isPerfectVision =
-        vp.Vendor__r != null &&
-        vp.Vendor__r.Name == 'PerfectVision';
+        vendorProgram.Vendor__r != null &&
+        vendorProgram.Vendor__r.Name == 'PerfectVision';
       if (!eligible) {
         if (isPerfectVision) {
-          filtered.add(vp);
+          filtered.add(vendorProgram);
         }
         continue;
       }
@@ -169,15 +169,15 @@ public with sharing class VendorOnboardingWizardRepository {
       }
 
       Boolean requiresNda =
-        vp.Vendor_Program_Group__r != null &&
-        vp.Vendor_Program_Group__r.Requires_NDA__c;
+        vendorProgram.Vendor_Program_Group__r != null &&
+        vendorProgram.Vendor_Program_Group__r.Requires_NDA__c;
       Boolean requiresBase =
-        vp.Vendor_Program_Group__r != null &&
-        vp.Vendor_Program_Group__r.Requires_Program_Base__c;
+        vendorProgram.Vendor_Program_Group__r != null &&
+        vendorProgram.Vendor_Program_Group__r.Requires_Program_Base__c;
       Boolean ndaOk = !requiresNda || hasNda;
       Boolean baseOk = !requiresBase || hasProgramBase;
       if (ndaOk && baseOk) {
-        filtered.add(vp);
+        filtered.add(vendorProgram);
       }
     }
 
@@ -909,13 +909,13 @@ public with sharing class VendorOnboardingWizardRepository {
   // Onboarding Status Rules
   // -------------------------------
 
-  public static Id insertStatusRule(Onboarding_Status_Rule__c rule) {
+  public static Id insertStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
     // Clone to avoid issues if record already has an Id
-    Onboarding_Status_Rule__c ruleToInsert = rule.Id != null
-      ? rule.clone(false, true, false, false)
-      : rule;
-    insert ruleToInsert;
-    return ruleToInsert.Id;
+    Onboarding_Status_Rule__c statusRuleToInsert = statusRuleRecord.Id != null
+      ? statusRuleRecord.clone(false, true, false, false)
+      : statusRuleRecord;
+    insert statusRuleToInsert;
+    return statusRuleToInsert.Id;
   }
 
   public static List<Onboarding_Status_Rule__c> searchStatusRules(
@@ -952,20 +952,20 @@ public with sharing class VendorOnboardingWizardRepository {
     if (templateId == null) {
       throw new IllegalArgumentException('Template ID is required.');
     }
-    List<Communication_Template__c> templates = [
+    List<Communication_Template__c> communicationTemplates = [
       SELECT Id, Vendor_Program__c
       FROM Communication_Template__c
       WHERE Id = :templateId
       LIMIT 1
     ];
 
-    if (templates.isEmpty()) {
+    if (communicationTemplates.isEmpty()) {
       throw new IllegalArgumentException(
         'Communication Template not found: ' + templateId
       );
     }
 
-    Communication_Template__c communicationTemplate = templates[0];
+    Communication_Template__c communicationTemplate = communicationTemplates[0];
     communicationTemplate.Vendor_Program__c = vendorProgramId;
     update communicationTemplate;
   }
@@ -1317,7 +1317,7 @@ public with sharing class VendorOnboardingWizardRepository {
     if (templateId == null) {
       return null;
     }
-    List<Vendor_Program_Onboarding_Req_Template__c> templates = [
+    List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = [
       SELECT
         Id,
         Requirement_Label__c,
@@ -1328,20 +1328,20 @@ public with sharing class VendorOnboardingWizardRepository {
       WHERE Id = :templateId
       LIMIT 1
     ];
-    return templates.isEmpty() ? null : templates[0];
+    return requirementTemplates.isEmpty() ? null : requirementTemplates[0];
   }
 
   public static String getVendorProgramLabel(Id vendorProgramId) {
     if (vendorProgramId == null) {
       return null;
     }
-    List<Vendor_Customization__c> vps = [
+    List<Vendor_Customization__c> vendorCustomizationRecords = [
       SELECT Label__c
       FROM Vendor_Customization__c
       WHERE Id = :vendorProgramId
       LIMIT 1
     ];
-    return vps.isEmpty() ? null : vps[0].Label__c;
+    return vendorCustomizationRecords.isEmpty() ? null : vendorCustomizationRecords[0].Label__c;
   }
 
   public static void assignRequirementTemplatesToRequirementGroup(
@@ -1354,17 +1354,17 @@ public with sharing class VendorOnboardingWizardRepository {
     if (templateIds == null || templateIds.isEmpty()) {
       return; // Nothing to assign
     }
-    List<Vendor_Program_Onboarding_Req_Template__c> templates = [
+    List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = [
       SELECT Id
       FROM Vendor_Program_Onboarding_Req_Template__c
       WHERE Id IN :templateIds
     ];
 
-    for (Vendor_Program_Onboarding_Req_Template__c tpl : templates) {
-      tpl.Category_Group__c = requirementGroupId;
+    for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : requirementTemplates) {
+      requirementTemplate.Category_Group__c = requirementGroupId;
     }
 
-    update templates;
+    update requirementTemplates;
   }
 
   // -------------------------------

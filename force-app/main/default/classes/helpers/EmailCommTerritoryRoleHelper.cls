@@ -49,8 +49,8 @@ public with sharing class EmailCommTerritoryRoleHelper {
 
         // Insert new ones
         List<Territory_Role_Assignment__c> allNewRoles = new List<Territory_Role_Assignment__c>();
-        for (List<Territory_Role_Assignment__c> records : toInsert.values()) {
-            allNewRoles.addAll(records);
+        for (List<Territory_Role_Assignment__c> roleAssignmentList : toInsert.values()) {
+            allNewRoles.addAll(roleAssignmentList);
         }
 
         insert allNewRoles;

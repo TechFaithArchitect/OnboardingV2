@@ -23,24 +23,24 @@ public with sharing class RequirementFieldValidationAction {
         }
 
         Set<Id> ids = new Set<Id>();
-        for (Request req : requests) {
-            if (req != null && req.requirementFieldValueId != null) {
-                ids.add(req.requirementFieldValueId);
+        for (Request validationRequest : requests) {
+            if (validationRequest != null && validationRequest.requirementFieldValueId != null) {
+                ids.add(validationRequest.requirementFieldValueId);
             }
         }
         if (ids.isEmpty()) {
             return responses;
         }
 
-        List<RequirementFieldValidationService.ValidationResult> results =
+        List<RequirementFieldValidationService.ValidationResult> validationResults =
             RequirementFieldValidationService.validateAndUpdate(ids);
 
-        for (RequirementFieldValidationService.ValidationResult r : results) {
-            Response res = new Response();
-            res.requirementFieldValueId = r.fieldValueId;
-            res.status = r.status;
-            res.message = r.message;
-            responses.add(res);
+        for (RequirementFieldValidationService.ValidationResult validationResult : validationResults) {
+            Response validationResponse = new Response();
+            validationResponse.requirementFieldValueId = validationResult.fieldValueId;
+            validationResponse.status = validationResult.status;
+            validationResponse.message = validationResult.message;
+            responses.add(validationResponse);
         }
         return responses;
     }

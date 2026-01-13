@@ -34,9 +34,9 @@ public with sharing class OnboardingRequirementSetService {
 
       // Link to additional vendor programs if provided
       if (vendorProgramIds.size() > 1) {
-        for (Integer i = 1; i < vendorProgramIds.size(); i++) {
+        for (Integer vendorProgramIndex = 1; vendorProgramIndex < vendorProgramIds.size(); vendorProgramIndex++) {
           VendorProgramRequirementSetService.linkVendorProgramToRequirementSet(
-            vendorProgramIds[i],
+            vendorProgramIds[vendorProgramIndex],
             requirementSetId
           );
         }
@@ -358,10 +358,10 @@ public with sharing class OnboardingRequirementSetService {
 
       // Link to additional requirement sets if provided
       if (requirementSetIds.size() > 1) {
-        for (Integer i = 1; i < requirementSetIds.size(); i++) {
+        for (Integer requirementSetIndex = 1; requirementSetIndex < requirementSetIds.size(); requirementSetIndex++) {
           RequirementSetTemplateService.linkTemplateToRequirementSet(
             templateId,
-            requirementSetIds[i]
+            requirementSetIds[requirementSetIndex]
           );
         }
       }
@@ -635,7 +635,7 @@ public with sharing class OnboardingRequirementSetService {
             reqSetId
           );
           if (!templateIds.isEmpty()) {
-            List<Vendor_Program_Onboarding_Req_Template__c> templates = [
+            List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = [
               SELECT Id
               FROM Vendor_Program_Onboarding_Req_Template__c
               WHERE Id IN :templateIds
@@ -643,8 +643,8 @@ public with sharing class OnboardingRequirementSetService {
               LIMIT 1
             ];
 
-            if (!templates.isEmpty()) {
-              context.put('requirementTemplateId', templates[0].Id);
+            if (!requirementTemplates.isEmpty()) {
+              context.put('requirementTemplateId', requirementTemplates[0].Id);
             }
           }
         }

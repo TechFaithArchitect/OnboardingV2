@@ -259,7 +259,7 @@ External overrides are audited in `Onboarding_External_Override_Log__c`.
 
 **Purpose**: Defines a rules engine for status evaluation.
 
-**Key Fields:**
+**Key Fields**:
 - `Name` (Text) - Rules engine name
 - `Vendor_Program_Group__c` (Lookup) - Associated program group
 - `Requirement_Group__c` (Lookup) - Associated requirement group
@@ -268,12 +268,23 @@ External overrides are audited in `Onboarding_External_Override_Log__c`.
 - `Sequence__c` (Number) - Rule evaluation order for engines in the same program group
 - `Evaluation_Logic__c` (Picklist) - Logic type (ALL, ANY, CUSTOM)
 - `Custom_Evaluation_Logic__c` (Text) - Custom expression
+- `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Version__c` (Text) - Version identifier
+- `Effective_Start__c` (DateTime) - Effective date/time for rule activation
+- `Effective_End__c` (DateTime) - End date/time for rule deactivation
+- `Previous_Version__c` (Lookup to Onboarding_Status_Rules_Engine__c) - Link to previous version
 
-**Relationships:**
+**Relationships**:
 - Belongs to Vendor_Program_Group__c
 - Has many Onboarding_Status_Rule__c
 
 **Usage**: Used by status evaluation engine
+
+**Notes**:
+- Rules engines with Status__c = 'Active' are evaluated during status updates
+- Effective dating allows scheduled rule activation/deactivation
+- Versioning supports rollback and audit trails
+- Previous_Version__c links to the parent version for lineage tracking
 
 ### Onboarding_Status_Rule__c
 

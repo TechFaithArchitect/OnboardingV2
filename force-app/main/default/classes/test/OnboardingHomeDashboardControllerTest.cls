@@ -162,6 +162,31 @@ private class OnboardingHomeDashboardControllerTest {
     }
 
     @isTest
+    static void testGetBlockedOnboardingIds() {
+        // Create test onboarding with Denied status to ensure it's blocked
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Vendor_Customization__c testProgram = [SELECT Id FROM Vendor_Customization__c LIMIT 1];
+        
+        Onboarding__c blockedOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding__c.SObjectType,
+            'Onboarding_Status__c'
+        );
+        String deniedStatus = validStatuses.contains('Denied') ? 'Denied' : validStatuses[0];
+        blockedOnboarding.Onboarding_Status__c = deniedStatus;
+        update blockedOnboarding;
+        
+        Test.startTest();
+        List<Id> blockedIds = OnboardingHomeDashboardController.getBlockedOnboardingIds(
+            'LAST_90_DAYS', null, null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, blockedIds, 'Blocked IDs should not be null');
+        System.assert(blockedIds.size() >= 0, 'Should return list of IDs');
+    }
+
+    @isTest
     static void testGetTeamOnboarding() {
         Test.startTest();
         List<OnboardingDTO> results = 

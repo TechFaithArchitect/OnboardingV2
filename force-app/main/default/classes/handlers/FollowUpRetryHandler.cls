@@ -14,9 +14,9 @@ public with sharing class FollowUpRetryHandler {
         }
 
         List<Id> followUpIds = new List<Id>();
-        for (FollowUpRetryTrigger__e e : events) {
-            if (String.isNotBlank(e.Follow_Up_Queue_Id__c)) {
-                followUpIds.add(e.Follow_Up_Queue_Id__c);
+        for (FollowUpRetryTrigger__e retryEvent : events) {
+            if (String.isNotBlank(retryEvent.Follow_Up_Queue_Id__c)) {
+                followUpIds.add(retryEvent.Follow_Up_Queue_Id__c);
             }
         }
 

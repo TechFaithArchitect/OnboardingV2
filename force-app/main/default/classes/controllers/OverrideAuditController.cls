@@ -7,7 +7,7 @@ public with sharing class OverrideAuditController {
         List<OverrideLogDTO> logs = new List<OverrideLogDTO>();
         DateTime startDate = getStartDate(dateRange);
 
-        List<Onboarding_External_Override_Log__c> records = [
+        List<Onboarding_External_Override_Log__c> overrideLogRecords = [
             SELECT Id, Name, Onboarding__c, Onboarding__r.Name,
                    Override_Action__c, Source_System__c, Request_ID__c,
                    Reason__c, Allowed_Programs__c, Previous_Status__c, New_Status__c,
@@ -18,22 +18,22 @@ public with sharing class OverrideAuditController {
             LIMIT 200
         ];
 
-        for (Onboarding_External_Override_Log__c rec : records) {
-            OverrideLogDTO dto = new OverrideLogDTO();
-            dto.id = rec.Id;
-            dto.name = rec.Name;
-            dto.onboardingName = rec.Onboarding__r != null ? rec.Onboarding__r.Name : null;
-            dto.action = rec.Override_Action__c;
-            dto.source = rec.Source_System__c;
-            dto.requestId = rec.Request_ID__c;
-            dto.reason = rec.Reason__c;
-            dto.allowedPrograms = rec.Allowed_Programs__c;
-            dto.previousStatus = rec.Previous_Status__c;
-            dto.newStatus = rec.New_Status__c;
-            dto.requestedBy = rec.Requested_By__c;
-            dto.processedBy = rec.Processed_By__r != null ? rec.Processed_By__r.Name : null;
-            dto.processedDate = rec.Processed_Date__c;
-            logs.add(dto);
+        for (Onboarding_External_Override_Log__c overrideLogRecord : overrideLogRecords) {
+            OverrideLogDTO overrideLogDTO = new OverrideLogDTO();
+            overrideLogDTO.id = overrideLogRecord.Id;
+            overrideLogDTO.name = overrideLogRecord.Name;
+            overrideLogDTO.onboardingName = overrideLogRecord.Onboarding__r != null ? overrideLogRecord.Onboarding__r.Name : null;
+            overrideLogDTO.action = overrideLogRecord.Override_Action__c;
+            overrideLogDTO.source = overrideLogRecord.Source_System__c;
+            overrideLogDTO.requestId = overrideLogRecord.Request_ID__c;
+            overrideLogDTO.reason = overrideLogRecord.Reason__c;
+            overrideLogDTO.allowedPrograms = overrideLogRecord.Allowed_Programs__c;
+            overrideLogDTO.previousStatus = overrideLogRecord.Previous_Status__c;
+            overrideLogDTO.newStatus = overrideLogRecord.New_Status__c;
+            overrideLogDTO.requestedBy = overrideLogRecord.Requested_By__c;
+            overrideLogDTO.processedBy = overrideLogRecord.Processed_By__r != null ? overrideLogRecord.Processed_By__r.Name : null;
+            overrideLogDTO.processedDate = overrideLogRecord.Processed_Date__c;
+            logs.add(overrideLogDTO);
         }
         return logs;
     }

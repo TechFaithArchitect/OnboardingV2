@@ -286,13 +286,13 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
     }
 
     Integer depth = 0;
-    for (Integer i = 0; i < expression.length(); i++) {
-      String currentChar = expression.substring(i, i + 1);
+    for (Integer charIndex = 0; charIndex < expression.length(); charIndex++) {
+      String currentChar = expression.substring(charIndex, charIndex + 1);
       if (currentChar == '(') {
         depth++;
       } else if (currentChar == ')') {
         depth--;
-        if (depth == 0 && i < expression.length() - 1) {
+        if (depth == 0 && charIndex < expression.length() - 1) {
           return false;
         }
       }
@@ -379,17 +379,17 @@ public with sharing class RequirementFieldAsyncValidator implements Queueable {
     Integer depth = 0;
     Integer start = 0;
 
-    for (Integer i = 0; i < expression.length(); i++) {
-      String currentChar = expression.substring(i, i + 1);
+    for (Integer charIndex = 0; charIndex < expression.length(); charIndex++) {
+      String currentChar = expression.substring(charIndex, charIndex + 1);
       if (currentChar == '(') {
         depth++;
       } else if (currentChar == ')') {
         depth--;
-      } else if (depth == 0 && expression.substring(i).startsWith(operator)) {
+      } else if (depth == 0 && expression.substring(charIndex).startsWith(operator)) {
         // Found operator at top level
-        parts.add(expression.substring(start, i));
-        start = i + operator.length();
-        i += operator.length() - 1; // Skip operator
+        parts.add(expression.substring(start, charIndex));
+        start = charIndex + operator.length();
+        charIndex += operator.length() - 1; // Skip operator
       }
     }
 

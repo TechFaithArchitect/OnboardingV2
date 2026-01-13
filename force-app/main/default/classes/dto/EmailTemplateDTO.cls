@@ -9,14 +9,14 @@ public class EmailTemplateDTO {
 
     public EmailTemplateDTO() {}
 
-    public EmailTemplateDTO(EmailTemplate t) {
-        this.id = t.Id;
-        this.developerName = t.DeveloperName;
-        this.name = t.Name;
-        this.folder = t.FolderName;
-        this.subject = String.isNotBlank(t.Subject) ? t.Subject : 'Unfiled';
-        this.isActive = t.IsActive;
-        this.commType = deriveCommType(t.Name);
+    public EmailTemplateDTO(EmailTemplate emailTemplate) {
+        this.id = emailTemplate.Id;
+        this.developerName = emailTemplate.DeveloperName;
+        this.name = emailTemplate.Name;
+        this.folder = emailTemplate.FolderName;
+        this.subject = String.isNotBlank(emailTemplate.Subject) ? emailTemplate.Subject : 'Unfiled';
+        this.isActive = emailTemplate.IsActive;
+        this.commType = deriveCommType(emailTemplate.Name);
     }
 
     private String deriveCommType(String templateName) {

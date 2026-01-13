@@ -481,8 +481,8 @@ public with sharing class VendorOnboardingWizardController {
   // -------------------------------
 
   @AuraEnabled
-  public static Id createStatusRule(Onboarding_Status_Rule__c rule) {
-    return VendorOnboardingWizardService.createStatusRule(rule);
+  public static Id createStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
+    return VendorOnboardingWizardService.createStatusRule(statusRuleRecord);
   }
 
   @AuraEnabled(cacheable=true)
@@ -795,18 +795,18 @@ public with sharing class VendorOnboardingWizardController {
       reqSetDTO.recordType = 'requirementSet';
       reqSetDTO.status = reqSet.Status__c != null ? reqSet.Status__c : 'Draft';
 
-      List<Vendor_Program_Onboarding_Req_Template__c> templates = templatesByRequirementSet.get(
+      List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = templatesByRequirementSet.get(
         reqSet.Id
       );
-      reqSetDTO.templateCount = templates != null ? templates.size() : 0;
+      reqSetDTO.templateCount = requirementTemplates != null ? requirementTemplates.size() : 0;
       reqSetDTO.createdDate = reqSet.CreatedDate;
       reqSetDTO.lastModifiedDate = reqSet.LastModifiedDate;
       reqSetDTO.children = new List<RequirementSetHierarchyDTO>();
 
       // Add templates as children
-      if (templates != null && !templates.isEmpty()) {
+      if (requirementTemplates != null && !requirementTemplates.isEmpty()) {
         for (
-          Vendor_Program_Onboarding_Req_Template__c requirementTemplate : templates
+          Vendor_Program_Onboarding_Req_Template__c requirementTemplate : requirementTemplates
         ) {
           RequirementSetHierarchyDTO templateDTO = new RequirementSetHierarchyDTO();
           templateDTO.id = requirementTemplate.Id;

@@ -13,9 +13,9 @@ public with sharing class OnboardingRulesRepository {
         ];
     }
 
-    public static Onboarding_Status_Rule__c upsertRule(Onboarding_Status_Rule__c rule) {
-        upsert rule;
-        return rule;
+    public static Onboarding_Status_Rule__c upsertRule(Onboarding_Status_Rule__c statusRuleRecord) {
+        upsert statusRuleRecord;
+        return statusRuleRecord;
     }
 
     public static void deleteRule(Id ruleId) {

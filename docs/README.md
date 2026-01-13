@@ -19,6 +19,7 @@ Welcome to the Onboarding V2 documentation. This documentation provides comprehe
 - [Layered Architecture](./architecture/layers.md) - Application, Business Logic, and Domain layers
 - [Apex Patterns](./architecture/apex-patterns.md) - Apex architectural patterns and conventions
 - [Data Model](./architecture/data-model.md) - Custom objects, relationships, and data flow
+- [Variable Library](../VARIABLE_LIBRARY.md) - Variable naming conventions and standards for consistent code
 
 ### Components
 - [Lightning Web Components](./components/lwc-components.md) - UI components and their usage
