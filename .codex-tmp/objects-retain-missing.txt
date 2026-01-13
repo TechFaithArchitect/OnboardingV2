@@ -1,7 +1,0 @@
-Email_Template_Catalog__mdt
-Error_Alert__e
-FollowUpRetryTrigger__e
-Org_Wide_Email__mdt
-Sync_Log__c
-Territory_Role_Assignment__c
-Twilio_Configuration__mdt
