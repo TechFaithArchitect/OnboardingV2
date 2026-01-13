@@ -30,7 +30,7 @@ public with sharing class RequirementSetTriggerHandler {
                             }
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception ex) {
                     // Version__c field doesn't exist or can't be read - use default
                 }
                 reqSet.Display_Label__c = 'Requirements - v' + version;
@@ -77,7 +77,10 @@ public with sharing class RequirementSetTriggerHandler {
         Set<Id> requirementSetIdsToUpdate = new Set<Id>();
         
         for (Onboarding_Requirement_Set__c reqSet : newList) {
-            Onboarding_Requirement_Set__c oldReqSet = oldMap.get(reqSet.Id);
+            // Handle case where oldMap might be null (insert context) or Id doesn't exist
+            Onboarding_Requirement_Set__c oldReqSet = (oldMap != null && oldMap.containsKey(reqSet.Id)) 
+                ? oldMap.get(reqSet.Id) 
+                : null;
             
             // Check if Version__c changed (if field exists)
             // Note: Version__c might not exist - handle gracefully
@@ -85,7 +88,7 @@ public with sharing class RequirementSetTriggerHandler {
                 if (oldReqSet != null && reqSet.get('Version__c') != oldReqSet.get('Version__c')) {
                     requirementSetIdsToUpdate.add(reqSet.Id);
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Version__c field doesn't exist - ignore
             }
         }
@@ -221,7 +224,7 @@ public with sharing class RequirementSetTriggerHandler {
                     reqSetsToUpdate.add(reqSet);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             // Version__c or Display_Label__c field doesn't exist - build without version
             for (Onboarding_Requirement_Set__c reqSet : requirementSets) {
                 String vendorProgramLabel = vendorProgramLabelByRequirementSet.get(reqSet.Id);

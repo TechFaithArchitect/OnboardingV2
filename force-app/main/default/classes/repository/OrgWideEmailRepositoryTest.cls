@@ -61,12 +61,17 @@ private class OrgWideEmailRepositoryTest {
         OrgWideEmailDTO dto = TestDataFactory.createOrgWideEmailDTO('real_test');
 
         // Convert DTO to actual OrgWideEmail__c record
+        // Don't set orgWideEmailAddressId if it's a fake ID to avoid validation errors
         OrgWideEmail__c email = new OrgWideEmail__c(
             Developer_Name__c = dto.developerName,
             Email_Address__c = dto.emailAddress,
             MasterLabel__c = dto.masterLabel,
             Active__c = dto.isActive
         );
+        // Only set OrgWideEmailAddressId__c if it's a valid ID (not a fake test ID)
+        if (dto.orgWideEmailAddressId != null && String.valueOf(dto.orgWideEmailAddressId).length() == 18) {
+            email.OrgWideEmailAddressId__c = dto.orgWideEmailAddressId;
+        }
         insert email;
 
         // Ensure mock path is skipped

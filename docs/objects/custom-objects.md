@@ -4,20 +4,27 @@
 
 ### Onboarding__c
 
-**Purpose**: Central object tracking an onboarding request for a vendor.
+**Purpose**: Central object tracking an onboarding request for a Dealer (Account).
 
 **Key Fields:**
 - `Name` (Auto-Number) - Onboarding Number
-- `Account__c` (Master-Detail to Account) - Vendor account
-- `Onboarding_Status__c` (Picklist) - Current status
+- `Account__c` (Master-Detail to Account) - Dealer (Account)
+- `Onboarding_Status__c` (Picklist) - Business-facing onboarding status for a Dealer (Account) and Vendor Program (for example: New, In Process, Pending Initial Review, Setup Complete); driven by the status rules engine unless an external override is enabled.
+- `External_Override_Enabled__c` (Checkbox) - When true, automated status evaluation should not update the status.
+- `External_Override_Reason__c` (Long Text Area) - Reason for granting the override.
+- `External_Override_Source__c` (Text) - Source system or user that requested the override.
+- `External_Override_Request_ID__c` (Text) - External request correlation ID.
+- `External_Override_Programs__c` (Long Text Area) - Optional list of allowed programs for the override.
+- `External_Override_Date__c` (DateTime) - Timestamp when the override was applied.
+- `Previous_Status_Before_Override__c` (Text) - Status snapshot used to restore status when the override is removed.
 - `Interview_Status__c` (Picklist) - Interview status
-- `Interview__c` (Lookup to Interview__c) - Related interview
 - `Vendor_Customization__c` (Lookup) - Related vendor customization
+
+External overrides are audited in `Onboarding_External_Override_Log__c`.
 
 **Relationships:**
 - Master-Detail to Account
 - Has many Onboarding_Requirement__c
-- Has many Onboarding_Order__c
 
 **Sharing**: Controlled by Parent (Account)
 
@@ -25,23 +32,41 @@
 - `APP_Onboarding` - Main orchestration
 - `Onboarding_Record_Trigger_Update_Onboarding_Status` - Status evaluation
 
+### Interview__c
+
+**Purpose**: Tracks interview status for a specific Contact during onboarding.
+
+**Key Fields:**
+- `Contact__c` (Lookup to Contact) - Interviewed contact
+- `Interview_Status__c` (Picklist) - Interview status
+
+**Relationships:**
+- Belongs to Contact (Contact relates to Account via AccountContactRelation)
+
+**Note**: The mapping that selects the correct Onboarding__c (Account + Vendor Program) to update from Interview__c is not defined yet and must be specified.
+
 ### Vendor Program (Vendor_Customization__c)
 
-**Important**: The object label is **Vendor Program**, but the API name is **Vendor_Customization__c**. `Vendor_Program__c` does not exist and should not be referenced.
+**Important**: The object label is **Vendor Program**, but the API name is **Vendor_Customization__c**. Many lookups are named `Vendor_Program__c` and reference `Vendor_Customization__c`.
 
 **Purpose**: Versioned vendor program customization chosen during onboarding; drives requirement groups, status rules, and wizard selection.
 
 **Key Fields:**
 - `Name` (Text) - Program customization name
 - `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Active__c` (Checkbox) - Active status
 - `Version__c` (Number) / `Previous_Version__c` (Lookup) - Versioning chain
 - `Vendor__c` (Lookup to Account) - Vendor account
+- `Vendor_Program_Group__c` (Lookup) - Default program group
 - `Vendor_Program_Requirement_Group__c` (Lookup) - Default requirement group bundle
 - Insurance/eligibility flags (e.g., `General_Liability_Insurance_Needed__c`, `Auto_Insurance_Needed__c`, `Works_Comp_Insurance_Needed__c`)
 - Template/config fields (e.g., `Action_Plan_Template__c`, `Contract_Record_Type__c`, `Order_Entry_Platform__c`)
 
 **Relationships:**
 - Can belong to a `Vendor_Program_Group__c` via `Vendor_Program_Group_Member__c`
+- Has many `Vendor_Program_Requirement__c` records
+- Has many `Vendor_Program_Requirement_Set__c` records (links to `Onboarding_Requirement_Set__c`)
+- Has many `Vendor_Program_Recipient_Group__c` records
 - Drives `Onboarding__c` records through selection in the wizard
 
 ### Vendor_Program_Group__c
@@ -50,11 +75,14 @@
 
 **Key Fields:**
 - `Name` (Text) - Group name
-- `Logic_Type__c` / other rule fields (if present) - Control inheritance behavior
+- `Active__c` (Checkbox) - Active status
+- `Logic_Type__c` (Picklist) - Control inheritance behavior
+- `Parent_Group__c` (Lookup) - Optional parent group
 
 **Relationships:**
 - Has many `Vendor_Program_Group_Member__c`
-- Referenced by onboarding wizard services when selecting programs
+- Has many `Onboarding_Status_Rules_Engine__c`
+- Referenced by vendor onboarding wizard services when selecting programs
 
 ### Vendor_Program_Group_Member__c
 
@@ -63,55 +91,59 @@
 **Key Fields:**
 - `Vendor_Program_Group__c` (Lookup) - Parent group
 - `Required_Program__c` (Lookup to Vendor_Customization__c) - Program required/included
+- `Inherited_Program_Requirement_Group__c` (Lookup) - Inherited requirement group
 - `Is_Target__c` (Checkbox) - Marks the target program in the grouping
 - `Active__c` (Checkbox) - Controls current membership validity
 
 **Relationships:**
-- Belongs to a group; points to one program customization; used by requirement set services for historical membership
+- Junction between Vendor_Program_Group__c and Vendor_Customization__c; used by requirement set services for historical membership
 
-### Vendor_Program_Group__c
+## Recipient Group Objects
 
-**Purpose**: Groups requirements and rules for a vendor program.
+### Recipient_Group__c
+
+**Purpose**: Reusable recipient group for onboarding communications.
 
 **Key Fields:**
 - `Name` (Text) - Group name
-- `Vendor_Program__c` (Lookup) - Parent program
-- `Active__c` (Checkbox) - Active status
+- `Group_Type__c` (Picklist) - Group type
+- `Is_Active__c` (Checkbox) - Active flag
+- `Description__c` (Text) - Description
 
 **Relationships:**
-- Has many Vendor_Program_Group_Member__c
-- Has many Onboarding_Status_Rules_Engine__c
+- Has many Recipient_Group_Member__c
+- Linked to vendor programs via Vendor_Program_Recipient_Group__c
 
-### Vendor_Program_Group_Member__c
+### Recipient_Group_Member__c
 
-**Purpose**: Members of a vendor program group, linking vendor programs to groups.
+**Purpose**: Member record for a recipient group.
 
 **Key Fields:**
-- `Vendor_Program_Group__c` (Lookup) - Parent group
-- `Required_Program__c` (Lookup) - Required vendor program (Vendor_Customization__c)
-- `Required_Customization__c` (Lookup) - Required customization (Vendor_Customization__c)
-- `Inherited_Program_Requirement_Group__c` (Lookup) - Inherited requirement group
-- `Is_Target__c` (Checkbox) - Whether this is a target program
-- `Active__c` (Checkbox) - Active status
+- `Recipient_Group__c` (Lookup) - Parent group
+- `Recipient_User__c` (Lookup to User) - Recipient user (for User member type)
+- `Member_Type__c` (Picklist) - Member type
+- `Recipient_Type__c` (Picklist) - Recipient type
+- `Role_Assignment__c` (Lookup) - Optional role assignment
 
 **Relationships:**
-- Belongs to Vendor_Program_Group__c
-- References Vendor_Customization__c (via Required_Program__c or Required_Customization__c)
+- Belongs to Recipient_Group__c
 
-**Usage**: Used by `getVendorProgramGroupIds()` to find groups associated with a vendor program
+### Vendor_Program_Recipient_Group__c
 
-### Vendor_Customization__c
-
-**Purpose**: Customization configuration for a vendor program.
+**Purpose**: Versioned association between a vendor program and a recipient group.
 
 **Key Fields:**
-- `Name` (Text) - Customization name
-- `Vendor_Program__c` (Lookup) - Parent program
-- `Active__c` (Checkbox) - Active status
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
+- `Recipient_Group__c` (Lookup) - Recipient group
+- `Status__c` (Picklist) - Version status
+- `Version__c` / `Parent_Version__c` (Number/Lookup) - Versioning chain
+- `Is_Active__c` (Checkbox) - Active flag
+- `Filter_Logic__c` (Text) - Filter/trigger logic
+- `Order__c` (Number) - Evaluation order
 
 **Relationships:**
-- Belongs to Vendor_Program__c
-- Has many Onboarding__c
+- Belongs to Vendor_Customization__c (via `Vendor_Program__c`)
+- Belongs to Recipient_Group__c
 
 ## Requirement Objects
 
@@ -131,18 +163,95 @@
 
 **Usage**: Used by status evaluation engine
 
+### Onboarding_Requirement_Dependency__c
+
+**Purpose**: Defines prerequisite relationships between onboarding requirements.
+
+**Key Fields:**
+- `Onboarding_Requirement__c` (Lookup) - Parent requirement
+- `Dependent_Requirement__c` (Lookup) - Required prerequisite
+
+**Relationships:**
+- Links two Onboarding_Requirement__c records
+
+### Onboarding_Requirement_Set__c
+
+**Purpose**: Reusable bundle of requirement templates that can be applied to vendor programs.
+
+**Key Fields:**
+- `Name` (Text) - Requirement set name
+- `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Active__c` (Checkbox) - Active status
+- `Version__c` (Number) - Version number
+
+**Relationships:**
+- Linked to templates via `Requirement_Set_Template__c`
+- Linked to vendor programs via `Vendor_Program_Requirement_Set__c`
+
+### Vendor_Program_Onboarding_Req_Template__c
+
+**Purpose**: Template definition for an individual requirement.
+
+**Key Fields:**
+- `Requirement_Label__c` (Text) - Display label
+- `Requirement_Type__c` (Picklist) - Type (Document/Training/etc.)
+- `Status__c` (Picklist) - Version status
+- `Active__c` (Checkbox) - Active status
+- `Onboarding_Requirement_Set__c` (Lookup, legacy) - Optional parent set
+- `Category_Group__c` (Lookup) - Requirement group/category
+
+**Relationships:**
+- Linked to requirement sets via `Requirement_Set_Template__c`
+- Categorized by `Vendor_Program_Requirement_Group__c`
+- Referenced by `Vendor_Program_Requirement__c`
+
+### Vendor_Program_Requirement_Group__c
+
+**Purpose**: Categorizes requirement templates into logical groups.
+
+**Key Fields:**
+- `Name` (Text) - Group name
+- `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Active__c` (Checkbox) - Active status
+- `Version__c` / `Previous_Version__c` (Number/Lookup) - Versioning chain
+
+**Relationships:**
+- Has many `Vendor_Program_Requirement_Group_Member__c`
+- Referenced by `Vendor_Customization__c` and `Onboarding_Status_Rules_Engine__c`
+
+### Vendor_Program_Requirement_Group_Member__c
+
+**Purpose**: Junction linking requirement groups to templates.
+
+**Key Fields:**
+- `Vendor_Program_Requirement_Group__c` (Lookup) - Parent group
+- `Vendor_Program_Requirement_Definition__c` (Lookup) - Requirement template
+- `Status__c` (Picklist) - Member status
+- `Sequence__c` (Number) - Display order
+- `Is_Required__c` (Checkbox) - Required flag
+
+**Relationships:**
+- Junction between `Vendor_Program_Requirement_Group__c` and `Vendor_Program_Onboarding_Req_Template__c`
+- Referenced by `Vendor_Program_Requirement__c`
+
 ### Vendor_Program_Requirement__c
 
 **Purpose**: Defines requirements for a vendor program.
 
 **Key Fields:**
 - `Name` (Text) - Requirement name
-- `Vendor_Program__c` (Lookup) - Parent program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Parent program
+- `Requirement_Template__c` (Lookup to `Vendor_Program_Onboarding_Req_Template__c`) - Source template
+- `Requirement_Group_Member__c` (Lookup to `Vendor_Program_Requirement_Group_Member__c`) - Group member link
+- `Status__c` (Picklist) - Requirement status
 - `Active__c` (Checkbox) - Active status
+- `Is_Required__c` (Checkbox) - Required flag
+- `Sequence__c` (Number) - Display order
 
 **Relationships:**
-- Belongs to Vendor_Program__c
+- Belongs to Vendor_Customization__c (via `Vendor_Program__c`)
 - Referenced by Onboarding_Requirement__c
+- Referenced by Onboarding_Status_Rule__c
 
 ## Status Rules Objects
 
@@ -150,18 +259,32 @@
 
 **Purpose**: Defines a rules engine for status evaluation.
 
-**Key Fields:**
+**Key Fields**:
 - `Name` (Text) - Rules engine name
 - `Vendor_Program_Group__c` (Lookup) - Associated program group
+- `Requirement_Group__c` (Lookup) - Associated requirement group
 - `Target_Onboarding_Status__c` (Text) - Status to set when rule passes
+- `Override_Status__c` (Checkbox) - Forces the target status without evaluating requirements
+- `Sequence__c` (Number) - Rule evaluation order for engines in the same program group
 - `Evaluation_Logic__c` (Picklist) - Logic type (ALL, ANY, CUSTOM)
 - `Custom_Evaluation_Logic__c` (Text) - Custom expression
+- `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
+- `Version__c` (Text) - Version identifier
+- `Effective_Start__c` (DateTime) - Effective date/time for rule activation
+- `Effective_End__c` (DateTime) - End date/time for rule deactivation
+- `Previous_Version__c` (Lookup to Onboarding_Status_Rules_Engine__c) - Link to previous version
 
-**Relationships:**
+**Relationships**:
 - Belongs to Vendor_Program_Group__c
 - Has many Onboarding_Status_Rule__c
 
 **Usage**: Used by status evaluation engine
+
+**Notes**:
+- Rules engines with Status__c = 'Active' are evaluated during status updates
+- Effective dating allows scheduled rule activation/deactivation
+- Versioning supports rollback and audit trails
+- Previous_Version__c links to the parent version for lineage tracking
 
 ### Onboarding_Status_Rule__c
 
@@ -231,12 +354,12 @@
 
 **Key Fields:**
 - `Onboarding_Application_Process__c` (Lookup) - Process being executed
-- `Vendor_Program__c` (Lookup) - Vendor program being onboarded
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` (Lookup) - Current stage
 
 **Relationships:**
 - Belongs to Onboarding_Application_Process__c
-- References Vendor_Program__c
+- References Vendor_Customization__c (via `Vendor_Program__c`)
 - References Onboarding_Application_Stage__c
 
 ### Onboarding_Application_Stage_Completion__c
@@ -244,14 +367,14 @@
 **Purpose**: Audit log of completed stages.
 
 **Key Fields:**
-- `Vendor_Program__c` (Lookup) - Vendor program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` (Lookup) - Process
 - `Onboarding_Application_Stage__c` (Lookup) - Completed stage
 - `Completed_Date__c` (DateTime) - Completion timestamp
 - `Completed_By__c` (Lookup to User) - User who completed
 
 **Relationships:**
-- References Vendor_Program__c
+- References Vendor_Customization__c (via `Vendor_Program__c`)
 - References Onboarding_Application_Process__c
 - References Onboarding_Application_Stage__c
 
@@ -342,19 +465,6 @@
 **Relationships:**
 - Has many Training_Requirement__c
 
-### TrainingAssignmentCredential__c
-
-**Purpose**: Links training assignments to credentials.
-
-**Key Fields:**
-- `Training_Assignment__c` (Lookup) - Training assignment
-- `POE_External_Contact_Credential__c` (Lookup) - Credential
-- `Unique_Key__c` (Text) - Unique identifier
-
-**Relationships:**
-- References Training_Assignment__c
-- References POE_External_Contact_Credential__c
-
 ## Credential Objects
 
 ### External_Contact_Credential_Type__c
@@ -404,11 +514,11 @@
 **Purpose**: Links required credentials to vendor programs.
 
 **Key Fields:**
-- `Vendor_Program__c` (Lookup) - Vendor program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Required_Credential__c` (Lookup) - Required credential
 
 **Relationships:**
-- References Vendor_Program__c
+- References Vendor_Customization__c (via `Vendor_Program__c`)
 - References Required_Credential__c
 
 ### External_Credential_Type_Dependency__c
@@ -460,20 +570,6 @@
 **Relationships:**
 - Belongs to ECC_Field_Configuration_Group__c
 - References ECC_Field_Display_Configuration__c
-
-## Order Objects
-
-### Onboarding_Order__c
-
-**Purpose**: Tracks orders related to onboarding.
-
-**Key Fields:**
-- `Name` (Text) - Order name
-- `Onboarding__c` (Lookup) - Parent onboarding
-- `Status__c` (Picklist) - Order status
-
-**Relationships:**
-- Belongs to Onboarding__c
 
 ## Related Documentation
 
@@ -538,6 +634,24 @@
 ### Requirement_Field_Group__c
 **Purpose**: Logical grouping of requirement fields for UI display and batch validation.
 
+### Vendor_Program_Requirement_Field__c
+**Purpose**: Defines a field in a vendor program requirement template (label, type, rules).
+
+**Key Fields:**
+- `Name` (Auto-Number) - Vendor program requirement field number
+
+### Vendor_Program_Requirement_Group_Field__c
+**Purpose**: Groups vendor program requirement fields for display/logic within a program template.
+
+**Key Fields:**
+- `Name` (Auto-Number) - Vendor program requirement group field number
+
+### Vendor_Program_Requirement_Field_Value__c
+**Purpose**: Captured value for a vendor program requirement field.
+
+**Key Fields:**
+- `Name` (Auto-Number) - Vendor program requirement field value number
+
 ### Requirement_Field_Validation_Rule__mdt
 **Purpose**: Custom metadata for reusable validation rules (format, cross-field, external) for requirement fields.
 
@@ -560,13 +674,21 @@
 ## Program Template & Dependency Objects
 
 ### Vendor_Program_Requirement_Set__c
-**Purpose**: Groups vendor program requirements into sets for onboarding; bundles templates per program/stage.
+**Purpose**: Junction linking vendor programs to onboarding requirement sets.
+
+**Key Fields:**
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
+- `Onboarding_Requirement_Set__c` (Lookup) - Requirement set
+
+**Relationships:**
+- Belongs to Vendor_Customization__c and Onboarding_Requirement_Set__c
 
 ### Requirement_Set_Template__c
-**Purpose**: Template library of requirement sets reusable across vendor programs.
+**Purpose**: Junction linking requirement sets to requirement templates.
 
-### Onboarding_App_Stage_Dependency_Member__c
-**Purpose**: Defines member stages participating in onboarding stage dependency rules.
+**Key Fields:**
+- `Onboarding_Requirement_Set__c` (Lookup) - Requirement set
+- `Requirement_Template__c` (Lookup to `Vendor_Program_Onboarding_Req_Template__c`) - Requirement template
 
-### Onboarding_Application_Stage_Dependency__c
-**Purpose**: Dependency rule between onboarding application stages (e.g., stage Y requires stage X).
+**Relationships:**
+- Belongs to Onboarding_Requirement_Set__c and Vendor_Program_Onboarding_Req_Template__c

@@ -20,17 +20,21 @@ private class FollowUpProcessorBatchSchedulerTest {
         // Create follow-up queue records that are due
         List<Follow_Up_Queue__c> followUps = new List<Follow_Up_Queue__c>();
         for (Integer i = 0; i < 5; i++) {
-            followUps.add(new Follow_Up_Queue__c(
+            Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
                 Onboarding_Requirement__c = testRequirement.Id,
                 Onboarding__c = testOnboarding.Id,
                 Follow_Up_Type__c = 'Email', // Use Email to avoid SMS API issues in test
-                Status__c = 'Pending',
+                Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                    Follow_Up_Queue__c.SObjectType,
+                    'Status__c'
+                ),
                 Next_Attempt_Date__c = DateTime.now().addMinutes(-10), // Due 10 minutes ago
                 Attempt_Count__c = 0,
                 Fatigue_Suppressed__c = false
-            ));
+            );
+            followUps.add(fq);
         }
-        insert followUps;
+        TestDataFactoryUtil.maybeInsert(followUps, true);
 
         Test.startTest();
         FollowUpProcessorBatchScheduler scheduler = new FollowUpProcessorBatchScheduler();
@@ -70,12 +74,15 @@ private class FollowUpProcessorBatchSchedulerTest {
             Onboarding_Requirement__c = testRequirement.Id,
             Onboarding__c = testOnboarding.Id,
             Follow_Up_Type__c = 'Email',
-            Status__c = 'Pending',
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Follow_Up_Queue__c.SObjectType,
+                'Status__c'
+            ),
             Next_Attempt_Date__c = DateTime.now().addMinutes(-10),
             Attempt_Count__c = 2,
             Fatigue_Suppressed__c = true
         );
-        insert followUp;
+        TestDataFactoryUtil.maybeInsert(followUp, true);
 
         Test.startTest();
         FollowUpProcessorBatchScheduler scheduler = new FollowUpProcessorBatchScheduler();
@@ -95,6 +102,16 @@ private class FollowUpProcessorBatchSchedulerTest {
 
     @isTest
     static void testSchedulable() {
+        // Clean up any existing scheduled jobs first
+        List<CronTrigger> existingJobs = [
+            SELECT Id
+            FROM CronTrigger
+            WHERE CronJobDetail.Name = 'Follow-Up Processor Batch Hourly'
+        ];
+        for (CronTrigger job : existingJobs) {
+            System.abortJob(job.Id);
+        }
+        
         Test.startTest();
         String jobId = FollowUpProcessorBatchScheduler.scheduleHourly();
         Test.stopTest();
@@ -110,4 +127,3 @@ private class FollowUpProcessorBatchSchedulerTest {
         System.assertEquals(1, jobs.size(), 'Job should be scheduled');
     }
 }
-

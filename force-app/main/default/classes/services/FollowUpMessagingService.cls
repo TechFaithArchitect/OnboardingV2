@@ -31,7 +31,7 @@ public with sharing class FollowUpMessagingService {
         SMSProviderStrategy provider;
         try {
             provider = SMSProviderStrategyFactory.getStrategy(providerType);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ex) {
             throw new FollowUpMessagingException('Invalid SMS provider type: ' + providerType);
         }
 
@@ -89,8 +89,8 @@ public with sharing class FollowUpMessagingService {
         SMSProviderStrategy provider;
         try {
             provider = SMSProviderStrategyFactory.getStrategy(providerType);
-        } catch (IllegalArgumentException e) {
-            System.debug('Invalid provider type, defaulting to phone check: ' + e.getMessage());
+        } catch (IllegalArgumentException ex) {
+            System.debug('Invalid provider type, defaulting to phone check: ' + ex.getMessage());
             // Fallback to phone check
             return hasPhoneNumber(contactId);
         }

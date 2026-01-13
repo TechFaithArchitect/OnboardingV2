@@ -43,10 +43,18 @@ public with sharing class StatusRulesEngineService {
             onboardingStatusRulesEngine.Evaluation_Logic__c = 'ALL'; // Default evaluation logic
         }
         if (String.isBlank(onboardingStatusRulesEngine.Required_Status__c)) {
-            onboardingStatusRulesEngine.Required_Status__c = 'New'; // Default required status
+            onboardingStatusRulesEngine.Required_Status__c = PicklistHelper.getValidPicklistValue(
+                'Onboarding_Status_Rules_Engine__c',
+                'Required_Status__c',
+                'New'
+            );
         }
         if (String.isBlank(onboardingStatusRulesEngine.Target_Onboarding_Status__c)) {
-            onboardingStatusRulesEngine.Target_Onboarding_Status__c = 'In Process'; // Default target status
+            onboardingStatusRulesEngine.Target_Onboarding_Status__c = PicklistHelper.getValidPicklistValue(
+                'Onboarding_Status_Rules_Engine__c',
+                'Target_Onboarding_Status__c',
+                'In Process'
+            );
         }
         
         return VendorOnboardingWizardRepository.insertOnboardingStatusRulesEngine(onboardingStatusRulesEngine);
@@ -58,19 +66,26 @@ public with sharing class StatusRulesEngineService {
      * @return The ID of the created rule
      * @throws AuraHandledException if rule is null or name is blank
      */
-    public static Id createStatusRule(Onboarding_Status_Rule__c rule) {
-        ValidationHelper.requireRecord(rule, 'Status Rule');
-        ValidationHelper.requireField(rule.Name, 'Name');
+    public static Id createStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
+        ValidationHelper.requireRecord(statusRuleRecord, 'Status Rule');
+        Schema.DescribeFieldResult nameDescribe = Onboarding_Status_Rule__c.Name.getDescribe();
+        if (!nameDescribe.isAutoNumber()) {
+            ValidationHelper.requireField(statusRuleRecord.Name, 'Name');
+        }
         
         // Set default values for required fields if not provided
-        if (String.isBlank(rule.Expected_Status__c)) {
-            rule.Expected_Status__c = 'New'; // Default expected status
+        if (String.isBlank(statusRuleRecord.Expected_Status__c)) {
+            statusRuleRecord.Expected_Status__c = PicklistHelper.getValidPicklistValue(
+                'Onboarding_Status_Rule__c',
+                'Expected_Status__c',
+                'New'
+            );
         }
-        if (rule.Rule_Number__c == null || rule.Rule_Number__c == 0) {
-            rule.Rule_Number__c = 1; // Default rule number
+        if (statusRuleRecord.Rule_Number__c == null || statusRuleRecord.Rule_Number__c == 0) {
+            statusRuleRecord.Rule_Number__c = 1; // Default rule number
         }
         
-        return VendorOnboardingWizardRepository.insertStatusRule(rule);
+        return VendorOnboardingWizardRepository.insertStatusRule(statusRuleRecord);
     }
     
     /**

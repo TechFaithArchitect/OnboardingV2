@@ -13,9 +13,9 @@ public with sharing class OnboardingRulesRepository {
         ];
     }
 
-    public static Onboarding_Status_Rule__c upsertRule(Onboarding_Status_Rule__c rule) {
-        upsert rule;
-        return rule;
+    public static Onboarding_Status_Rule__c upsertRule(Onboarding_Status_Rule__c statusRuleRecord) {
+        upsert statusRuleRecord;
+        return statusRuleRecord;
     }
 
     public static void deleteRule(Id ruleId) {
@@ -75,7 +75,8 @@ public with sharing class OnboardingRulesRepository {
             return new List<Onboarding_Status_Rules_Engine__c>();
         }
         return [
-            SELECT Id, Evaluation_Logic__c, Custom_Evaluation_Logic__c, Override_Status__c, Target_Onboarding_Status__c, Vendor_Program_Group__c,
+            SELECT Id, Evaluation_Logic__c, Custom_Evaluation_Logic__c, Override_Status__c, Target_Onboarding_Status__c,
+                   Vendor_Program_Group__c, Sequence__c,
                 (SELECT Id, Rule_Number__c, Requirement__c, Expected_Status__c,
                         Requirement__r.Requirement_Template__c,
                         Requirement__r.Requirement_Template__r.Onboarding_Status_Field_API_Name__c,
@@ -83,6 +84,7 @@ public with sharing class OnboardingRulesRepository {
                  FROM Onboarding_Status_Rules__r)
             FROM Onboarding_Status_Rules_Engine__c
             WHERE Vendor_Program_Group__c IN :groupIds
+            ORDER BY Sequence__c ASC NULLS LAST, CreatedDate ASC
         ];
     }
 
@@ -91,7 +93,7 @@ public with sharing class OnboardingRulesRepository {
             return new List<Onboarding_Requirement__c>();
         }
         return [
-            SELECT Id, Status__c, Vendor_Program_Requirement__c, Onboarding__c,
+            SELECT Id, Status__c, Completed__c, Vendor_Program_Requirement__c, Onboarding__c,
                    Vendor_Program_Requirement__r.Requirement_Template__c,
                    Vendor_Program_Requirement__r.Requirement_Template__r.Onboarding_Status_Field_API_Name__c,
                    Vendor_Program_Requirement__r.Requirement_Template__r.Onboarding_Status_Value_When_Complete__c
@@ -137,13 +139,13 @@ public with sharing class OnboardingRulesRepository {
         if (requirementIds == null || requirementIds.isEmpty()) {
             return onboardingIds;
         }
-        for (AggregateResult ar : [
+        for (AggregateResult aggregateResult : [
             SELECT Onboarding__c 
             FROM Onboarding_Requirement__c
             WHERE Id IN :requirementIds
             GROUP BY Onboarding__c
         ]) {
-            onboardingIds.add((Id) ar.get('Onboarding__c'));
+            onboardingIds.add((Id) aggregateResult.get('Onboarding__c'));
         }
         return onboardingIds;
     }

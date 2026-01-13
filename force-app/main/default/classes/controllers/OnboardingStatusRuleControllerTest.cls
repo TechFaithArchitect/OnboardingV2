@@ -22,9 +22,17 @@ private class OnboardingStatusRuleControllerTest {
     @isTest
     static void testGetRule() {
         // Arrange
-        Onboarding_Status_Rules_Engine__c rule = TestOnboardingRulesEngineFactory.create(true);
-        rule.Custom_Evaluation_Logic__c = '1 AND 2';
-        update rule;
+        // Create rule with CUSTOM logic so we can set Custom_Evaluation_Logic__c
+        List<String> evaluationLogics = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rules_Engine__c.SObjectType,
+            'Evaluation_Logic__c'
+        );
+        String customLogic = evaluationLogics.contains('CUSTOM') ? 'CUSTOM' : evaluationLogics[0];
+        Onboarding_Status_Rules_Engine__c rule = TestOnboardingRulesEngineFactory.create(false, null, null, customLogic, null, null);
+        if (customLogic == 'CUSTOM') {
+            rule.Custom_Evaluation_Logic__c = '1 AND 2';
+        }
+        insert rule;
         
         // Act
         Test.startTest();
@@ -42,8 +50,16 @@ private class OnboardingStatusRuleControllerTest {
         // Arrange
         Onboarding_Status_Rules_Engine__c rule = TestOnboardingRulesEngineFactory.create(true);
         Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
-        Onboarding_Status_Rule__c condition1 = TestOnboardingRulesFactory.create(true, rule, vpr, 'Complete', 1);
-        Onboarding_Status_Rule__c condition2 = TestOnboardingRulesFactory.create(true, rule, vpr, 'In Process', 2);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[0];
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : 
+            (validStatuses.size() > 1 ? validStatuses[1] : validStatuses[0]);
+        
+        Onboarding_Status_Rule__c condition1 = TestOnboardingRulesFactory.create(true, rule, vpr, completeStatus, 1);
+        Onboarding_Status_Rule__c condition2 = TestOnboardingRulesFactory.create(true, rule, vpr, inProcessStatus, 2);
         
         // Act
         Test.startTest();
@@ -87,8 +103,16 @@ private class OnboardingStatusRuleControllerTest {
         // Arrange
         Onboarding_Status_Rules_Engine__c rule = TestOnboardingRulesEngineFactory.create(true);
         Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
-        Onboarding_Status_Rule__c condition1 = TestOnboardingRulesFactory.create(false, rule, vpr, 'Complete', 1);
-        Onboarding_Status_Rule__c condition2 = TestOnboardingRulesFactory.create(false, rule, vpr, 'In Process', 2);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[0];
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : 
+            (validStatuses.size() > 1 ? validStatuses[1] : validStatuses[0]);
+        
+        Onboarding_Status_Rule__c condition1 = TestOnboardingRulesFactory.create(false, rule, vpr, completeStatus, 1);
+        Onboarding_Status_Rule__c condition2 = TestOnboardingRulesFactory.create(false, rule, vpr, inProcessStatus, 2);
         List<Onboarding_Status_Rule__c> conditions = new List<Onboarding_Status_Rule__c>{ condition1, condition2 };
         
         // Act
@@ -111,7 +135,12 @@ private class OnboardingStatusRuleControllerTest {
         // Arrange
         Onboarding_Status_Rules_Engine__c rule = TestOnboardingRulesEngineFactory.create(true);
         Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
-        Onboarding_Status_Rule__c condition = TestOnboardingRulesFactory.create(true, rule, vpr, 'Complete', 1);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[0];
+        Onboarding_Status_Rule__c condition = TestOnboardingRulesFactory.create(true, rule, vpr, completeStatus, 1);
         
         // Act
         Test.startTest();

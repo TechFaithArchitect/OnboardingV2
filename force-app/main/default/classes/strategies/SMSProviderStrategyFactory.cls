@@ -63,4 +63,3 @@ public with sharing class SMSProviderStrategyFactory {
         STRATEGY_CACHE.clear();
     }
 }
-

@@ -68,15 +68,15 @@ public with sharing class FollowUpProcessorBatchScheduler implements Database.Ba
                         'Unknown follow-up type: ' + followUp.Follow_Up_Type__c
                     );
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Log error and mark as failed
-                System.debug('Error processing follow-up ' + followUp.Id + ': ' + e.getMessage());
-                System.debug('Stack trace: ' + e.getStackTraceString());
+                System.debug('Error processing follow-up ' + followUp.Id + ': ' + ex.getMessage());
+                System.debug('Stack trace: ' + ex.getStackTraceString());
                 
                 try {
                     FollowUpExecutionService.markFollowUpFailed(
                         followUp.Id,
-                        'Processing error: ' + e.getMessage()
+                        'Processing error: ' + ex.getMessage()
                     );
                 } catch (Exception updateEx) {
                     System.debug('Error marking follow-up as failed: ' + updateEx.getMessage());
@@ -130,4 +130,3 @@ public with sharing class FollowUpProcessorBatchScheduler implements Database.Ba
         return System.schedule('Follow-Up Processor Batch 15min', '0 */15 * * * ?', scheduler);
     }
 }
-

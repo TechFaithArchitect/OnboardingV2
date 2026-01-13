@@ -49,23 +49,18 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Clearing_House__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>ERP_Setup__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Background_Check__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Credit_Check__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Labor_Form__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -157,7 +152,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Net_Terms__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -177,7 +171,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Vendor_Order_Entry_Platform__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -221,7 +214,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Chuzo_Agreement__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -233,7 +225,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Personal_Guarantee__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -491,19 +482,8 @@
         <fields>TASK.LAST_UPDATE</fields>
         <relatedList>RelatedHistoryList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>Change_Date__c</fields>
-        <fields>Changed_by_User__c</fields>
-        <fields>Source_Object__c</fields>
-        <fields>Field_Name__c</fields>
-        <fields>New_Value__c</fields>
-        <fields>Old_Value__c</fields>
-        <relatedList>Onboarding_Status_Change__c.Onboarding__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>New_Dealer_Training__c.Onboarding__c</relatedList>
-    </relatedLists>
+    
+    
     <relatedLists>
         <fields>NAME</fields>
         <fields>LearnUponP__Course_Name__c</fields>

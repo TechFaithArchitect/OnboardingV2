@@ -10,8 +10,8 @@ public with sharing class ValidationHelper {
      * @param fieldName The name of the field for error message
      * @throws AuraHandledException if object is null
      */
-    public static void requireNotNull(Object obj, String fieldName) {
-        if (obj == null) {
+    public static void requireNotNull(Object objectToValidate, String fieldName) {
+        if (objectToValidate == null) {
             throw new AuraHandledException(fieldName + ' is required.');
         }
     }
@@ -106,8 +106,8 @@ public with sharing class ValidationHelper {
      * @param recordTypeName The type name for error message (e.g., "Vendor Program")
      * @throws AuraHandledException if record is null
      */
-    public static void requireRecord(SObject record, String recordTypeName) {
-        if (record == null) {
+    public static void requireRecord(SObject sObjectRecord, String recordTypeName) {
+        if (sObjectRecord == null) {
             throw new AuraHandledException(recordTypeName + ' record is required.');
         }
     }

@@ -12,53 +12,74 @@ private class RequirementFieldValueRepositoryTest {
         // Create Requirement_Field_Group__c
         Requirement_Field_Group__c fieldGroup = new Requirement_Field_Group__c(
             Name = 'Test Group',
-            Sequence__c = 1
+            Sequence__c = 1,
+            Vendor_Program_Requirement__c = ctx.requirement.Vendor_Program_Requirement__c
         );
         insert fieldGroup;
         
         // Create Requirement_Field__c records
-        Requirement_Field__c field1 = new Requirement_Field__c(
-            Field_API_Name__c = 'Test_Field_1__c',
-            Required__c = true,
-            Validation_Type__c = 'Format',
-            Requirement_Field_Group__c = fieldGroup.Id,
-            Sequence__c = 1
+        Requirement_Field__c field1 = TestRequirementFieldFactory.create(
+            'Test_Field_1__c',
+            'Format',
+            true,
+            fieldGroup.Id,
+            1,
+            true
         );
         
-        Requirement_Field__c field2 = new Requirement_Field__c(
-            Field_API_Name__c = 'Test_Field_2__c',
-            Required__c = false,
-            Validation_Type__c = 'Cross-Field',
-            Requirement_Field_Group__c = fieldGroup.Id,
-            Sequence__c = 2
+        Requirement_Field__c field2 = TestRequirementFieldFactory.create(
+            'Test_Field_2__c',
+            'Format',
+            false,
+            fieldGroup.Id,
+            2,
+            true
         );
-        
-        insert new List<Requirement_Field__c>{ field1, field2 };
         
         // Create Requirement_Field_Value__c records
-        Requirement_Field_Value__c value1 = new Requirement_Field_Value__c(
-            Onboarding_Requirement__c = ctx.requirement.Id,
-            Requirement_Field__c = field1.Id,
-            Value__c = 'Valid Value',
-            Validation_Status__c = 'Valid'
+        List<String> statusValues = TestDataFactoryUtil.getPicklistValues(
+            Requirement_Field_Value__c.SObjectType,
+            'Validation_Status__c'
+        );
+        String pendingStatus = statusValues.contains('Pending')
+            ? 'Pending'
+            : (statusValues.isEmpty() ? null : statusValues[0]);
+        String invalidStatus = statusValues.contains('Invalid')
+            ? 'Invalid'
+            : (statusValues.contains('Needs Correction') ? 'Needs Correction' : pendingStatus);
+        String defaultStatus = TestDataFactoryUtil.getDefaultPicklistValue(
+            Requirement_Field_Value__c.SObjectType,
+            'Validation_Status__c'
+        );
+        if (String.isBlank(defaultStatus)) {
+            defaultStatus = pendingStatus;
+        }
+        
+        Requirement_Field_Value__c value1 = TestDataFactory.createRequirementFieldValue(
+            field1,
+            ctx.requirement,
+            'Valid Value',
+            pendingStatus,
+            true
         );
         
-        Requirement_Field_Value__c value2 = new Requirement_Field_Value__c(
-            Onboarding_Requirement__c = ctx.requirement.Id,
-            Requirement_Field__c = field2.Id,
-            Value__c = 'Invalid Value',
-            Validation_Status__c = 'Invalid',
-            Validation_Error_Message__c = 'Test error'
+        Requirement_Field_Value__c value2 = TestDataFactory.createRequirementFieldValue(
+            field2,
+            ctx.requirement,
+            'Invalid Value',
+            invalidStatus,
+            true
         );
+        value2.Validation_Error_Message__c = 'Test error';
+        update value2;
         
-        Requirement_Field_Value__c value3 = new Requirement_Field_Value__c(
-            Onboarding_Requirement__c = ctx.requirement.Id,
-            Requirement_Field__c = field1.Id,
-            Value__c = null,
-            Validation_Status__c = 'Pending'
+        Requirement_Field_Value__c value3 = TestDataFactory.createRequirementFieldValue(
+            field1,
+            ctx.requirement,
+            null,
+            defaultStatus,
+            true
         );
-        
-        insert new List<Requirement_Field_Value__c>{ value1, value2, value3 };
     }
 
     @isTest
@@ -243,4 +264,3 @@ private class RequirementFieldValueRepositoryTest {
         System.assertEquals(0, count, 'Should return 0 when no invalid values exist');
     }
 }
-

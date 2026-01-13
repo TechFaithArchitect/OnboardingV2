@@ -6,8 +6,8 @@ public with sharing class OnboardingAppVendorProgramReqCtlr {
     }
 
     @AuraEnabled
-    public static void updateRequiredCredentials(List<Required_Credential__c> records) {
-        OnboardingAppVendorProgramReqSvc.updateRequiredCredentials(records);
+    public static void updateRequiredCredentials(List<Required_Credential__c> requiredCredentialRecords) {
+        OnboardingAppVendorProgramReqSvc.updateRequiredCredentials(requiredCredentialRecords);
     }
 
     @AuraEnabled(cacheable=true)

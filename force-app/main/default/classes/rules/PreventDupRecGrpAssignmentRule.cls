@@ -7,13 +7,22 @@ public class PreventDupRecGrpAssignmentRule implements OnboardingAppValidationRu
         Set<Id> groupIds = new Set<Id>();
         Map<String, Id> keyToExisting = new Map<String, Id>();
         Set<String> keysSeenThisBatch = new Set<String>();
+        List<Vendor_Program_Recipient_Group__c> recordsToCheck = new List<Vendor_Program_Recipient_Group__c>();
 
         // Extract keys
-        for (Vendor_Program_Recipient_Group__c rec : newRecords) {
-            if (rec.Vendor_Program__c != null && rec.Recipient_Group__c != null) {
-                programIds.add(rec.Vendor_Program__c);
-                groupIds.add(rec.Recipient_Group__c);
+        for (Vendor_Program_Recipient_Group__c recipientGroupAssignment : newRecords) {
+            if (recipientGroupAssignment.Vendor_Program__c != null && recipientGroupAssignment.Recipient_Group__c != null) {
+                if (recipientGroupAssignment.Parent_Version__c != null || recipientGroupAssignment.Status__c == 'Draft') {
+                    continue;
+                }
+                programIds.add(recipientGroupAssignment.Vendor_Program__c);
+                groupIds.add(recipientGroupAssignment.Recipient_Group__c);
+                recordsToCheck.add(recipientGroupAssignment);
             }
+        }
+
+        if (recordsToCheck.isEmpty()) {
+            return;
         }
 
         // Fetch existing assignments
@@ -25,28 +34,28 @@ public class PreventDupRecGrpAssignmentRule implements OnboardingAppValidationRu
             AND (Is_Active__c = true OR Status__c = 'Active')
         ];
 
-        for (Vendor_Program_Recipient_Group__c rec : existing) {
-            String key = rec.Vendor_Program__c + ':' + rec.Recipient_Group__c;
-            keyToExisting.put(key, rec.Id);
+        for (Vendor_Program_Recipient_Group__c existingAssignment : existing) {
+            String assignmentKey = existingAssignment.Vendor_Program__c + ':' + existingAssignment.Recipient_Group__c;
+            keyToExisting.put(assignmentKey, existingAssignment.Id);
         }
 
-        for (Vendor_Program_Recipient_Group__c rec : newRecords) {
-            if (rec.Vendor_Program__c != null && rec.Recipient_Group__c != null) {
-                String key = rec.Vendor_Program__c + ':' + rec.Recipient_Group__c;
-                Id existingId = keyToExisting.get(key);
+        for (Vendor_Program_Recipient_Group__c recipientGroupAssignment : recordsToCheck) {
+            if (recipientGroupAssignment.Vendor_Program__c != null && recipientGroupAssignment.Recipient_Group__c != null) {
+                String assignmentKey = recipientGroupAssignment.Vendor_Program__c + ':' + recipientGroupAssignment.Recipient_Group__c;
+                Id existingId = keyToExisting.get(assignmentKey);
 
                 Boolean isChanged = oldMap == null || 
-                    oldMap.get(rec.Id) == null || 
-                    oldMap.get(rec.Id).get('Vendor_Program__c') != rec.Vendor_Program__c ||
-                    oldMap.get(rec.Id).get('Recipient_Group__c') != rec.Recipient_Group__c;
+                    oldMap.get(recipientGroupAssignment.Id) == null || 
+                    oldMap.get(recipientGroupAssignment.Id).get('Vendor_Program__c') != recipientGroupAssignment.Vendor_Program__c ||
+                    oldMap.get(recipientGroupAssignment.Id).get('Recipient_Group__c') != recipientGroupAssignment.Recipient_Group__c;
 
-                if (keysSeenThisBatch.contains(key)) {
-                    rec.addError('This Vendor Program already has this Recipient Group assigned in this transaction.');
-                } else if (existingId != null && (rec.Id == null || rec.Id != existingId) && isChanged) {
-                    rec.addError('This Vendor Program already has this Recipient Group assigned.');
+                if (keysSeenThisBatch.contains(assignmentKey)) {
+                    recipientGroupAssignment.addError('This Vendor Program already has this Recipient Group assigned in this transaction.');
+                } else if (existingId != null && (recipientGroupAssignment.Id == null || recipientGroupAssignment.Id != existingId) && isChanged) {
+                    recipientGroupAssignment.addError('This Vendor Program already has this Recipient Group assigned.');
                 }
 
-                keysSeenThisBatch.add(key);
+                keysSeenThisBatch.add(assignmentKey);
             }
         }
     }

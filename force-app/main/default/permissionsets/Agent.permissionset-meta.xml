@@ -88,21 +88,6 @@
         <enabled>true</enabled>
         <externalCredentialPrincipal>AbstractAPI-AbstractAPI</externalCredentialPrincipal>
     </externalCredentialPrincipalAccesses>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Opportunity.Chuzo_CSA_Form_Data__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Opportunity.POE_Credit_Check_Limit_Reached__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>POE_Retail_Store__c.POE_Dealer_Code__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Chuzo Agent (Door to Door)</label>
     <objectPermissions>

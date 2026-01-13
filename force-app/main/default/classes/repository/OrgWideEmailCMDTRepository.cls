@@ -12,43 +12,43 @@ public with sharing class OrgWideEmailCMDTRepository {
             return testMockCatalogs;
         }
 
-        Map<String, Org_Wide_Email__mdt> result = new Map<String, Org_Wide_Email__mdt>();
-        for (Org_Wide_Email__mdt rec : [
+        Map<String, Org_Wide_Email__mdt> orgWideEmailCMDTMap = new Map<String, Org_Wide_Email__mdt>();
+        for (Org_Wide_Email__mdt orgWideEmailCMDT : [
             SELECT Developer_Name__c, MasterLabel, OrgWideEmailAddressId__c,
                    Email_Address__c, Active__c
             FROM Org_Wide_Email__mdt
         ]) {
-            result.put(rec.Developer_Name__c, rec);
+            orgWideEmailCMDTMap.put(orgWideEmailCMDT.Developer_Name__c, orgWideEmailCMDT);
         }
-        return result;
+        return orgWideEmailCMDTMap;
     }
 
     // 🔹 Build a CMDT record from a DTO
-    public static Metadata.CustomMetadata buildCMDT(OrgWideEmailDTO dto) {
-        Metadata.CustomMetadata m = new Metadata.CustomMetadata();
-        m.fullName = 'Org_Wide_Email.' + dto.developerName;
-        m.label = dto.masterLabel;
-        m.values = new List<Metadata.CustomMetadataValue>();
+    public static Metadata.CustomMetadata buildCMDT(OrgWideEmailDTO orgWideEmailDTO) {
+        Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
+        customMetadata.fullName = 'Org_Wide_Email.' + orgWideEmailDTO.developerName;
+        customMetadata.label = orgWideEmailDTO.masterLabel;
+        customMetadata.values = new List<Metadata.CustomMetadataValue>();
 
-        addValue(m, 'Developer_Name__c', dto.developerName);
-        addValue(m, 'OrgWideEmailAddressId__c', dto.orgWideEmailAddressId);
-        addValue(m, 'Email_Address__c', dto.emailAddress);
-        addValue(m, 'Active__c', dto.isActive);
+        addValue(customMetadata, 'Developer_Name__c', orgWideEmailDTO.developerName);
+        addValue(customMetadata, 'OrgWideEmailAddressId__c', orgWideEmailDTO.orgWideEmailAddressId);
+        addValue(customMetadata, 'Email_Address__c', orgWideEmailDTO.emailAddress);
+        addValue(customMetadata, 'Active__c', orgWideEmailDTO.isActive);
 
-        return m;
+        return customMetadata;
     }
 
     // 🔹 Add a field:value to the CMDT record
-    private static void addValue(Metadata.CustomMetadata m, String fieldName, Object value) {
+    private static void addValue(Metadata.CustomMetadata customMetadata, String fieldName, Object value) {
         Metadata.CustomMetadataValue customMetadataValue = new Metadata.CustomMetadataValue();
         customMetadataValue.field = fieldName;
         customMetadataValue.value = value;
-        m.values.add(customMetadataValue);
+        customMetadata.values.add(customMetadataValue);
     }
 
     // 🔹 Deploy CMDTs via Metadata API
-    public static Id deployMetadata(List<Metadata.Metadata> records) {
-        if (records == null || records.isEmpty()) return null;
+    public static Id deployMetadata(List<Metadata.Metadata> metadataRecords) {
+        if (metadataRecords == null || metadataRecords.isEmpty()) return null;
 
         if (Test.isRunningTest()) {
             System.debug('⚠️ Skipping Metadata deployment during test context.');
@@ -57,8 +57,8 @@ public with sharing class OrgWideEmailCMDTRepository {
         }
 
         Metadata.DeployContainer container = new Metadata.DeployContainer();
-        for (Metadata.Metadata m : records) {
-            container.addMetadata(m);
+        for (Metadata.Metadata metadataRecord : metadataRecords) {
+            container.addMetadata(metadataRecord);
         }
 
         return Metadata.Operations.enqueueDeployment(container, null);
@@ -72,15 +72,15 @@ public with sharing class OrgWideEmailCMDTRepository {
         Map<String, Org_Wide_Email__mdt> existing = getAllOrgWideEmails();
         Metadata.DeployContainer container = new Metadata.DeployContainer();
 
-        for (OrgWideEmailDTO dto : dtos) {
-            Org_Wide_Email__mdt match = existing.get(dto.developerName);
+        for (OrgWideEmailDTO orgWideEmailDTO : dtos) {
+            Org_Wide_Email__mdt match = existing.get(orgWideEmailDTO.developerName);
 
             Boolean unchanged = match != null &&
-                match.Email_Address__c == dto.emailAddress &&
-                match.Active__c == dto.isActive;
+                match.Email_Address__c == orgWideEmailDTO.emailAddress &&
+                match.Active__c == orgWideEmailDTO.isActive;
 
             if (!unchanged) {
-                container.addMetadata(buildCMDT(dto));
+                container.addMetadata(buildCMDT(orgWideEmailDTO));
             }
         }
 

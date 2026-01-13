@@ -7,12 +7,32 @@ private class RequireParentVersionOnActivationRuleTest {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
 
-        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
+        );
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        String draftStatus = validStatuses.contains('Draft') ? 'Draft' : validStatuses[0];
+
+        // Seed an existing version so the rule enforces Parent_Version__c on non-draft inserts.
+        TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            draftStatus,
+            '0.9',
+            false,
+            null,
+            true
+        );
+        
+        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            false
         );
 
         Test.startTest();
@@ -38,11 +58,20 @@ private class RequireParentVersionOnActivationRuleTest {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
 
-        Vendor_Program_Recipient_Group__c draft = new Vendor_Program_Recipient_Group__c(
-            Version__c = '0.9',
-            Status__c = 'Draft',
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
+        );
+        String draftStatus = validStatuses.contains('Draft') ? 'Draft' : validStatuses[0];
+        
+        Vendor_Program_Recipient_Group__c draft = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            draftStatus,
+            '0.9',
+            false,
+            null,
+            false
         );
 
         Test.startTest();
@@ -58,21 +87,31 @@ private class RequireParentVersionOnActivationRuleTest {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
 
-        Vendor_Program_Recipient_Group__c draft = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Draft',
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
         );
-        insert draft;
+        String draftStatus = validStatuses.contains('Draft') ? 'Draft' : validStatuses[0];
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        
+        Vendor_Program_Recipient_Group__c draft = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            draftStatus,
+            '1.0',
+            false,
+            null,
+            true
+        );
 
-        Vendor_Program_Recipient_Group__c child = new Vendor_Program_Recipient_Group__c(
-            Version__c = '2.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id,
-            Parent_Version__c = draft.Id
+        Vendor_Program_Recipient_Group__c child = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '2.0',
+            true,
+            draft.Id,
+            false
         );
 
         Test.startTest();

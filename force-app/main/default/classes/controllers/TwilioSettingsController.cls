@@ -20,7 +20,7 @@ public with sharing class TwilioSettingsController {
         List<TwilioConfigWrapper> configs = new List<TwilioConfigWrapper>();
         
         try {
-            List<Twilio_Configuration__mdt> records = [
+            List<Twilio_Configuration__mdt> twilioConfigRecords = [
                 SELECT DeveloperName, MasterLabel, 
                        From_Phone_Number__c, Named_Credential__c, 
                        Account_SID__c, Active__c
@@ -28,11 +28,11 @@ public with sharing class TwilioSettingsController {
                 ORDER BY Active__c DESC, MasterLabel
             ];
             
-            for (Twilio_Configuration__mdt config : records) {
+            for (Twilio_Configuration__mdt config : twilioConfigRecords) {
                 configs.add(new TwilioConfigWrapper(config));
             }
-        } catch (Exception e) {
-            throw new AuraHandledException('Error loading Twilio configurations: ' + e.getMessage());
+        } catch (Exception ex) {
+            throw new AuraHandledException('Error loading Twilio configurations: ' + ex.getMessage());
         }
         
         return configs;
@@ -48,13 +48,13 @@ public with sharing class TwilioSettingsController {
     public static ValidationResult validateConfiguration() {
         // Admin gate: Only System Administrators can access
         if (!OnboardingAccessService.isCurrentUserAdmin()) {
-            ValidationResult result = new ValidationResult();
-            result.isValid = false;
-            result.errorMessage = 'Access denied. Twilio Settings is restricted to System Administrators.';
-            return result;
+            ValidationResult validationResult = new ValidationResult();
+            validationResult.isValid = false;
+            validationResult.errorMessage = 'Access denied. Twilio Settings is restricted to System Administrators.';
+            return validationResult;
         }
-        ValidationResult result = new ValidationResult();
-        result.isValid = true;
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.isValid = true;
         
         try {
             List<Twilio_Configuration__mdt> activeConfigs = [
@@ -64,9 +64,9 @@ public with sharing class TwilioSettingsController {
             ];
             
             if (activeConfigs.isEmpty()) {
-                result.isValid = false;
-                result.errorMessage = 'No active Twilio configuration found. At least one active configuration is required.';
-                return result;
+                validationResult.isValid = false;
+                validationResult.errorMessage = 'No active Twilio configuration found. At least one active configuration is required.';
+                return validationResult;
             }
             
             // Check if any active config has required fields
@@ -80,17 +80,17 @@ public with sharing class TwilioSettingsController {
             }
             
             if (!hasValidConfig) {
-                result.isValid = false;
-                result.errorMessage = 'Active Twilio configuration must have From Phone Number and Named Credential.';
-                return result;
+                validationResult.isValid = false;
+                validationResult.errorMessage = 'Active Twilio configuration must have From Phone Number and Named Credential.';
+                return validationResult;
             }
             
-        } catch (Exception e) {
-            result.isValid = false;
-            result.errorMessage = 'Error validating configuration: ' + e.getMessage();
+        } catch (Exception ex) {
+            validationResult.isValid = false;
+            validationResult.errorMessage = 'Error validating configuration: ' + ex.getMessage();
         }
         
-        return result;
+        return validationResult;
     }
     
     /**
@@ -122,4 +122,3 @@ public with sharing class TwilioSettingsController {
         @AuraEnabled public String errorMessage;
     }
 }
-

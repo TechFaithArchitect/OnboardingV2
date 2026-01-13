@@ -27,9 +27,9 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
             if (!configs.isEmpty() && String.isNotBlank(configs[0].Named_Credential__c)) {
                 return configs[0].Named_Credential__c;
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             // Twilio_Configuration__mdt may not exist - use default
-            System.debug('Could not get Named Credential from Twilio_Configuration__mdt: ' + e.getMessage());
+            System.debug('Could not get Named Credential from Twilio_Configuration__mdt: ' + ex.getMessage());
         }
         
         return DEFAULT_NAMED_CREDENTIAL;
@@ -93,13 +93,10 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
             // Parse response to get Message SID
             String messageSid = extractMessageSid(response);
             
-            // Log to Message_Log__c if object exists
-            logTwilioMessage(contactId, toPhoneNumber, fromPhoneNumber, messageContent, messageSid);
-            
             return messageSid != null ? messageSid : 'TWILIO-' + String.valueOf(DateTime.now().getTime());
-        } catch (Exception e) {
+        } catch (Exception ex) {
             throw new FollowUpMessagingService.FollowUpMessagingException(
-                'Error sending SMS via Twilio: ' + e.getMessage()
+                'Error sending SMS via Twilio: ' + ex.getMessage()
             );
         }
     }
@@ -116,7 +113,7 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
      * Otherwise, the Named Credential username (which should be the Account SID) will be used.
      */
     private String makeTwilioCallout(String toPhoneNumber, String fromPhoneNumber, String messageContent, String accountSid, Map<String, Object> providerConfig) {
-        HttpRequest req = new HttpRequest();
+        HttpRequest httpRequest = new HttpRequest();
         
         // Get Named Credential name (from config or default)
         String namedCredential = getNamedCredential(providerConfig);
@@ -136,24 +133,24 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
         
         String endpoint = 'callout:' + namedCredential + '/' + TWILIO_API_VERSION + '/Accounts/' + accountSid + '/Messages.json';
         
-        req.setEndpoint(endpoint);
-        req.setMethod('POST');
-        req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+        httpRequest.setEndpoint(endpoint);
+        httpRequest.setMethod('POST');
+        httpRequest.setHeader('Content-Type', 'application/x-www-form-urlencoded');
         
         // Build form data
         String body = 'To=' + EncodingUtil.urlEncode(toPhoneNumber, 'UTF-8') +
                      '&From=' + EncodingUtil.urlEncode(fromPhoneNumber, 'UTF-8') +
                      '&Body=' + EncodingUtil.urlEncode(messageContent, 'UTF-8');
-        req.setBody(body);
+        httpRequest.setBody(body);
         
         Http http = new Http();
-        HttpResponse res = http.send(req);
+        HttpResponse httpResponse = http.send(httpRequest);
         
-        if (res.getStatusCode() != 200 && res.getStatusCode() != 201) {
-            throw new CalloutException('Twilio API error: ' + res.getStatusCode() + ' - ' + res.getBody());
+        if (httpResponse.getStatusCode() != 200 && httpResponse.getStatusCode() != 201) {
+            throw new CalloutException('Twilio API error: ' + httpResponse.getStatusCode() + ' - ' + httpResponse.getBody());
         }
         
-        return res.getBody();
+        return httpResponse.getBody();
     }
     
     /**
@@ -164,8 +161,8 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
         try {
             Map<String, Object> responseMap = (Map<String, Object>)JSON.deserializeUntyped(response);
             return (String)responseMap.get('sid');
-        } catch (Exception e) {
-            System.debug('Error parsing Twilio response: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error parsing Twilio response: ' + ex.getMessage());
             return null;
         }
     }
@@ -216,32 +213,6 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
     }
     
     /**
-     * Log Twilio message to Message_Log__c object (if it exists)
-     */
-    private void logTwilioMessage(Id contactId, String toPhone, String fromPhone, String message, String messageSid) {
-        try {
-            // Check if Message_Log__c object exists
-            Schema.SObjectType messageLogType = Schema.getGlobalDescribe().get('Message_Log__c');
-            if (messageLogType != null) {
-                SObject messageLog = messageLogType.newSObject();
-                messageLog.put('Contact__c', contactId);
-                messageLog.put('To_Phone__c', toPhone);
-                messageLog.put('From_Phone__c', fromPhone);
-                messageLog.put('Message_Body__c', message);
-                messageLog.put('Message_SID__c', messageSid);
-                messageLog.put('Provider__c', 'Twilio');
-                messageLog.put('Status__c', 'Sent');
-                messageLog.put('Sent_Date__c', DateTime.now());
-                
-                insert messageLog;
-            }
-        } catch (Exception e) {
-            // Message_Log__c may not exist or may have different fields - log and continue
-            System.debug('Could not log to Message_Log__c: ' + e.getMessage());
-        }
-    }
-    
-    /**
      * Check if Contact has active messaging endpoint (phone number) for Twilio
      * @param contactId Contact ID
      * @param providerConfig Map (not used for Twilio, but required by interface)
@@ -285,4 +256,3 @@ public with sharing class TwilioSMSProvider implements SMSProviderStrategy {
         return null; // Valid
     }
 }
-

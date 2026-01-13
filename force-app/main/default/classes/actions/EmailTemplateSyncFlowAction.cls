@@ -9,14 +9,14 @@ public with sharing class EmailTemplateSyncFlowAction {
 
     @InvocableMethod(label='Run Full Email Template Sync')
     public static List<Result> run(List<Request> requests) {
-        List<Result> results = new List<Result>();
+        List<Result> syncResultList = new List<Result>();
         Boolean isManual = !requests.isEmpty() && requests[0].runAsManual;
 
         EmailTemplateSyncOrchestrator.run(isManual);
 
-        Result result = new Result();
-        result.message = 'Sync completed manually.';
-        results.add(result);
-        return results;
+        Result syncResult = new Result();
+        syncResult.message = 'Sync completed manually.';
+        syncResultList.add(syncResult);
+        return syncResultList;
     }
 }

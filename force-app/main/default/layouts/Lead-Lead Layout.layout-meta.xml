@@ -89,7 +89,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Referral_Code__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

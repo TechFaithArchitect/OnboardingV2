@@ -25,8 +25,8 @@ public with sharing class OrgWideEmailSyncService {
 
         // 🔹 Sync to OrgWideEmail__c
         List<OrgWideEmail__c> sobjects = new List<OrgWideEmail__c>();
-        for (OrgWideEmailDTO dto : dtos) {
-            sobjects.add(dto.toSObject());
+        for (OrgWideEmailDTO orgWideEmailDTO : dtos) {
+            sobjects.add(orgWideEmailDTO.toSObject());
         }
         OrgWideEmailRepository.upsertEmails(sobjects);
 

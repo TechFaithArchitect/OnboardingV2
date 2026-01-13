@@ -703,34 +703,9 @@
             <sortOrder>11</sortOrder>
         </platformActionListItems>
     </platformActionList>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>POE_Account_Number__c</fields>
-        <fields>POE_Dealer_Code__c</fields>
-        <fields>POE_Provider__c</fields>
-        <fields>POE_Program_Type__c</fields>
-        <relatedList>POE_Dealer_Code__c.POE_Account__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>POE_Retail_Store__c.NAME</fields>
-        <fields>POE_Retail_Store__c.POE_Street_Address__c</fields>
-        <fields>POE_Retail_Store__c.POE_City__c</fields>
-        <fields>POE_Retail_Store__c.POE_State__c</fields>
-        <fields>POE_Retail_Store__c.POE_Zip_Code__c</fields>
-        <fields>POE_Retail_Store__c.POE_Retail_National_Retail__c</fields>
-        <fields>POE_Status__c</fields>
-        <fields>POE_Start_Date__c</fields>
-        <fields>POE_Retail_Store__c.POE_End_Date__c</fields>
-        <relatedList>POE_DealerStore__c.POE_Dealer__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>POE_Event__c.NAME</fields>
-        <fields>POE_Event__c.POE_Street_Address__c</fields>
-        <fields>POE_Event__c.POE_City__c</fields>
-        <fields>POE_Event__c.POE_State__c</fields>
-        <fields>POE_Event__c.POE_Zip_Code__c</fields>
-        <relatedList>POE_DealerEvent__c.POE_Dealer__c</relatedList>
-    </relatedLists>
+    
+    
+    
     <relatedLists>
         <fields>FULL_NAME</fields>
         <fields>CONTACT.TITLE</fields>
@@ -804,69 +779,13 @@
         <fields>ActivityCallResult__c</fields>
         <relatedList>RelatedHistoryList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
-        <excludeButtons>New</excludeButtons>
-        <fields>NAME</fields>
-        <fields>Ship_to_Region__c</fields>
-        <fields>Ship_to_Territory__c</fields>
-        <fields>MTD_Accessory_Sales__c</fields>
-        <fields>QTD_Accessory_Sales__c</fields>
-        <fields>YTD_Accessory_Sales__c</fields>
-        <fields>LAST_UPDATE</fields>
-        <relatedList>Infrastructure_Ship_to_Sales__c.Account_Name__c</relatedList>
-        <sortField>Ship_to_Territory__c</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Territory__c</fields>
-        <fields>Project_Name__c</fields>
-        <fields>Quote_Number__c</fields>
-        <fields>Quoted_Date__c</fields>
-        <fields>Status__c</fields>
-        <fields>Requested_Ship_Date__c</fields>
-        <relatedList>Commercial_L_I_Information__c.Account__c</relatedList>
-        <sortField>Quoted_Date__c</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Amount_of_Co_op_Requested__c</fields>
-        <fields>Campaign_Start_Date__c</fields>
-        <fields>Campaign_End_Date__c</fields>
-        <fields>CREATEDBY_USER</fields>
-        <fields>CREATED_DATE</fields>
-        <relatedList>Coop_Request__c.P10_Account_Number__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
-        <fields>NAME</fields>
-        <fields>PID_Number__c</fields>
-        <fields>Region__c</fields>
-        <fields>Territory__c</fields>
-        <fields>Status__c</fields>
-        <fields>UPDATEDBY_USER</fields>
-        <relatedList>MDU__c.P10_Account__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>L_I_Information__c.P10_Account__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Commercial_MSO__c.Account_Name__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>PV_Collection_Stage__c</fields>
-        <fields>Payment_Plan_Type__c</fields>
-        <fields>Notes_Collection_Situation__c</fields>
-        <fields>LAST_UPDATE</fields>
-        <relatedList>Collection_Team_Page__c.Account_Name__c</relatedList>
-        <sortField>LAST_UPDATE</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
+    
+    
+    
+    
+    
+    
+    
     <relatedLists>
         <relatedList>RelatedEntityHistoryList</relatedList>
     </relatedLists>
@@ -876,73 +795,13 @@
     <relatedLists>
         <relatedList>RelatedContentNoteList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Marketing_Onboarding_Complete__c</fields>
-        <fields>Dealer_would_not_engage__c</fields>
-        <fields>CREATED_DATE</fields>
-        <relatedList>Marketing_Profile__c.Account_Name__c</relatedList>
-        <sortField>CREATED_DATE</sortField>
-        <sortOrder>Desc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Social_Media__c</fields>
-        <fields>Paid_Search__c</fields>
-        <fields>Company_Website__c</fields>
-        <fields>Marketing_Compliance_Complete__c</fields>
-        <fields>Dealer_would_not_engage__c</fields>
-        <fields>CREATED_DATE</fields>
-        <relatedList>Compliance_Audit_Request__c.Account_Name__c</relatedList>
-        <sortField>CREATED_DATE</sortField>
-        <sortOrder>Desc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Event_Name__c</fields>
-        <fields>Event_City__c</fields>
-        <fields>Event_Date__c</fields>
-        <fields>Booth_Size__c</fields>
-        <fields>Total_Cost__c</fields>
-        <fields>Booking_Status__c</fields>
-        <fields>Funding_Source__c</fields>
-        <relatedList>Events_Request__c.Account_Name__c</relatedList>
-        <sortField>NAME</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Program_Suspension__c</fields>
-        <fields>Current_Review_Status__c</fields>
-        <fields>CREATED_DATE</fields>
-        <relatedList>Program_Compliance__c.Account_Name__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Go_Live_Date__c</fields>
-        <fields>BDM_Training_Complete__c</fields>
-        <fields>Welcome_Email_Call_Complete__c</fields>
-        <relatedList>New_Dealer_Training__c.Account__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Partner_Category__c</fields>
-        <fields>Inception_Date__c</fields>
-        <fields>Program_ID__c</fields>
-        <fields>Program_Active_Flag__c</fields>
-        <fields>Program_Date__c</fields>
-        <fields>Program_Deactivated_Flag__c</fields>
-        <fields>Program_Deactivated_Date__c</fields>
-        <fields>Program_Deactivated_Reason__c</fields>
-        <fields>Program_Reactivated_Date__c</fields>
-        <relatedList>Program_Dates__c.Account__c</relatedList>
-        <sortField>Partner_Category__c</sortField>
-        <sortOrder>Asc</sortOrder>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Marketing_Infraction__c.Account_Name__c</relatedList>
-    </relatedLists>
+    
+    
+    
+    
+    
+    
+    
     <relatedLists>
         <fields>RECORDTYPE</fields>
         <fields>Commercial_General_Liability_Status__c</fields>
@@ -955,10 +814,7 @@
         <fields>NAME</fields>
         <relatedList>Email_Communication_Log__c.Account__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Zip_Code__c.Account__c</relatedList>
-    </relatedLists>
+    
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

@@ -28,17 +28,17 @@ public with sharing class SalesforceMessagingProvider implements SMSProviderStra
             // Attempt to use Messaging API objects
             // Note: These objects may not be available if Digital Engagement is not set up
             return sendViaMessagingAPI(contactId, messageContent, messagingChannelId, (Id)providerConfig.get('templateId'));
-        } catch (TypeException e) {
+        } catch (TypeException typeEx) {
             // Messaging API objects not available - log and return placeholder
-            System.debug('Salesforce Messaging API not available: ' + e.getMessage());
+            System.debug('Salesforce Messaging API not available: ' + typeEx.getMessage());
             System.debug('SMS would be sent to Contact: ' + contactId);
             System.debug('Message: ' + messageContent);
             System.debug('Channel ID: ' + messagingChannelId);
             
             return 'SMS-LOGGED-' + String.valueOf(DateTime.now().getTime());
-        } catch (Exception e) {
+        } catch (Exception ex) {
             throw new FollowUpMessagingService.FollowUpMessagingException(
-                'Error sending SMS via Salesforce Messaging: ' + e.getMessage()
+                'Error sending SMS via Salesforce Messaging: ' + ex.getMessage()
             );
         }
     }
@@ -77,9 +77,9 @@ public with sharing class SalesforceMessagingProvider implements SMSProviderStra
             try {
                 // TODO: Check MessagingEndUser if available
                 // For now, skip Messaging API check
-            } catch (TypeException e) {
+            } catch (TypeException typeEx) {
                 // Messaging API not available - fall through to phone check
-                System.debug('Messaging API not available, falling back to phone check: ' + e.getMessage());
+                System.debug('Messaging API not available, falling back to phone check: ' + typeEx.getMessage());
             }
         }
         
@@ -113,4 +113,3 @@ public with sharing class SalesforceMessagingProvider implements SMSProviderStra
         return null; // Valid
     }
 }
-

@@ -2,7 +2,9 @@
 
 ## Overview
 
-The `onboardingHomeDashboard` component provides a comprehensive command center for Dealer and Vendor Program onboarding activities. It offers role-based views, KPI summaries, work queues, analytics, and quick access to start new onboarding processes.
+The `onboardingHomeDashboard` component provides a comprehensive command center for Dealer and Vendor Program onboarding activities. It offers role-based views, KPI summaries, work queues, analytics, and quick access to start new onboarding processes. Dealer refers to an Account record.
+
+See [User Journey Summary](../user-guides/user-journey-summary.md) for the end-to-end flow.
 
 ## Component Details
 
@@ -10,7 +12,7 @@ The `onboardingHomeDashboard` component provides a comprehensive command center 
 `force-app/main/default/lwc/onboardingHomeDashboard/`
 
 ### Purpose
-Central dashboard for managing and monitoring onboarding activities. Designed as the primary entry point for Sales Reps, Onboarding Reps, Sales Managers, and Executives.
+Central dashboard for managing and monitoring onboarding activities. Designed as the primary entry point for Program Specialists (Sales), Onboarding Reps, Sales Managers, and Executives.
 
 ## Features
 
@@ -280,7 +282,7 @@ Child Components:
 
 ## Role-Based Access
 
-### Sales Reps
+### Program Specialists (Sales)
 - Default tab: My Active Dealer Onboarding
 - Can start dealer onboarding for their accounts
 - See "My" metrics in KPI cards

@@ -96,10 +96,7 @@
         <fields>Location</fields>
         <relatedList>ServiceTerritoryLocations</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Assigned_Postal_Code__c.Service_Territory__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <relatedList>RelatedFileList</relatedList>
     </relatedLists>

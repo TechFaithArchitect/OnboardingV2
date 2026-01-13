@@ -3,12 +3,13 @@ private class FollowUpProcessorTest {
 
     @IsTest
     static void processorProcessesDueRecords() {
-        Account acct = TestAccountFactory.create('Test', true);
-        Contact con = new Contact(LastName = 'User', AccountId = acct.Id, MobilePhone = '555-555-5555');
-        insert con;
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(vendor, 'Active', true, null, true);
-        Onboarding__c ob = TestOnboardingFactory.create(acct, vendorProgram, true);
+        Account acct = TestDataFactory.createAccount('Test', true);
+        Contact con = TestDataFactory.createContact('Test', 'User', true, acct);
+        con.MobilePhone = '555-555-5555';
+        update con;
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
+        Onboarding__c ob = TestDataFactory.createOnboarding(acct, vendorProgram, true);
 
         Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
             Name = 'FU',
@@ -17,7 +18,7 @@ private class FollowUpProcessorTest {
             Status__c = 'Pending',
             Next_Attempt_Date__c = DateTime.now().addMinutes(-5)
         );
-        insert fq;
+        TestDataFactoryUtil.maybeInsert(fq, true);
 
         Test.startTest();
         FollowUpProcessor.enqueue();
@@ -36,12 +37,13 @@ private class FollowUpProcessorTest {
 
     @IsTest
     static void processorAdvancesNextAttemptBySchedule() {
-        Account acct = TestAccountFactory.create('Test', true);
-        Contact con = new Contact(LastName = 'User', AccountId = acct.Id, MobilePhone = '555-555-5555');
-        insert con;
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(vendor, 'Active', true, null, true);
-        Onboarding__c ob = TestOnboardingFactory.create(acct, vendorProgram, true);
+        Account acct = TestDataFactory.createAccount('Test', true);
+        Contact con = TestDataFactory.createContact('Test', 'User', true, acct);
+        con.MobilePhone = '555-555-5555';
+        update con;
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
+        Onboarding__c ob = TestDataFactory.createOnboarding(acct, vendorProgram, true);
 
         Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
             Name = 'FU',
@@ -51,7 +53,7 @@ private class FollowUpProcessorTest {
             Next_Attempt_Date__c = DateTime.now().addMinutes(-5),
             Follow_Up_Rule__c = 'ScheduleRule'
         );
-        insert fq;
+        TestDataFactoryUtil.maybeInsert(fq, true);
 
         Test.startTest();
         FollowUpProcessor.enqueue();
@@ -69,16 +71,15 @@ private class FollowUpProcessorTest {
 
     @IsTest
     static void processorInvokesEmailPath() {
-        Account acct = TestAccountFactory.create('Test', true);
-        Contact con = new Contact(LastName = 'User', AccountId = acct.Id, Email = 'test@example.com');
-        insert con;
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(vendor, 'Active', true, null, true);
-        Onboarding__c ob = TestOnboardingFactory.create(acct, vendorProgram, true);
+        Account acct = TestDataFactory.createAccount('Test', true);
+        Contact con = TestDataFactory.createContact('Test', 'User', true, acct);
+        con.Email = 'test@example.com';
+        update con;
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
+        Onboarding__c ob = TestDataFactory.createOnboarding(acct, vendorProgram, true);
 
         // Mock email send success
-        EmailCommSenderService.testResultOverride = new EmailCommSendResultDTO('Success', null, null);
-
         // Queue an email follow-up
         Follow_Up_Queue__c fq = new Follow_Up_Queue__c(
             Name = 'FU Email',
@@ -87,7 +88,7 @@ private class FollowUpProcessorTest {
             Status__c = 'Pending',
             Next_Attempt_Date__c = DateTime.now().addMinutes(-5)
         );
-        insert fq;
+        TestDataFactoryUtil.maybeInsert(fq, true);
 
         Test.startTest();
         FollowUpProcessor.enqueue();

@@ -6,6 +6,8 @@ This guide explains how to view, update, and manage onboarding requirements.
 
 Requirements are individual items that must be completed as part of the onboarding process. Each requirement has a status that tracks its completion state. The system automatically evaluates all requirements to determine the overall onboarding status.
 
+See [User Journey Summary](./user-journey-summary.md) for the end-to-end flow.
+
 ## Accessing Requirements
 
 ### From an Onboarding Record

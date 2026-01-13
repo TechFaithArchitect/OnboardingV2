@@ -37,8 +37,8 @@ public with sharing class PicklistHelper {
                     });
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error getting picklist values for ' + objectApiName + '.' + fieldApiName + ': ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting picklist values for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
         }
         
         return options;
@@ -95,8 +95,8 @@ public with sharing class PicklistHelper {
                     });
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error getting picklist values: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error getting picklist values: ' + ex.getMessage());
         }
         
         // If no values found and fallback provided, use fallback
@@ -110,5 +110,79 @@ public with sharing class PicklistHelper {
         }
         
         return options;
+    }
+
+    public static Boolean isPicklistValueValid(String objectApiName, String fieldApiName, String value) {
+        if (String.isBlank(objectApiName) || String.isBlank(fieldApiName) || String.isBlank(value)) {
+            return false;
+        }
+
+        try {
+            Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(objectApiName);
+            if (sObjectType == null) {
+                return false;
+            }
+
+            Schema.SObjectField field = sObjectType.getDescribe().fields.getMap().get(fieldApiName);
+            if (field == null) {
+                return false;
+            }
+
+            for (Schema.PicklistEntry entry : field.getDescribe().getPicklistValues()) {
+                if (entry.isActive() && entry.getValue() == value) {
+                    return true;
+                }
+            }
+        } catch (Exception ex) {
+            System.debug('Error validating picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
+        }
+
+        return false;
+    }
+
+    public static String getValidPicklistValue(String objectApiName, String fieldApiName, String preferredValue) {
+        if (String.isBlank(objectApiName) || String.isBlank(fieldApiName)) {
+            return preferredValue;
+        }
+
+        try {
+            Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(objectApiName);
+            if (sObjectType == null) {
+                return preferredValue;
+            }
+
+            Schema.SObjectField field = sObjectType.getDescribe().fields.getMap().get(fieldApiName);
+            if (field == null) {
+                return preferredValue;
+            }
+
+            String defaultValue;
+            String firstActive;
+            for (Schema.PicklistEntry entry : field.getDescribe().getPicklistValues()) {
+                if (!entry.isActive()) {
+                    continue;
+                }
+                if (firstActive == null) {
+                    firstActive = entry.getValue();
+                }
+                if (entry.isDefaultValue()) {
+                    defaultValue = entry.getValue();
+                }
+                if (preferredValue != null && entry.getValue() == preferredValue) {
+                    return preferredValue;
+                }
+            }
+
+            if (defaultValue != null) {
+                return defaultValue;
+            }
+            if (firstActive != null) {
+                return firstActive;
+            }
+        } catch (Exception ex) {
+            System.debug('Error getting picklist value for ' + objectApiName + '.' + fieldApiName + ': ' + ex.getMessage());
+        }
+
+        return preferredValue;
     }
 }

@@ -6,6 +6,8 @@ Single-modal Account quick action that:
 - Gates Vendor Program selection based on NDA + Program Base Application eligibility (PerfectVision fallback).
 - Creates Opportunity, Opportunity Contact Roles, Onboarding__c (with seeded Onboarding_Requirement__c from Vendor Program Requirements), and Account_Vendor_Program_Onboarding__c (AVO) in one flow.
 
+See [User Journey Summary](../user-guides/user-journey-summary.md) for the end-to-end flow.
+
 ## User Flow (Modal)
 1) Eligibility banner loads (NDA + Program Base Application check). If not eligible, only PerfectVision programs are returned.
 2) Vendor Program search/pick (uses `searchVendorProgramsForAccount` gated by eligibility).

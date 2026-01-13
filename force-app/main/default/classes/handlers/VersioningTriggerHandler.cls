@@ -16,54 +16,54 @@ public with sharing class VersioningTriggerHandler {
     }
 
     private static void autoCorrectInvalidActiveDrafts(List<SObject> newList) {
-        for (SObject record : newList) {
-            String status = (String) record.get('Status__c');
-            Boolean isActive = (Boolean) record.get('Active__c');
+        for (SObject sObjectRecord : newList) {
+            String status = (String) sObjectRecord.get('Status__c');
+            Boolean isActive = (Boolean) sObjectRecord.get('Active__c');
             
             // DRY Pattern: Sync Status__c with Active__c
             // When Status = 'Active', set Active__c = true
             if (status == 'Active' && (isActive == null || isActive == false)) {
-                record.put('Active__c', true);
+                sObjectRecord.put('Active__c', true);
             }
             // When Status = 'Draft', set Active__c = false
             if (status == 'Draft' && isActive == true) {
-                record.put('Active__c', false);
+                sObjectRecord.put('Active__c', false);
             }
         }
     }
 
     private static void enforceOneActivePerParent(List<SObject> newList, String objectApiName) {
         Set<Id> parentIds = new Set<Id>();
-        for (SObject rec : newList) {
-            Id p = (Id) rec.get('Previous_Version__c');
-            if (p != null) parentIds.add(p);
+        for (SObject sObjectRecord : newList) {
+            Id parentVersionId = (Id) sObjectRecord.get('Previous_Version__c');
+            if (parentVersionId != null) parentIds.add(parentVersionId);
         }
         if (parentIds.isEmpty()) return;
 
         Map<Id, Integer> activeCountByParent = new Map<Id, Integer>();
-        String q = 'SELECT Previous_Version__c parentId, COUNT(Id) cnt ' +
+        String soqlQuery = 'SELECT Previous_Version__c parentId, COUNT(Id) cnt ' +
                    'FROM ' + objectApiName +
                    ' WHERE Active__c = true AND Previous_Version__c IN :parentIds ' +
                    'GROUP BY Previous_Version__c';
-        for (AggregateResult ar : Database.query(q)) {
-            activeCountByParent.put((Id) ar.get('parentId'), (Integer) ar.get('cnt'));
+        for (AggregateResult aggregateResult : Database.query(soqlQuery)) {
+            activeCountByParent.put((Id) aggregateResult.get('parentId'), (Integer) aggregateResult.get('cnt'));
         }
 
-        for (SObject rec : newList) {
-            if ((Boolean) rec.get('Active__c') == true && rec.get('Previous_Version__c') != null) {
-                Id p = (Id) rec.get('Previous_Version__c');
-                Integer currentCount = activeCountByParent.containsKey(p) ? activeCountByParent.get(p) : 0;
-                activeCountByParent.put(p, currentCount + 1);
+        for (SObject sObjectRecord : newList) {
+            if ((Boolean) sObjectRecord.get('Active__c') == true && sObjectRecord.get('Previous_Version__c') != null) {
+                Id parentVersionId = (Id) sObjectRecord.get('Previous_Version__c');
+                Integer currentCount = activeCountByParent.containsKey(parentVersionId) ? activeCountByParent.get(parentVersionId) : 0;
+                activeCountByParent.put(parentVersionId, currentCount + 1);
             }
         }
 
-        for (SObject rec : newList) {
-            Id p = (Id) rec.get('Previous_Version__c');
-            Boolean willBeActive = (Boolean) rec.get('Active__c') == true;
-            if (willBeActive && p != null) {
-                Integer count = activeCountByParent.containsKey(p) ? activeCountByParent.get(p) : 0;
+        for (SObject sObjectRecord : newList) {
+            Id parentVersionId = (Id) sObjectRecord.get('Previous_Version__c');
+            Boolean willBeActive = (Boolean) sObjectRecord.get('Active__c') == true;
+            if (willBeActive && parentVersionId != null) {
+                Integer count = activeCountByParent.containsKey(parentVersionId) ? activeCountByParent.get(parentVersionId) : 0;
                 if (count > 1) {
-                    rec.addError('Only one active version is allowed per record lineage.');
+                    sObjectRecord.addError('Only one active version is allowed per record lineage.');
                 }
             }
         }

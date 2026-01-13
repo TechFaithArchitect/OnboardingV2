@@ -23,7 +23,7 @@
                 <field>Associated_Agreement_Template__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Readonly</behavior>
+                <behavior>Required</behavior>
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
@@ -163,10 +163,7 @@
         <fields>TASK.LAST_UPDATE</fields>
         <relatedList>RelatedHistoryList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>ERP_Setup__c.Vendor_Customization__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Onboarding__c.Vendor_Customization__c</relatedList>
@@ -199,10 +196,6 @@
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Communication_Template__c.Vendor_Program__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Recipient_Group__c.Vendor_Program__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>

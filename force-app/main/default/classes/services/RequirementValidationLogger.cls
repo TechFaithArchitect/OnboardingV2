@@ -19,24 +19,70 @@ public with sharing class RequirementValidationLogger {
         if (entries == null || entries.isEmpty()) {
             return;
         }
-        List<Validation_Failure__c> records = new List<Validation_Failure__c>();
-        for (LogEntry entry : entries) {
-            if (entry == null || entry.fieldValueId == null) {
+        List<Validation_Failure__c> validationFailureRecords = new List<Validation_Failure__c>();
+        for (LogEntry logEntry : entries) {
+            if (logEntry == null || logEntry.fieldValueId == null) {
                 continue;
             }
-            Validation_Failure__c vf = new Validation_Failure__c();
-            vf.Requirement_Field_Value__c = entry.fieldValueId;
-            vf.Requirement_Field__c = entry.fieldApiName;
-            vf.Validation_Result__c = entry.validationResult;
-            vf.Validation_Type__c = entry.validationType;
-            vf.Message__c = entry.message;
-            vf.Rule_Name__c = entry.ruleName;
-            vf.Correlation_Id__c = entry.correlationId;
-            vf.Validated_On__c = entry.validatedOn != null ? entry.validatedOn : Datetime.now();
-            records.add(vf);
+            Validation_Failure__c validationFailure = new Validation_Failure__c();
+            validationFailure.Requirement_Field_Value__c = logEntry.fieldValueId;
+            validationFailure.Requirement_Field__c = logEntry.fieldApiName;
+            String normalizedResult = normalizeValidationResult(logEntry.validationResult);
+            if (String.isNotBlank(normalizedResult)) {
+                validationFailure.Validation_Result__c = normalizedResult;
+            }
+            String normalizedType = normalizeValidationType(logEntry.validationType);
+            if (String.isNotBlank(normalizedType)) {
+                validationFailure.Validation_Type__c = normalizedType;
+            }
+            validationFailure.Message__c = logEntry.message;
+            validationFailure.Rule_Name__c = logEntry.ruleName;
+            validationFailure.Correlation_Id__c = logEntry.correlationId;
+            validationFailure.Validated_On__c = logEntry.validatedOn != null ? logEntry.validatedOn : Datetime.now();
+            validationFailureRecords.add(validationFailure);
         }
-        if (!records.isEmpty()) {
-            insert records;
+        if (!validationFailureRecords.isEmpty()) {
+            insert validationFailureRecords;
         }
+    }
+
+    private static String normalizeValidationType(String validationType) {
+        if (String.isBlank(validationType)) {
+            return null;
+        }
+        String lowered = validationType.toLowerCase();
+        if (lowered.startsWith('external')) {
+            return 'External';
+        }
+        if (lowered.contains('cross')) {
+            return 'Cross-Field';
+        }
+        if (lowered == 'format') {
+            return 'Format';
+        }
+        return 'Other';
+    }
+
+    private static String normalizeValidationResult(String validationResult) {
+        if (String.isBlank(validationResult)) {
+            return null;
+        }
+        String normalized = validationResult.replace('_', ' ').trim();
+        if (normalized.equalsIgnoreCase('pending')) {
+            return 'Pending';
+        }
+        if (normalized.equalsIgnoreCase('valid')) {
+            return 'Valid';
+        }
+        if (normalized.equalsIgnoreCase('invalid')) {
+            return 'Invalid';
+        }
+        if (normalized.equalsIgnoreCase('needs correction')) {
+            return 'Needs Correction';
+        }
+        if (normalized.equalsIgnoreCase('failed')) {
+            return 'Failed';
+        }
+        return null;
     }
 }

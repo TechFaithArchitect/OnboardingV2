@@ -38,13 +38,13 @@ public with sharing class UtilitiesSyncLogHelper {
     //------------------------------------------------------------------------------------------
     // Marks the Sync Log as failed and stores error message.
     //------------------------------------------------------------------------------------------
-    public static void markFailed(Id logId, Exception e) {
+    public static void markFailed(Id logId, Exception ex) {
         if (logId == null) return;
 
         Sync_Log__c logRec = new Sync_Log__c(
             Id = logId,
             Status__c = 'Failed',
-            Error_Message__c = e != null ? e.getMessage() : 'Unknown error'
+            Error_Message__c = ex != null ? ex.getMessage() : 'Unknown error'
         );
         update logRec;
         System.debug('❌ Marked Sync Log as failed: ' + logId);

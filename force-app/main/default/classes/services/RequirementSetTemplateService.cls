@@ -72,11 +72,11 @@ public with sharing class RequirementSetTemplateService {
             insert junctionsToCreate;
         }
         
-        List<Id> result = new List<Id>();
+        List<Id> junctionIds = new List<Id>();
         for (Requirement_Set_Template__c junction : junctionsToCreate) {
-            result.add(junction.Id);
+            junctionIds.add(junction.Id);
         }
-        return result;
+        return junctionIds;
     }
     
     /**

@@ -3,10 +3,10 @@ private class VendorOnboardingServiceTest {
 
     @isTest
     static void testGetEligibleVendorsReturnsCorrectDTOs() {
-        Account acct = PV_TestDataFactory.createAccount('Test Account', true);
+        Account acct = TestDataFactory.createAccount('Test Account', true);
 
         TestDataFactoryWrapper.VendorCustomizationWrapper setup =
-            PV_TestDataFactory.createDraftVendorCustomizationWrapper(true);
+            TestDataFactoryWrapper.createDraftVendorCustomizationWrapper(true);
 
         // Link customization to required fields
         setup.customization.Retail_Option__c = 'National Agent';
@@ -29,10 +29,10 @@ private class VendorOnboardingServiceTest {
 
     @isTest
     static void testGetEligibleVendorsWithOnboardedVendorReturnsNone() {
-        Account acct = PV_TestDataFactory.createAccount('Onboarded Account', true);
+        Account acct = TestDataFactory.createAccount('Onboarded Account', true);
 
         TestDataFactoryWrapper.VendorCustomizationWrapper setup =
-            PV_TestDataFactory.createDraftVendorCustomizationWrapper(true);
+            TestDataFactoryWrapper.createDraftVendorCustomizationWrapper(true);
 
         // Simulate an existing onboarding with the same customization (Vendor Program)
         Onboarding__c ob = new Onboarding__c(

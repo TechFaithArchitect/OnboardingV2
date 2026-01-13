@@ -8,13 +8,13 @@ public with sharing class FollowUpRuleRepository {
         if (String.isBlank(developerName)) {
             return null;
         }
-        List<Follow_Up_Rule__mdt> rules = [
+        List<Follow_Up_Rule__mdt> followUpRules = [
             SELECT Max_Attempts_Per_Window__c, Fatigue_Window_Days__c, Fatigue_Suppression_Enabled__c
             FROM Follow_Up_Rule__mdt
             WHERE DeveloperName = :developerName
             LIMIT 1
         ];
-        return rules.isEmpty() ? null : rules[0];
+        return followUpRules.isEmpty() ? null : followUpRules[0];
     }
 
     public static List<Follow_Up_Suppression__mdt> getActiveSuppressions() {
@@ -30,14 +30,14 @@ public with sharing class FollowUpRuleRepository {
             return null;
         }
         try {
-            Onboarding_Requirement__c req = [
+            Onboarding_Requirement__c onboardingRequirement = [
                 SELECT Onboarding__r.Account__c
                 FROM Onboarding_Requirement__c
                 WHERE Id = :onboardingRequirementId
                 LIMIT 1
             ];
-            return req.Onboarding__r.Account__c;
-        } catch (Exception e) {
+            return onboardingRequirement.Onboarding__r.Account__c;
+        } catch (Exception ex) {
             return null;
         }
     }

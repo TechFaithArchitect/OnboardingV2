@@ -147,6 +147,13 @@
 
                 <!-- Sidebar (1/3 width) -->
                 <div class="slds-col slds-size_1-of-3">
+                    <c-onboarding-at-risk-panel
+                        time-filter={filters.timeRange}
+                        vendor-ids={filters.vendors}
+                        program-ids={filters.programs}
+                        onviewrequirements={handleViewRequirements}
+                        class="slds-m-bottom_medium">
+                    </c-onboarding-at-risk-panel>
                     <lightning-card title="Recent Activity" icon-name="utility:clock">
                         <c-onboarding-recent-activity
                             activities={recentActivity}

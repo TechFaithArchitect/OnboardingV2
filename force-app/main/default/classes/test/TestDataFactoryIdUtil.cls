@@ -8,7 +8,8 @@ public class TestDataFactoryIdUtil {
         if (String.isBlank(prefix) || prefix.length() != 3) {
             prefix = '001'; // Default to Account prefix
         }
-        return prefix + '00000000000AA';
+        String baseId = prefix + '000000000000'; // 15 chars so Id.valueOf can generate a valid checksum
+        return String.valueOf(Id.valueOf(baseId));
     }
 
     public static String fakeAsyncId() {

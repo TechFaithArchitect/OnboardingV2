@@ -120,19 +120,19 @@ public with sharing class OnboardingApplicationService {
 
 ### Onboarding_Program_Sales_Team
 
-**Purpose**: Permissions for Program Sales team
+**Purpose**: Permissions for Program Specialists (Sales)
 
 **Key Permissions**:
-- Access to Vendor_Program__c records
+- Access to Vendor_Customization__c (Vendor Program) records
 - Access to onboarding flow components
 - Read access to onboarding status
 - Limited write access
 
-**Use Case**: Sales team members who initiate onboarding processes
+**Use Case**: Program Specialists who sell programs to Dealers (Accounts) and initiate onboarding processes
 
 ### Onboarding_Program_Specialists
 
-**Purpose**: Permissions for Program Specialists
+**Purpose**: Permissions for Program Managers (permission set name retained for legacy reasons)
 
 **Key Permissions**:
 - Full access to vendor program configuration
@@ -140,7 +140,7 @@ public with sharing class OnboardingApplicationService {
 - Access to requirement groups
 - Configuration management permissions
 
-**Use Case**: Specialists who configure onboarding processes and rules
+**Use Case**: Program Managers who manage vendor relationships and configure vendor program requirements, rules engines, and onboarding setup
 
 ### Onboarding_Customer_Service
 
@@ -383,4 +383,3 @@ Objects using ControlledByParent:
 - [Configuration Guide](../setup/configuration.md)
 - [Architecture Overview](../architecture/overview.md)
 - [Apex Classes](../components/apex-classes.md)
-

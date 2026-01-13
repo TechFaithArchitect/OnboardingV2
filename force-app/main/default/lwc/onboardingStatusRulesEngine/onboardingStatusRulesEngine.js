@@ -5,12 +5,16 @@ import getVendorProgramGroups from '@salesforce/apex/OnboardingStatusRulesEngine
 import getRequirementGroups from '@salesforce/apex/OnboardingStatusRulesEngineController.getRequirementGroups';
 import getRules from '@salesforce/apex/OnboardingStatusRulesEngineController.getRules';
 import saveRules from '@salesforce/apex/OnboardingStatusRulesEngineController.saveRules';
+import getOnboardingOptions from '@salesforce/apex/OnboardingStatusRulesEngineController.getOnboardingOptions';
 
 export default class OnboardingStatusRulesEngine extends LightningElement {
     @track vendorProgramGroupOptions = [];
     @track requirementGroupOptions = [];
+    @track onboardingOptions = [];
     @track rules = [];
     @track draftValues = [];
+    @track showPreviewModal = false;
+    @track selectedOnboardingId = null;
 
     selectedVendorProgramGroup;
     selectedRequirementGroup;
@@ -25,10 +29,12 @@ export default class OnboardingStatusRulesEngine extends LightningElement {
     connectedCallback() {
         Promise.all([
             getVendorProgramGroups(),
-            getRequirementGroups()
-        ]).then(([vendorGroups, requirementGroups]) => {
+            getRequirementGroups(),
+            getOnboardingOptions({ limitCount: 50 })
+        ]).then(([vendorGroups, requirementGroups, onboardingOpts]) => {
             this.vendorProgramGroupOptions = vendorGroups;
             this.requirementGroupOptions = requirementGroups;
+            this.onboardingOptions = onboardingOpts || [];
         }).catch(error => {
             this.showToast(
                 'Error',
@@ -89,6 +95,26 @@ export default class OnboardingStatusRulesEngine extends LightningElement {
                 'error'
             );
         }
+    }
+
+    handlePreviewClick() {
+        if (!this.selectedOnboardingId) {
+            this.showToast(
+                'Selection Required',
+                'Please select an onboarding record to preview evaluation.',
+                'warning'
+            );
+            return;
+        }
+        this.showPreviewModal = true;
+    }
+
+    handleOnboardingSelection(event) {
+        this.selectedOnboardingId = event.detail.value;
+    }
+
+    handlePreviewModalClose() {
+        this.showPreviewModal = false;
     }
 
     showToast(title, message, variant) {

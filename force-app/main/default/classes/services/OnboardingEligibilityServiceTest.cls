@@ -3,9 +3,8 @@ private class OnboardingEligibilityServiceTest {
 
     @isTest
     static void testGetEligibleVendorCountsByAccount() {
-        Account account1 = new Account(Name = 'Eligible Account 1');
-        Account account2 = new Account(Name = 'Eligible Account 2');
-        insert new List<Account>{ account1, account2 };
+        Account account1 = TestDataFactory.createAccount('Eligible Account 1', true);
+        Account account2 = TestDataFactory.createAccount('Eligible Account 2', true);
 
         Vendor__c vendor1 = TestDataFactory.createVendor(true);
         Vendor__c vendor2 = TestDataFactory.createVendor(true);
@@ -51,8 +50,7 @@ private class OnboardingEligibilityServiceTest {
 
     @isTest
     static void testGetEligibleVendorCountsByAccount_NoActivePrograms() {
-        Account account = new Account(Name = 'No Programs Account');
-        insert account;
+        Account account = TestDataFactory.createAccount('No Programs Account', true);
 
         Vendor__c vendor = TestDataFactory.createVendor(true);
         // Inactive program should not be counted

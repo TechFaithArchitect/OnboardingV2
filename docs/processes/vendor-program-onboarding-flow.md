@@ -4,6 +4,8 @@
 
 This document describes the complete flow for building a Vendor Program from scratch using the metadata-driven onboarding system. The system uses a **Component Library** pattern that allows you to define a sequence of wizard steps, and the system dynamically renders the appropriate Lightning Web Components based on the library configuration.
 
+See [User Journey Summary](../user-guides/user-journey-summary.md) for the end-to-end flow.
+
 ## Current Flow Structure (10 Steps)
 
 The Vendor Program Onboarding wizard has been restructured into a **10-step flow** that supports both **User** and **Admin** roles with conditional branching based on user permissions.
@@ -24,22 +26,18 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
     - `Label__c` (Vendor Program Label)
     - `Retail_Option__c` (Picklist)
     - `Business_Vertical__c` (Picklist)
+  - Draft status is set automatically (`Status__c = 'Draft'`, `Active__c = false`)
 - **Output:** `vendorProgramId` passed to next step
 
-#### **Step 3: Create Vendor Program in Draft**
-- **Component:** `vendorProgramOnboardingVendorProgramCreate` (implicit)
-- **Purpose:** Vendor Program is created in Draft status automatically
-- **Status:** `Status__c = 'Draft'`, `Active__c = false`
-
-#### **Step 4: Select Requirement Set OR Create Requirements**
+#### **Step 3: Select Requirement Set OR Create Requirements**
 - **Component:** `vendorProgramOnboardingRequirementSetOrCreate`
 - **Purpose:** Select existing Onboarding Requirement Set or create new requirements
 - **Sub-steps:**
-  - **4a:** If Requirement Set exists and is selected:
+  - **3a:** If Requirement Set exists and is selected:
     - Confirm selection or make changes
-    - If confirmed: Link Requirement Set to Vendor Program
+    - If confirmed: Link Requirement Set to Vendor Program (via `Vendor_Program_Requirement_Set__c`)
     - If changes: Create new Requirement Set with naming convention: `"Vendor Program Label - Onboarding Set"`
-  - **4b:** If no Requirement Set or skipped:
+  - **3b:** If no Requirement Set or skipped:
     - Create `Vendor_Program_Onboarding_Req_Template__c` records inline
     - Create `Vendor_Program_Requirement__c` records from templates
     - Confirm all requirements created
@@ -49,19 +47,19 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - Search and select existing Requirement Sets
 - **Output:** `requirementSetId`, `requirementTemplateId` passed to next step
 
-#### **Step 5: Create and Link Requirement Group Components**
+#### **Step 4: Create and Link Requirement Group Components**
 - **Component:** `vendorProgramOnboardingRequirementGroupLinking`
 - **Purpose:** Create and link Vendor Program Group, Vendor Program Requirement Group, and Vendor Program Group Member
 - **Sub-steps:**
-  - **5a:** If using selected Requirement Set (from Step 4):
+  - **4a:** If using selected Requirement Set (from Step 3):
     - Link from historical values (reuse existing groups)
-  - **5b:** If creating new:
+  - **4b:** If creating new:
     - Create `Vendor_Program_Group__c` with naming: `"Vendor Program Label - Vendor Program Group"`
     - Create `Vendor_Program_Requirement_Group__c` with naming: `"Vendor Program Label - Requirement Group"`
     - Create `Vendor_Program_Group_Member__c` to link them together
 - **Output:** `groupMemberId` passed to next step
 
-#### **Step 6: Required Credentials (Conditional)**
+#### **Step 5: Required Credentials (Conditional)**
 - **Component:** `vendorProgramOnboardingRequiredCredentials`
 - **Purpose:** Configure required credentials if needed
 - **Features:**
@@ -70,7 +68,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - If No: Skip to next step
 - **Output:** `credentialsNeeded` boolean flag
 
-#### **Step 7: Training Requirements**
+#### **Step 6: Training Requirements**
 - **Component:** `vendorProgramOnboardingTrainingRequirements`
 - **Purpose:** Configure training requirements using dual-listbox selection
 - **Features:**
@@ -81,14 +79,14 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - Real-time updates to bottom table showing required training requirements
 - **Output:** Training requirements linked to Vendor Program
 
-#### **Step 8: Status Rules Engine**
+#### **Step 7: Status Rules Engine**
 - **Component:** `vendorProgramOnboardingStatusRulesEngine`
 - **Purpose:** Select or create Status Rules Engine
 - **Sub-steps:**
-  - **8a:** If creating new or no Requirement Set:
+  - **7a:** If creating new or no Requirement Set:
     - Create `Onboarding_Status_Rules_Engine__c`
-    - Create `Onboarding_Status_Rule_Builder__c` records
-  - **8b:** If previous Status Rules Engine exists (from Requirement Set):
+    - Create `Onboarding_Status_Rule__c` records
+  - **7b:** If previous Status Rules Engine exists (from Requirement Set):
     - Show confirmation with option to use existing or create new
 - **Features:**
   - Search existing Status Rules Engines
@@ -96,9 +94,9 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - Confirmation view with option to make changes
 - **Output:** `statusRulesEngineId` passed to next step
 
-#### **Step 9: Communication Template & Recipient Groups**
+#### **Step 8: Communication Template & Recipient Groups**
 - **Component (Admin):** `vendorProgramOnboardingRecipientGroup`
-- **Component (User):** Skip to Step 10
+- **Component (User):** Skip to Step 9
 - **Purpose (Admin):** Create or select Recipient Groups and link to Vendor Program
 - **Features (Admin):**
   - Show existing Recipient Groups for Vendor Program
@@ -108,7 +106,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - Link via `Vendor_Program_Recipient_Group__c`
 - **Output:** `recipientGroupId` passed to next step
 
-#### **Step 10: Communication Template Selection**
+#### **Step 9: Communication Template Selection**
 - **Component:** `vendorProgramOnboardingCommunicationTemplate`
 - **Purpose:** Select Communication Template, Recipient Group, and trigger condition
 - **Features:**
@@ -118,7 +116,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
   - Create `Vendor_Program_Recipient_Group__c` link with template and condition
 - **Output:** Communication template linked with trigger condition
 
-#### **Step 10 (Final): Finalize Vendor Program**
+#### **Step 10: Finalize Vendor Program**
 - **Component:** `vendorProgramOnboardingFinalize`
 - **Purpose:** Complete onboarding setup and navigate to Vendor Program
 - **Features:**
@@ -180,7 +178,7 @@ Stages define individual steps in the onboarding process. Each stage references 
 Tracks where a user is in the onboarding process for a specific Vendor Program.
 
 **Key Fields:**
-- `Vendor_Program__c` - The vendor program being onboarded
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - The vendor program being onboarded
 - `Onboarding_Application_Process__c` - The process being executed
 - `Current_Stage__c` - Current stage ID (allows resuming)
 
@@ -189,7 +187,7 @@ Tracks where a user is in the onboarding process for a specific Vendor Program.
 Audit log of completed stages.
 
 **Key Fields:**
-- `Vendor_Program__c` - Vendor program
+- `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` - Process
 - `Onboarding_Application_Stage__c` - Completed stage
 - `Completed_Date__c` - When completed

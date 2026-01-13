@@ -1,8 +1,9 @@
 public with sharing class EmailCommTerritoryRoleSyncJob implements Schedulable {
 
     public void execute(SchedulableContext sc) {
+        // Query all fields including Name and any required fields
         List<Territory_Assignments__c> assignments = [
-            SELECT Id,
+            SELECT Id, Name,
                    Account_Manager__c,
                    BB_Recruiter__c,
                    Inside_BB_BDM__c,

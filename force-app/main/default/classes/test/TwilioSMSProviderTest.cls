@@ -7,13 +7,10 @@ private class TwilioSMSProviderTest {
     
     @TestSetup
     static void setupTestData() {
-        Account acct = TestAccountFactory.create('Test', true);
-        Contact con = new Contact(
-            LastName = 'TestUser',
-            AccountId = acct.Id,
-            MobilePhone = '+15551234567'
-        );
-        insert con;
+        Account acct = TestDataFactory.createAccount('Test', true);
+        Contact con = TestDataFactory.createContact('Test', 'User', true, acct);
+        con.MobilePhone = '+15551234567';
+        update con;
     }
     
     @IsTest
@@ -145,4 +142,3 @@ private class TwilioSMSProviderTest {
         }
     }
 }
-

@@ -3,18 +3,20 @@ private class RequirementFieldValidationActionTest {
 
     @isTest
     static void validatesAndReturnsStatuses() {
-        Requirement_Field__c reqField = new Requirement_Field__c(
-            Name = 'Action Field',
-            Field_API_Name__c = 'Action_Field__c',
-            Required__c = true,
-            Validation_Type__c = 'None'
+        OnboardingTestDataFactory.RequirementContext ctx = OnboardingTestDataFactory.createRequirementContext(true);
+        
+        Requirement_Field__c reqField = TestDataFactory.createRequirementField(
+            'Action_Field__c',
+            'None',
+            true,
+            true
         );
-        insert reqField;
 
-        Requirement_Field_Value__c fv = new Requirement_Field_Value__c(
-            Requirement_Field__c = reqField.Id
+        Requirement_Field_Value__c fv = TestDataFactory.createRequirementFieldValue(
+            reqField,
+            ctx.requirement,
+            true
         );
-        insert fv;
 
         RequirementFieldValidationAction.Request req = new RequirementFieldValidationAction.Request();
         req.requirementFieldValueId = fv.Id;
@@ -26,7 +28,12 @@ private class RequirementFieldValidationActionTest {
 
         System.assertEquals(1, responses.size(), 'Should return one response');
         System.assertEquals(fv.Id, responses[0].requirementFieldValueId);
-        System.assertEquals('Needs_Correction', responses[0].status, 'Required blank should need correction');
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Requirement_Field_Value__c.SObjectType,
+            'Validation_Status__c'
+        );
+        String needsCorrectionStatus = validStatuses.contains('Needs Correction') ? 'Needs Correction' : validStatuses[0];
+        System.assertEquals(needsCorrectionStatus, responses[0].status, 'Required blank should need correction');
         System.assertNotEquals(null, responses[0].message, 'Should have a validation message');
     }
 }

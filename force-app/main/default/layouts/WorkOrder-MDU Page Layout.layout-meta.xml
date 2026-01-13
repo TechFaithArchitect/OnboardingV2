@@ -65,11 +65,9 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>MDU_Building__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>MDU_Phase__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -380,13 +378,7 @@
         <fields>QuantityRequired</fields>
         <relatedList>ProductsRequired</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Product_Name__c</fields>
-        <fields>Location__c</fields>
-        <fields>Serial_Number__c</fields>
-        <relatedList>Additional_Product__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <fields>Name</fields>
         <fields>Product2</fields>
@@ -406,14 +398,8 @@
     <relatedLists>
         <relatedList>RelatedFileList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Typeform_Responses__c.Work_Order__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Claim__c.Work_Order__c</relatedList>
-    </relatedLists>
+    
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>

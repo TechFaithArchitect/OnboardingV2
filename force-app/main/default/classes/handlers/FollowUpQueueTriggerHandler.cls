@@ -49,14 +49,14 @@ public with sharing class FollowUpQueueTriggerHandler {
 
         // Publish Platform Events for async retry processing
         if (!retryEvents.isEmpty()) {
-            List<Database.SaveResult> results = EventBus.publish(retryEvents);
+            List<Database.SaveResult> publishResults = EventBus.publish(retryEvents);
             
             // Log any publish failures
-            for (Integer i = 0; i < results.size(); i++) {
-                if (!results[i].isSuccess()) {
-                    System.debug('Failed to publish retry event for Follow_Up_Queue__c: ' + retryEvents[i].Follow_Up_Queue_Id__c);
-                    for (Database.Error err : results[i].getErrors()) {
-                        System.debug('Error: ' + err.getMessage());
+            for (Integer resultIndex = 0; resultIndex < publishResults.size(); resultIndex++) {
+                if (!publishResults[resultIndex].isSuccess()) {
+                    System.debug('Failed to publish retry event for Follow_Up_Queue__c: ' + retryEvents[resultIndex].Follow_Up_Queue_Id__c);
+                    for (Database.Error publishError : publishResults[resultIndex].getErrors()) {
+                        System.debug('Error: ' + publishError.getMessage());
                     }
                 }
             }

@@ -40,7 +40,7 @@ public with sharing class VendorProgramRequirementService {
         String defaultStatus,
         Boolean defaultIsRequired
     ) {
-        BulkCreateRequirementsResult result = new BulkCreateRequirementsResult();
+        BulkCreateRequirementsResult bulkCreateRequirementsResult = new BulkCreateRequirementsResult();
         
         ValidationHelper.requireId(vendorProgramId, 'Vendor Program ID');
         ValidationHelper.requireNotEmpty(templateIds, 'Template IDs');
@@ -56,7 +56,7 @@ public with sharing class VendorProgramRequirementService {
         }
 
         // Get template details for creating requirements
-        List<Vendor_Program_Onboarding_Req_Template__c> templates = [
+        List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = [
             SELECT Id, Requirement_Label__c, Requirement_Type__c
             FROM Vendor_Program_Onboarding_Req_Template__c
             WHERE Id IN :templateIdSet
@@ -66,32 +66,32 @@ public with sharing class VendorProgramRequirementService {
         List<Vendor_Program_Requirement__c> requirementsToCreate = new List<Vendor_Program_Requirement__c>();
         Integer sequence = 1;
         
-        for (Vendor_Program_Onboarding_Req_Template__c template : templates) {
-            if (!existingTemplateIds.contains(template.Id)) {
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : requirementTemplates) {
+            if (!existingTemplateIds.contains(requirementTemplate.Id)) {
                 Vendor_Program_Requirement__c requirement = new Vendor_Program_Requirement__c(
                     Vendor_Program__c = vendorProgramId,
-                    Requirement_Template__c = template.Id,
+                    Requirement_Template__c = requirementTemplate.Id,
                     Status__c = defaultStatus != null ? defaultStatus : 'Active',
                     Is_Required__c = defaultIsRequired != null ? defaultIsRequired : true,
                     Sequence__c = sequence++
                 );
                 requirementsToCreate.add(requirement);
             } else {
-                result.skippedTemplateIds.add(template.Id);
+                bulkCreateRequirementsResult.skippedTemplateIds.add(requirementTemplate.Id);
             }
         }
 
         if (!requirementsToCreate.isEmpty()) {
             List<Vendor_Program_Requirement__c> createdRequirements = 
                 VendorOnboardingWizardRepository.bulkInsertVendorProgramRequirements(requirementsToCreate);
-            result.createdRequirementIds = new List<Id>();
-            for (Vendor_Program_Requirement__c req : createdRequirements) {
-                result.createdRequirementIds.add(req.Id);
+            bulkCreateRequirementsResult.createdRequirementIds = new List<Id>();
+            for (Vendor_Program_Requirement__c vendorProgramRequirement : createdRequirements) {
+                bulkCreateRequirementsResult.createdRequirementIds.add(vendorProgramRequirement.Id);
             }
         }
 
-        result.success = true;
-        return result;
+        bulkCreateRequirementsResult.success = true;
+        return bulkCreateRequirementsResult;
     }
     
     /**

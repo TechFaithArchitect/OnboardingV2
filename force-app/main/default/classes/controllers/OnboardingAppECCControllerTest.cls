@@ -4,8 +4,8 @@ private class OnboardingAppECCControllerTest {
     @isTest
     static void testGetRequiredCredentials() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c customization = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c customization = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         External_Contact_Credential_Type__c type1 = TestCredentialFactory.createCredentialType('Type A', 1, customization, true, true);
         Required_Credential__c rc = TestCredentialFactory.createRequiredCredential(type1, customization, true, true);
@@ -23,8 +23,8 @@ private class OnboardingAppECCControllerTest {
     @isTest
     static void testGetAvailableCredentialTypes() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c customization = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c customization = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         External_Contact_Credential_Type__c type1 = TestCredentialFactory.createCredentialType('Type A', 1, customization, true, true);
         
@@ -41,8 +41,8 @@ private class OnboardingAppECCControllerTest {
     @isTest
     static void testCreateCredentialType() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c customization = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c customization = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         
         // Act
@@ -59,8 +59,8 @@ private class OnboardingAppECCControllerTest {
     @isTest
     static void testLinkCredentialTypeToRequiredCredential() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c customization = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c customization = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         External_Contact_Credential_Type__c type1 = TestCredentialFactory.createCredentialType('Type A', 1, customization, true, true);
         Required_Credential__c rc = TestCredentialFactory.createRequiredCredential(type1, customization, true, true);

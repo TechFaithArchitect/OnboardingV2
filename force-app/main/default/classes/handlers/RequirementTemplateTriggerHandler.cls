@@ -35,12 +35,12 @@ public with sharing class RequirementTemplateTriggerHandler {
         
         // Collect template IDs (only for updates - inserts won't have IDs yet)
         // and labels for new/updated records
-        for (Vendor_Program_Onboarding_Req_Template__c template : newList) {
-            if (String.isNotBlank(template.Requirement_Label__c)) {
-                if (template.Id != null) {
-                    templateIds.add(template.Id);
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : newList) {
+            if (String.isNotBlank(requirementTemplate.Requirement_Label__c)) {
+                if (requirementTemplate.Id != null) {
+                    templateIds.add(requirementTemplate.Id);
                 }
-                labelsToCheck.add(template.Requirement_Label__c.trim().toLowerCase());
+                labelsToCheck.add(requirementTemplate.Requirement_Label__c.trim().toLowerCase());
             }
         }
         
@@ -109,29 +109,29 @@ public with sharing class RequirementTemplateTriggerHandler {
         }
         
         // Check for duplicates in updated records
-        for (Vendor_Program_Onboarding_Req_Template__c template : newList) {
-            if (template.Id == null || String.isBlank(template.Requirement_Label__c)) {
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : newList) {
+            if (requirementTemplate.Id == null || String.isBlank(requirementTemplate.Requirement_Label__c)) {
                 continue;
             }
             
             // Get requirement sets for this template
-            Set<Id> reqSetIds = templateIdToRequirementSetIds.get(template.Id);
+            Set<Id> reqSetIds = templateIdToRequirementSetIds.get(requirementTemplate.Id);
             if (reqSetIds == null || reqSetIds.isEmpty()) {
                 continue;
             }
             
             // Only check if this record is active or current version
-            Boolean isActiveOrCurrent = template.Status__c == 'Active' || 
-                                       template.Is_Current_Version__c == true;
+            Boolean isActiveOrCurrent = requirementTemplate.Status__c == 'Active' || 
+                                       requirementTemplate.Is_Current_Version__c == true;
             
             if (isActiveOrCurrent) {
                 for (Id reqSetId : reqSetIds) {
-                    String key = reqSetId + '|' + template.Requirement_Label__c.trim().toLowerCase();
+                    String key = reqSetId + '|' + requirementTemplate.Requirement_Label__c.trim().toLowerCase();
                     Vendor_Program_Onboarding_Req_Template__c existing = existingTemplates.get(key);
                     
-                    if (existing != null && template.Id != existing.Id) {
-                        template.addError('A template with the label "' + 
-                                        template.Requirement_Label__c + 
+                    if (existing != null && requirementTemplate.Id != existing.Id) {
+                        requirementTemplate.addError('A template with the label "' + 
+                                        requirementTemplate.Requirement_Label__c + 
                                         '" already exists in this Requirement Set. Please use a different label or edit the existing template.');
                         break; // Only need one error per template
                     }
@@ -155,18 +155,18 @@ public with sharing class RequirementTemplateTriggerHandler {
         List<Vendor_Program_Onboarding_Req_Template__c> insertsWithoutVersions = new List<Vendor_Program_Onboarding_Req_Template__c>();
         
         // Separate inserts from updates
-        for (Vendor_Program_Onboarding_Req_Template__c template : newList) {
-            if (template.Id != null) {
-                templateIds.add(template.Id);
-            } else if (String.isBlank(template.Version__c)) {
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : newList) {
+            if (requirementTemplate.Id != null) {
+                templateIds.add(requirementTemplate.Id);
+            } else if (String.isBlank(requirementTemplate.Version__c)) {
                 // For inserts without junction records yet, default to version 1
-                insertsWithoutVersions.add(template);
+                insertsWithoutVersions.add(requirementTemplate);
             }
         }
         
         // Set version 1 for inserts (junction records don't exist yet)
-        for (Vendor_Program_Onboarding_Req_Template__c template : insertsWithoutVersions) {
-            template.Version__c = '1';
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : insertsWithoutVersions) {
+            requirementTemplate.Version__c = '1';
         }
         
         // For updates, get requirement sets via junction
@@ -192,9 +192,9 @@ public with sharing class RequirementTemplateTriggerHandler {
         
         if (requirementSetIds.isEmpty()) {
             // No junction records - set version 1 for any templates without version
-            for (Vendor_Program_Onboarding_Req_Template__c template : newList) {
-                if (template.Id != null && String.isBlank(template.Version__c)) {
-                    template.Version__c = '1';
+            for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : newList) {
+                if (requirementTemplate.Id != null && String.isBlank(requirementTemplate.Version__c)) {
+                    requirementTemplate.Version__c = '1';
                 }
             }
             return;
@@ -234,7 +234,7 @@ public with sharing class RequirementTemplateTriggerHandler {
                             maxVersionByRequirementSet.put(reqSetId, versionNum);
                         }
                     }
-                } catch (TypeException e) {
+                } catch (TypeException typeEx) {
                     System.debug('Invalid version format: ' + existing.Version__c);
                 }
             }
@@ -242,9 +242,9 @@ public with sharing class RequirementTemplateTriggerHandler {
         
         // Set version numbers for updated records without versions
         // Use the maximum version across all requirement sets the template belongs to
-        for (Vendor_Program_Onboarding_Req_Template__c template : newList) {
-            if (template.Id != null && String.isBlank(template.Version__c)) {
-                Set<Id> reqSetIds = templateIdToRequirementSetIds.get(template.Id);
+        for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : newList) {
+            if (requirementTemplate.Id != null && String.isBlank(requirementTemplate.Version__c)) {
+                Set<Id> reqSetIds = templateIdToRequirementSetIds.get(requirementTemplate.Id);
                 Decimal maxVersion = null;
                 
                 if (reqSetIds != null) {
@@ -257,9 +257,9 @@ public with sharing class RequirementTemplateTriggerHandler {
                 }
                 
                 if (maxVersion == null) {
-                    template.Version__c = '1';
+                    requirementTemplate.Version__c = '1';
                 } else {
-                    template.Version__c = String.valueOf(maxVersion + 1);
+                    requirementTemplate.Version__c = String.valueOf(maxVersion + 1);
                 }
             }
         }

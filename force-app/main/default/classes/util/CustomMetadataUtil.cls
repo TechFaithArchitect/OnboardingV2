@@ -15,15 +15,15 @@ public with sharing class CustomMetadataUtil {
         String soql = 'SELECT Id, DeveloperName, MasterLabel FROM ' +
                       mdtType.getDescribe().getName() +
                       ' WHERE DeveloperName = :developerName LIMIT 1';
-        SObject record = null;
+        SObject customMetadataRecord = null;
         try {
-            List<SObject> results = Database.query(soql);
-            record = results.isEmpty() ? null : results[0];
-        } catch (Exception e) {
-            System.debug('CustomMetadataUtil query failed: ' + e.getMessage());
+            List<SObject> queryResults = Database.query(soql);
+            customMetadataRecord = queryResults.isEmpty() ? null : queryResults[0];
+        } catch (Exception ex) {
+            System.debug('CustomMetadataUtil query failed: ' + ex.getMessage());
         }
-        cache.put(cacheKey, record);
-        return record;
+        cache.put(cacheKey, customMetadataRecord);
+        return customMetadataRecord;
     }
 
     public static void clearCache() {

@@ -14,8 +14,8 @@ public with sharing class FollowUpProcessor implements Queueable {
         ];
 
         for (Follow_Up_Queue__c fq : due) {
-            Follow_Up_Rule__mdt rule = getRule(fq.Follow_Up_Rule__c);
-            List<Integer> schedule = parseSchedule(rule != null ? rule.Escalation_Schedule__c : null);
+            Follow_Up_Rule__mdt followUpRule = getRule(fq.Follow_Up_Rule__c);
+            List<Integer> schedule = parseSchedule(followUpRule != null ? followUpRule.Escalation_Schedule__c : null);
 
             try {
                 if (fq.Follow_Up_Type__c == 'SMS') {
@@ -26,8 +26,8 @@ public with sharing class FollowUpProcessor implements Queueable {
                     // Unknown type; mark failed
                     FollowUpExecutionService.markFollowUpFailed(fq.Id, 'Unknown follow-up type: ' + fq.Follow_Up_Type__c);
                 }
-            } catch (Exception e) {
-                FollowUpExecutionService.markFollowUpFailed(fq.Id, 'Processing failed: ' + e.getMessage());
+            } catch (Exception ex) {
+                FollowUpExecutionService.markFollowUpFailed(fq.Id, 'Processing failed: ' + ex.getMessage());
             } finally {
                 // Set next attempt based on escalation schedule if still retriable
                 if (!schedule.isEmpty()) {
@@ -61,13 +61,13 @@ public with sharing class FollowUpProcessor implements Queueable {
         if (String.isBlank(developerName)) {
             return null;
         }
-        List<Follow_Up_Rule__mdt> rules = [
+        List<Follow_Up_Rule__mdt> followUpRules = [
             SELECT DeveloperName, Escalation_Schedule__c
             FROM Follow_Up_Rule__mdt
             WHERE DeveloperName = :developerName
             LIMIT 1
         ];
-        return rules.isEmpty() ? null : rules[0];
+        return followUpRules.isEmpty() ? null : followUpRules[0];
     }
 
     @TestVisible
@@ -93,7 +93,7 @@ public with sharing class FollowUpProcessor implements Queueable {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             // ignore parsing errors; return whatever was parsed
         }
         return schedule;

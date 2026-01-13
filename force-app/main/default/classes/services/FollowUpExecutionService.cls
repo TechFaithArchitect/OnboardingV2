@@ -35,14 +35,14 @@ public with sharing class FollowUpExecutionService {
             return;
         }
 
-        Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
-        Communication_Template__c commTemplate = getCommTemplate(rule);
+        Follow_Up_Rule__mdt followUpRule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
+        Communication_Template__c commTemplate = getCommTemplate(followUpRule);
 
         // Determine SMS provider (prefers SMS_Provider__c field, falls back to Messaging Channel presence)
-        String smsProvider = determineSMSProvider(rule, commTemplate);
+        String smsProvider = determineSMSProvider(followUpRule, commTemplate);
         
         // Build provider configuration based on provider type
-        Map<String, Object> providerConfig = buildProviderConfig(smsProvider, rule, commTemplate);
+        Map<String, Object> providerConfig = buildProviderConfig(smsProvider, followUpRule, commTemplate);
         
         // Validate provider configuration (fail fast before callout)
         String configError = validateProviderConfig(smsProvider, providerConfig);
@@ -64,7 +64,7 @@ public with sharing class FollowUpExecutionService {
 
         try {
             // Get message content
-            String messageContent = getMessageContent(followUp, rule, commTemplate);
+            String messageContent = getMessageContent(followUp, followUpRule, commTemplate);
 
             // Send SMS using provider strategy
             String smsId = FollowUpMessagingService.sendSMS(
@@ -92,10 +92,10 @@ public with sharing class FollowUpExecutionService {
 
             // Update attempt tracking
             FollowUpFatigueService.updateAttemptTracking(followUpQueueId, true);
-        } catch (Exception e) {
-            markFollowUpFailed(followUpQueueId, 'Error sending SMS: ' + e.getMessage());
+        } catch (Exception ex) {
+            markFollowUpFailed(followUpQueueId, 'Error sending SMS: ' + ex.getMessage());
             FollowUpFatigueService.updateAttemptTracking(followUpQueueId, false);
-            throw e;
+            throw ex;
         }
     }
 
@@ -116,8 +116,8 @@ public with sharing class FollowUpExecutionService {
             LIMIT 1
         ];
 
-        Follow_Up_Rule__mdt rule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
-        Communication_Template__c commTemplate = getCommTemplate(rule);
+        Follow_Up_Rule__mdt followUpRule = getRuleByDeveloperName(followUp.Follow_Up_Rule__c);
+        Communication_Template__c commTemplate = getCommTemplate(followUpRule);
 
         Contact dealerContact = FollowUpMessagingService.getPrimaryContact(followUp.Onboarding__r.Account__c);
         if (dealerContact == null || String.isBlank(dealerContact.Email)) {
@@ -125,20 +125,33 @@ public with sharing class FollowUpExecutionService {
             return;
         }
 
-        // Build email request from communication template
-        EmailCommSendRequestDTO req = new EmailCommSendRequestDTO();
-        req.communicationTemplateId = commTemplate != null ? commTemplate.Id : null;
-        req.emailTemplateId = commTemplate != null ? commTemplate.Email_Template_Id__c : null;
-        req.subject = commTemplate != null ? commTemplate.Email_Subject__c : 'Onboarding Follow-Up';
-        req.toAddress = dealerContact.Email;
-        req.recipientId = dealerContact.Id;
-        req.relatedRecordId = followUp.Onboarding__c;
-        req.logSync = true;
+        // Build email from communication template
+        String emailTemplateId = commTemplate != null ? commTemplate.Email_Template_Id__c : null;
+        if (String.isBlank(emailTemplateId)) {
+            markFollowUpFailed(followUpQueueId, 'No email template configured for follow-up');
+            return;
+        }
 
-        EmailCommSendResultDTO result = EmailCommSenderService.sendEmail(req);
-        if (result == null || result.status != 'Success') {
-            String errorMsg = result != null ? result.errorMessage : 'Unknown error';
-            markFollowUpFailed(followUpQueueId, 'Email send failed: ' + errorMsg);
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setSaveAsActivity(true);
+        mail.setTemplateId(emailTemplateId);
+        mail.setTargetObjectId(dealerContact.Id);
+        mail.setWhatId(followUp.Onboarding__c);
+        mail.setUseSignature(false);
+
+        try {
+            Messaging.SendEmailResult[] emailResults = Messaging.sendEmail(
+                new Messaging.SingleEmailMessage[] { mail }
+            );
+            if (emailResults == null || emailResults.isEmpty() || !emailResults[0].isSuccess()) {
+                String errorMsg = (emailResults != null && !emailResults.isEmpty() && emailResults[0].getErrors().size() > 0)
+                    ? emailResults[0].getErrors()[0].getMessage()
+                    : 'Unknown error';
+                markFollowUpFailed(followUpQueueId, 'Email send failed: ' + errorMsg);
+                return;
+            }
+        } catch (Exception ex) {
+            markFollowUpFailed(followUpQueueId, 'Email send failed: ' + ex.getMessage());
             return;
         }
 
@@ -183,9 +196,9 @@ public with sharing class FollowUpExecutionService {
                 } else {
                     markFollowUpFailed(fq.Id, 'Unknown follow-up type: ' + fq.Follow_Up_Type__c);
                 }
-            } catch (Exception e) {
-                markFollowUpFailed(fq.Id, 'Retry failed: ' + e.getMessage());
-                // LoggingUtil.logError('FollowUpRetry', 'retryFailedFollowUps', e.getMessage(), e.getStackTraceString());
+            } catch (Exception ex) {
+                markFollowUpFailed(fq.Id, 'Retry failed: ' + ex.getMessage());
+                // LoggingUtil.logError('FollowUpRetry', 'retryFailedFollowUps', ex.getMessage(), ex.getStackTraceString());
             }
         }
     }
@@ -218,12 +231,12 @@ public with sharing class FollowUpExecutionService {
      * @param followUp Follow_Up_Queue__c record
      * @return Message content string
      */
-    private static String getMessageContent(Follow_Up_Queue__c followUp, Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+    private static String getMessageContent(Follow_Up_Queue__c followUp, Follow_Up_Rule__mdt followUpRule, Communication_Template__c commTemplate) {
         if (commTemplate != null && !String.isBlank(commTemplate.Message_Body__c)) {
             return commTemplate.Message_Body__c;
         }
-        if (rule != null && !String.isBlank(rule.Trigger_Condition__c)) {
-            return 'Reminder: ' + rule.Trigger_Condition__c;
+        if (followUpRule != null && !String.isBlank(followUpRule.Trigger_Condition__c)) {
+            return 'Reminder: ' + followUpRule.Trigger_Condition__c;
         }
         return 'Please complete your onboarding requirement. If you have questions, contact your onboarding representative.';
     }
@@ -239,7 +252,7 @@ public with sharing class FollowUpExecutionService {
         }
         try {
             return (Id)maybeId;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -248,24 +261,24 @@ public with sharing class FollowUpExecutionService {
      * Determine SMS provider from rule or template
      * Prefers SMS_Provider__c field on rule, otherwise falls back to Messaging Channel presence
      */
-    private static String determineSMSProvider(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+    private static String determineSMSProvider(Follow_Up_Rule__mdt followUpRule, Communication_Template__c commTemplate) {
         // Prefer SMS_Provider__c field if set on rule
-        if (rule != null) {
+        if (followUpRule != null) {
             try {
-                String smsProvider = (String)rule.get('SMS_Provider__c');
+                String smsProvider = (String)followUpRule.get('SMS_Provider__c');
                 if (String.isNotBlank(smsProvider)) {
                     return smsProvider;
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Field may not exist yet - fall through to default logic
-                System.debug('SMS_Provider__c field not accessible: ' + e.getMessage());
+                System.debug('SMS_Provider__c field not accessible: ' + ex.getMessage());
             }
         }
         
         // Fallback: Check if Messaging Channel is configured
         Id messagingChannelId = getIdIfValid(
             commTemplate != null ? commTemplate.Messaging_Channel_Id__c : 
-            rule != null ? rule.Messaging_Channel__c : null
+            followUpRule != null ? followUpRule.Messaging_Channel__c : null
         );
         
         // If Messaging Channel is configured, use Salesforce Messaging
@@ -279,7 +292,7 @@ public with sharing class FollowUpExecutionService {
      */
     private static Map<String, Object> buildProviderConfig(
         String providerType,
-        Follow_Up_Rule__mdt rule,
+        Follow_Up_Rule__mdt followUpRule,
         Communication_Template__c commTemplate
     ) {
         Map<String, Object> config = new Map<String, Object>();
@@ -287,32 +300,32 @@ public with sharing class FollowUpExecutionService {
         if (providerType == 'SalesforceMessaging') {
             Id messagingChannelId = getIdIfValid(
                 commTemplate != null ? commTemplate.Messaging_Channel_Id__c : 
-                rule != null ? rule.Messaging_Channel__c : null
+                followUpRule != null ? followUpRule.Messaging_Channel__c : null
             );
             config.put('messagingChannelId', messagingChannelId);
             
             Id templateId = getIdIfValid(
                 commTemplate != null ? commTemplate.Messaging_Template_Id__c : 
-                rule != null ? rule.Messaging_Template__c : null
+                followUpRule != null ? followUpRule.Messaging_Template__c : null
             );
             if (templateId != null) {
                 config.put('templateId', templateId);
             }
         } else if (providerType == 'Twilio') {
             // Get from phone number: rule/template first, then active Twilio config
-            String fromPhone = getTwilioFromPhone(rule, commTemplate);
+            String fromPhone = getTwilioFromPhone(followUpRule, commTemplate);
             if (String.isNotBlank(fromPhone)) {
                 config.put('fromPhoneNumber', fromPhone);
             }
             
             // Get Account SID: rule/template first, then active Twilio config
-            String accountSid = getTwilioAccountSid(rule, commTemplate);
+            String accountSid = getTwilioAccountSid(followUpRule, commTemplate);
             if (String.isNotBlank(accountSid)) {
                 config.put('accountSid', accountSid);
             }
             
             // Get Named Credential: rule/template first, then active Twilio config
-            String namedCredential = getTwilioNamedCredential(rule, commTemplate);
+            String namedCredential = getTwilioNamedCredential(followUpRule, commTemplate);
             if (String.isNotBlank(namedCredential)) {
                 config.put('namedCredential', namedCredential);
             }
@@ -325,17 +338,17 @@ public with sharing class FollowUpExecutionService {
      * Get Twilio from phone number
      * Priority: rule/template field > active Twilio_Configuration__mdt
      */
-    private static String getTwilioFromPhone(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+    private static String getTwilioFromPhone(Follow_Up_Rule__mdt followUpRule, Communication_Template__c commTemplate) {
         // Check rule first
-        if (rule != null) {
+        if (followUpRule != null) {
             try {
-                String fromPhone = (String)rule.get('Twilio_From_Phone__c');
+                String fromPhone = (String)followUpRule.get('Twilio_From_Phone__c');
                 if (String.isNotBlank(fromPhone)) {
                     return fromPhone;
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Field may not exist - continue
-                System.debug('Twilio_From_Phone__c field not accessible: ' + e.getMessage());
+                System.debug('Twilio_From_Phone__c field not accessible: ' + ex.getMessage());
             }
         }
         
@@ -351,8 +364,8 @@ public with sharing class FollowUpExecutionService {
             if (!configs.isEmpty() && String.isNotBlank(configs[0].From_Phone_Number__c)) {
                 return configs[0].From_Phone_Number__c;
             }
-        } catch (Exception e) {
-            System.debug('Twilio_Configuration__mdt not found or not accessible: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Twilio_Configuration__mdt not found or not accessible: ' + ex.getMessage());
         }
         
         return null;
@@ -363,17 +376,17 @@ public with sharing class FollowUpExecutionService {
      * Priority: rule field > active Twilio_Configuration__mdt
      * NOTE: Account SID is required for Twilio API calls (used in URL path)
      */
-    private static String getTwilioAccountSid(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+    private static String getTwilioAccountSid(Follow_Up_Rule__mdt followUpRule, Communication_Template__c commTemplate) {
         // Check rule first
-        if (rule != null) {
+        if (followUpRule != null) {
             try {
-                String accountSid = (String)rule.get('Twilio_Account_SID__c');
+                String accountSid = (String)followUpRule.get('Twilio_Account_SID__c');
                 if (String.isNotBlank(accountSid)) {
                     return accountSid;
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Field may not exist - continue
-                System.debug('Twilio_Account_SID__c field not accessible: ' + e.getMessage());
+                System.debug('Twilio_Account_SID__c field not accessible: ' + ex.getMessage());
             }
         }
         
@@ -389,8 +402,8 @@ public with sharing class FollowUpExecutionService {
             if (!configs.isEmpty() && String.isNotBlank(configs[0].Account_SID__c)) {
                 return configs[0].Account_SID__c;
             }
-        } catch (Exception e) {
-            System.debug('Could not get Account SID from Twilio_Configuration__mdt: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Could not get Account SID from Twilio_Configuration__mdt: ' + ex.getMessage());
         }
         
         return null;
@@ -400,17 +413,17 @@ public with sharing class FollowUpExecutionService {
      * Get Twilio Named Credential name
      * Priority: rule field > active Twilio_Configuration__mdt > default 'Twilio_API'
      */
-    private static String getTwilioNamedCredential(Follow_Up_Rule__mdt rule, Communication_Template__c commTemplate) {
+    private static String getTwilioNamedCredential(Follow_Up_Rule__mdt followUpRule, Communication_Template__c commTemplate) {
         // Check rule first
-        if (rule != null) {
+        if (followUpRule != null) {
             try {
-                String namedCredential = (String)rule.get('Twilio_Named_Credential__c');
+                String namedCredential = (String)followUpRule.get('Twilio_Named_Credential__c');
                 if (String.isNotBlank(namedCredential)) {
                     return namedCredential;
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Field may not exist - continue
-                System.debug('Twilio_Named_Credential__c field not accessible: ' + e.getMessage());
+                System.debug('Twilio_Named_Credential__c field not accessible: ' + ex.getMessage());
             }
         }
         
@@ -426,8 +439,8 @@ public with sharing class FollowUpExecutionService {
             if (!configs.isEmpty() && String.isNotBlank(configs[0].Named_Credential__c)) {
                 return configs[0].Named_Credential__c;
             }
-        } catch (Exception e) {
-            System.debug('Could not get Named Credential from Twilio_Configuration__mdt: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Could not get Named Credential from Twilio_Configuration__mdt: ' + ex.getMessage());
         }
         
         // Default to 'Twilio_API' if nothing is configured
@@ -468,7 +481,7 @@ public with sharing class FollowUpExecutionService {
         if (String.isBlank(developerName)) {
             return null;
         }
-        List<Follow_Up_Rule__mdt> rules = [
+        List<Follow_Up_Rule__mdt> followUpRules = [
             SELECT DeveloperName, Trigger_Condition__c, Follow_Up_Type__c,
                    Initial_Delay_Days__c, Escalation_Schedule__c,
                    Messaging_Channel__c, Messaging_Template__c,
@@ -479,11 +492,11 @@ public with sharing class FollowUpExecutionService {
             WHERE DeveloperName = :developerName
             LIMIT 1
         ];
-        return rules.isEmpty() ? null : rules[0];
+        return followUpRules.isEmpty() ? null : followUpRules[0];
     }
 
-    private static Communication_Template__c getCommTemplate(Follow_Up_Rule__mdt rule) {
-        if (rule == null || String.isBlank(rule.Messaging_Template__c)) {
+    private static Communication_Template__c getCommTemplate(Follow_Up_Rule__mdt followUpRule) {
+        if (followUpRule == null || String.isBlank(followUpRule.Messaging_Template__c)) {
             return null;
         }
         List<Communication_Template__c> comms = [
@@ -491,7 +504,7 @@ public with sharing class FollowUpExecutionService {
                    Email_Subject__c, Email_Template_Id__c,
                    Messaging_Template_Id__c, Messaging_Channel_Id__c, Message_Body__c
             FROM Communication_Template__c
-            WHERE Id = :rule.Messaging_Template__c
+            WHERE Id = :followUpRule.Messaging_Template__c
             LIMIT 1
         ];
         return comms.isEmpty() ? null : comms[0];

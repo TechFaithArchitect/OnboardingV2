@@ -17,6 +17,12 @@
         <name>ApexComponent</name>
     </types>
     <types>
+        <members>Account</members>
+        <members>AccountContactRelation</members>
+        <members>Contact</members>
+        <members>Contract</members>
+        <members>Opportunity</members>
+        <members>OpportunityContactRole</members>
         <members>*</members>
         <name>CustomObject</name>
     </types>

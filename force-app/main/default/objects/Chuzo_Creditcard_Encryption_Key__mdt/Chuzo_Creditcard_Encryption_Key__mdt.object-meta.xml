@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Stores the AES256 used to encrypt/decrypt PCI Form Creditcards. [PER-3161]</description>
-    <label>Chuzo Creditcard Encryption Key</label>
-    <pluralLabel>Chuzo Creditcard Encryption Keys</pluralLabel>
-    <visibility>Public</visibility>
-</CustomObject>

@@ -16,7 +16,12 @@ private class FollowUpDetectionServiceTest {
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
             true, testOnboarding, null
         );
-        testRequirement.Status__c = 'In Process';
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+        testRequirement.Status__c = inProcessStatus;
         update testRequirement;
 
         // Create follow-up rule metadata (simulated via test)
@@ -54,7 +59,12 @@ private class FollowUpDetectionServiceTest {
             Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(
                 false, testOnboarding, null
             );
-            req.Status__c = 'In Process';
+            List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+                Onboarding_Requirement__c.SObjectType,
+                'Status__c'
+            );
+            String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+            req.Status__c = inProcessStatus;
             requirements.add(req);
         }
         insert requirements;
@@ -88,9 +98,18 @@ private class FollowUpDetectionServiceTest {
         );
         Onboarding__c testOnboarding = TestDataFactory.createOnboarding(testAccount, testProgram, true);
         Onboarding_Requirement__c testRequirement = TestOnboardingRequirementFactory.create(
-            true, testOnboarding, null
+            false, testOnboarding, null
         );
-        testRequirement.Status__c = 'Complete';
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Onboarding_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        String completeStatus = validStatuses.contains('Complete') ? 'Complete' : validStatuses[validStatuses.size() - 1];
+        testRequirement.Status__c = completeStatus;
+        insert testRequirement;
+        
+        // Update to trigger any after-update logic
+        testRequirement.Status__c = completeStatus;
         update testRequirement;
 
         Test.startTest();
@@ -125,7 +144,12 @@ private class FollowUpDetectionServiceTest {
             Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(
                 false, testOnboarding, null
             );
-            req.Status__c = 'In Process';
+            List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+                Onboarding_Requirement__c.SObjectType,
+                'Status__c'
+            );
+            String inProcessStatus = validStatuses.contains('In Process') ? 'In Process' : validStatuses[0];
+            req.Status__c = inProcessStatus;
             requirements.add(req);
         }
         insert requirements;

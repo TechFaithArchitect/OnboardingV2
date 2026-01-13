@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>EndDate_Higher_Than_Store</fullName>
-    <active>true</active>
-    <errorConditionFormula>End_Date__c &gt; MDU_Chuzo__r.End_Date__c</errorConditionFormula>
-    <errorMessage>Record End Date can&apos;t be higher than MDU End Date.</errorMessage>
-</ValidationRule>

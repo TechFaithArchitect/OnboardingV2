@@ -6,7 +6,15 @@ This guide walks you through the complete Vendor Program Onboarding workflow ste
 
 The Vendor Program Onboarding workflow is a guided, 10-step process that helps you create and configure a complete Vendor Program from scratch. Each step represents a specific set of tasks or information that must be completed.
 
-**Note:** The workflow supports both **User** and **Admin** roles, with some steps being Admin-only.
+## Audience and Terminology
+
+This workflow is for Program Managers configuring Vendor Programs. Dealer refers to an Account record. Program Specialists (Sales) initiate Dealer onboarding from the Account quick action.
+
+See [Terminology](../README.md#terminology) for role definitions.
+
+See [User Journey Summary](./user-journey-summary.md) for the end-to-end flow.
+
+**Note:** The workflow supports **Program Manager** and **Admin** roles, with some steps being Admin-only.
 
 ## Starting the Onboarding Process
 

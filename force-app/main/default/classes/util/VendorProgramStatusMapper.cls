@@ -130,8 +130,8 @@ public with sharing class VendorProgramStatusMapper {
             if (!assignments.isEmpty()) {
                 return true;
             }
-        } catch (Exception e) {
-            System.debug('Error checking permission set: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error checking permission set: ' + ex.getMessage());
         }
         
         // Fallback: Check for System Administrator profile

@@ -69,7 +69,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Readonly</behavior>
-                <field>Order__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>

@@ -70,8 +70,9 @@ private class OnboardingDashboardFilterServiceTest {
 
     @isTest
     static void testBuildFilterClauseWithVendorFilter() {
-        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
-        insert testVendor;
+        Vendor__c testVendor = TestDataFactory.createVendor(true);
+        testVendor.Active__c = true;
+        update testVendor;
         
         List<Id> vendorIds = new List<Id>{ testVendor.Id };
         List<Id> programIds = new List<Id>();
@@ -92,15 +93,13 @@ private class OnboardingDashboardFilterServiceTest {
 
     @isTest
     static void testBuildFilterClauseWithProgramFilter() {
-        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
-        insert testVendor;
+        Vendor__c testVendor = TestDataFactory.createVendor(true);
+        testVendor.Active__c = true;
+        update testVendor;
         
-        Vendor_Customization__c testProgram = new Vendor_Customization__c(
-            Vendor__c = testVendor.Id,
-            Active__c = true,
-            Status__c = 'Active'
+        Vendor_Customization__c testProgram = TestDataFactory.createVendorCustomization(
+            testVendor, 'Active', true, null, true
         );
-        insert testProgram;
         
         List<Id> vendorIds = new List<Id>();
         List<Id> programIds = new List<Id>{ testProgram.Id };
@@ -121,15 +120,13 @@ private class OnboardingDashboardFilterServiceTest {
 
     @isTest
     static void testBuildFilterClauseWithAllFilters() {
-        Vendor__c testVendor = new Vendor__c(Name = 'Test Vendor', Active__c = true);
-        insert testVendor;
+        Vendor__c testVendor = TestDataFactory.createVendor(true);
+        testVendor.Active__c = true;
+        update testVendor;
         
-        Vendor_Customization__c testProgram = new Vendor_Customization__c(
-            Vendor__c = testVendor.Id,
-            Active__c = true,
-            Status__c = 'Active'
+        Vendor_Customization__c testProgram = TestDataFactory.createVendorCustomization(
+            testVendor, 'Active', true, null, true
         );
-        insert testProgram;
         
         List<Id> vendorIds = new List<Id>{ testVendor.Id };
         List<Id> programIds = new List<Id>{ testProgram.Id };

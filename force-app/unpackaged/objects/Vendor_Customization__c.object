@@ -149,7 +149,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>Vendor_Program_Highlights</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Each vendor’s specific program (e.g., “Verizon Fios D2D”, “Frontier NR”).</description>
+    <description>Versioned vendor program configuration chosen during onboarding (child versions inherit from parent versions; drives requirement sets, status rules, and wizard selection).</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -162,10 +162,9 @@
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>Vendor Program</label>
     <nameField>
-        <displayFormat>VCN-{00000}</displayFormat>
-        <label>Vendor Customization Number</label>
+        <label>Vendor Program Name</label>
         <trackHistory>false</trackHistory>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
     <pluralLabel>Vendor Programs</pluralLabel>
     <searchLayouts></searchLayouts>

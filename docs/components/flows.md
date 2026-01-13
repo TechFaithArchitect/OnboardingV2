@@ -152,13 +152,6 @@ The onboarding system uses Salesforce Flows for automation across three architec
 
 **Purpose**: Prevents duplicate credential types.
 
-### BLL_Training_Assignment_Credential_RCD_Unique_Key_Creation
-
-**Type**: Record-Triggered Flow (Before Save)  
-**Trigger**: Before Save on TrainingAssignmentCredential__c
-
-**Purpose**: Creates unique key for training assignment credentials.
-
 ### Onboarding_Subflow_Create_Related_Onboarding_Records
 
 **Type**: Subflow  

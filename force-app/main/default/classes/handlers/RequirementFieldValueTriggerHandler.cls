@@ -53,12 +53,12 @@ public with sharing class RequirementFieldValueTriggerHandler {
 
         // Filter to only Cross-Field and External types
         Set<Id> asyncFieldValueIds = new Set<Id>();
-        for (Requirement_Field_Value__c record : newRecords) {
-            if (fieldValueIdsToEnqueue.contains(record.Id)) {
-                Requirement_Field__c reqField = requirementFields.get(record.Requirement_Field__c);
+        for (Requirement_Field_Value__c fieldValueRecord : newRecords) {
+            if (fieldValueIdsToEnqueue.contains(fieldValueRecord.Id)) {
+                Requirement_Field__c reqField = requirementFields.get(fieldValueRecord.Requirement_Field__c);
                 if (reqField != null && 
-                    (reqField.Validation_Type__c == 'Cross-Field' || reqField.Validation_Type__c == 'External')) {
-                    asyncFieldValueIds.add(record.Id);
+                    (reqField.Validation_Type__c == 'Cross-Field' || isExternalValidation(reqField.Validation_Type__c))) {
+                    asyncFieldValueIds.add(fieldValueRecord.Id);
                 }
             }
         }
@@ -78,11 +78,14 @@ public with sharing class RequirementFieldValueTriggerHandler {
     private static void enqueueAsyncValidation(Set<Id> fieldValueIds) {
         try {
             RequirementFieldAsyncValidator.enqueue(fieldValueIds);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             // Log error but don't throw - async validation failure shouldn't block saves
-            System.debug('Error enqueueing async validation: ' + e.getMessage());
-            System.debug('Stack trace: ' + e.getStackTraceString());
+            System.debug('Error enqueueing async validation: ' + ex.getMessage());
+            System.debug('Stack trace: ' + ex.getStackTraceString());
         }
     }
-}
 
+    private static Boolean isExternalValidation(String validationType) {
+        return String.isNotBlank(validationType) && validationType.toLowerCase().startsWith('external');
+    }
+}

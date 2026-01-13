@@ -11,44 +11,44 @@ public with sharing class EmailCatalogCMDTRepository {
             return testMockCatalogs;
         }
 
-        Map<String, Email_Template_Catalog__mdt> result = new Map<String, Email_Template_Catalog__mdt>();
-        for (Email_Template_Catalog__mdt rec : [
+        Map<String, Email_Template_Catalog__mdt> catalogMap = new Map<String, Email_Template_Catalog__mdt>();
+        for (Email_Template_Catalog__mdt emailCatalog : [
             SELECT DeveloperName__c, MasterLabel, Folder_Name__c,
                    Communication_Type__c, Active__c, Description__c
             FROM Email_Template_Catalog__mdt
         ]) {
-            result.put(rec.DeveloperName__c, rec);
+            catalogMap.put(emailCatalog.DeveloperName__c, emailCatalog);
         }
-        return result;
+        return catalogMap;
     }
 
     // 🔹 Build a Custom Metadata record
-    public static Metadata.CustomMetadata buildCMDT(EmailTemplateDTO dto, Id jobId) {
-        Metadata.CustomMetadata m = new Metadata.CustomMetadata();
-        m.fullName = 'Email_Template_Catalog.' + dto.developerName;
-        m.label = dto.name;
-        m.values = new List<Metadata.CustomMetadataValue>();
+    public static Metadata.CustomMetadata buildCMDT(EmailTemplateDTO emailTemplateDTO, Id jobId) {
+        Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
+        customMetadata.fullName = 'Email_Template_Catalog.' + emailTemplateDTO.developerName;
+        customMetadata.label = emailTemplateDTO.name;
+        customMetadata.values = new List<Metadata.CustomMetadataValue>();
 
-        addValue(m, 'DeveloperName__c', dto.developerName);
-        addValue(m, 'Folder_Name__c', dto.folder);
-        addValue(m, 'Communication_Type__c', dto.commType);
-        addValue(m, 'Active__c', dto.isActive);
-        addValue(m, 'Description__c', dto.subject);
-        addValue(m, 'Sync_Job_Id__c', String.valueOf(jobId));
+        addValue(customMetadata, 'DeveloperName__c', emailTemplateDTO.developerName);
+        addValue(customMetadata, 'Folder_Name__c', emailTemplateDTO.folder);
+        addValue(customMetadata, 'Communication_Type__c', emailTemplateDTO.commType);
+        addValue(customMetadata, 'Active__c', emailTemplateDTO.isActive);
+        addValue(customMetadata, 'Description__c', emailTemplateDTO.subject);
+        addValue(customMetadata, 'Sync_Job_Id__c', String.valueOf(jobId));
 
-        return m;
+        return customMetadata;
     }
 
-    private static void addValue(Metadata.CustomMetadata m, String fieldName, Object value) {
+    private static void addValue(Metadata.CustomMetadata customMetadata, String fieldName, Object value) {
         Metadata.CustomMetadataValue customMetadataValue = new Metadata.CustomMetadataValue();
         customMetadataValue.field = fieldName;
         customMetadataValue.value = value;
-        m.values.add(customMetadataValue);
+        customMetadata.values.add(customMetadataValue);
     }
 
     // 🔹 Bulk deploy CMDTs
-    public static Id deployMetadata(List<Metadata.Metadata> records) {
-        if (records == null || records.isEmpty()) return null;
+    public static Id deployMetadata(List<Metadata.Metadata> metadataRecords) {
+        if (metadataRecords == null || metadataRecords.isEmpty()) return null;
 
         if (Test.isRunningTest()) {
             System.debug('⚠️ Skipping Metadata deployment during test context.');
@@ -56,34 +56,34 @@ public with sharing class EmailCatalogCMDTRepository {
         }
 
         Metadata.DeployContainer container = new Metadata.DeployContainer();
-        for (Metadata.Metadata m : records) {
-            container.addMetadata(m);
+        for (Metadata.Metadata metadataRecord : metadataRecords) {
+            container.addMetadata(metadataRecord);
         }
 
         return Metadata.Operations.enqueueDeployment(container, null);
     }
 
     // 🔹 Upsert CMDTs with diff check
-    public static EmailSyncSummaryDTO upsertCMDTs(List<EmailTemplateDTO> dtos, Id jobId) {
+    public static EmailSyncSummaryDTO upsertCMDTs(List<EmailTemplateDTO> emailTemplateDTOList, Id jobId) {
         EmailSyncSummaryDTO summary = new EmailSyncSummaryDTO();
-        if (dtos == null || dtos.isEmpty()) return summary;
+        if (emailTemplateDTOList == null || emailTemplateDTOList.isEmpty()) return summary;
 
         Map<String, Email_Template_Catalog__mdt> existing = getAllEmailCatalogs();
         Metadata.DeployContainer container = new Metadata.DeployContainer();
         Integer changedCount = 0;
 
-        for (EmailTemplateDTO dto : dtos) {
-            String key = dto.developerName;
+        for (EmailTemplateDTO emailTemplateDTO : emailTemplateDTOList) {
+            String developerNameKey = emailTemplateDTO.developerName;
 
-            Boolean unchanged = existing.containsKey(key) &&
-                existing.get(key).Folder_Name__c == dto.folder &&
-                existing.get(key).Communication_Type__c == dto.commType &&
-                existing.get(key).Active__c == dto.isActive &&
-                existing.get(key).Description__c == dto.subject;
+            Boolean unchanged = existing.containsKey(developerNameKey) &&
+                existing.get(developerNameKey).Folder_Name__c == emailTemplateDTO.folder &&
+                existing.get(developerNameKey).Communication_Type__c == emailTemplateDTO.commType &&
+                existing.get(developerNameKey).Active__c == emailTemplateDTO.isActive &&
+                existing.get(developerNameKey).Description__c == emailTemplateDTO.subject;
 
             if (unchanged) continue;
 
-            Metadata.CustomMetadata cmdtRecord = buildCMDT(dto, jobId);
+            Metadata.CustomMetadata cmdtRecord = buildCMDT(emailTemplateDTO, jobId);
             container.addMetadata(cmdtRecord);
             changedCount++;
         }

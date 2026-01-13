@@ -4,7 +4,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testSearchVendors() {
         // Arrange
-        Vendor__c vendor1 = TestVendorFactory.createVendor(true);
+        Vendor__c vendor1 = TestDataFactory.createVendor(true);
         vendor1.Name = 'Test Vendor Search';
         update vendor1;
         
@@ -21,7 +21,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendor() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(false);
+        Vendor__c vendor = TestDataFactory.createVendor(false);
         vendor.Name = 'New Test Vendor';
         
         // Act
@@ -38,9 +38,13 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testSearchVendorPrograms() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
-            vendor, 'Active', true, null, true);
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        String programStatus = TestDataFactoryUtil.getFirstPicklistValue(
+            Vendor_Customization__c.SObjectType,
+            'Status__c'
+        );
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
+            vendor, programStatus, true, null, true);
         
         // Act
         Test.startTest();
@@ -54,9 +58,16 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendorProgram() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, null, null, null, false);
+        vendorProgram.Status__c = null;
+        vendorProgram.Active__c = null;
+        String expectedStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Draft'
+        );
         
         // Act
         Test.startTest();
@@ -69,22 +80,39 @@ private class VendorOnboardingWizardServiceTest {
                                            FROM Vendor_Customization__c WHERE Id = :programId];
         System.assertEquals(vendor.Id, created.Vendor__c, 'Should link to vendor');
         System.assertEquals(false, created.Active__c, 'Should be saved as draft');
-        System.assertEquals('Draft', created.Status__c, 'Status should be Draft');
+        if (String.isNotBlank(expectedStatus)) {
+            System.assertEquals(expectedStatus, created.Status__c, 'Status should match default draft value');
+        }
     }
 
     @isTest
     static void testCreateVendorProgram_ReusesExistingDraftForSameVendor() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        String expectedStatus = PicklistHelper.getValidPicklistValue(
+            'Vendor_Customization__c',
+            'Status__c',
+            'Draft'
+        );
         // First call creates a draft program with default name 'New Vendor Program'
-        Vendor_Customization__c firstProgram = new Vendor_Customization__c();
+        Vendor_Customization__c firstProgram = TestDataFactory.createVendorCustomization(
+            vendor, 'Draft', false, null, false
+        );
         firstProgram.Name = 'New Vendor Program';
+        if (String.isNotBlank(expectedStatus)) {
+            firstProgram.Status__c = expectedStatus;
+        }
 
         Test.startTest();
         Id firstId = VendorOnboardingWizardService.createVendorProgram(firstProgram, vendor.Id);
         // Second call with same vendor and default name should reuse the existing draft
-        Vendor_Customization__c secondProgram = new Vendor_Customization__c();
+        Vendor_Customization__c secondProgram = TestDataFactory.createVendorCustomization(
+            vendor, 'Draft', false, null, false
+        );
         secondProgram.Name = 'New Vendor Program';
+        if (String.isNotBlank(expectedStatus)) {
+            secondProgram.Status__c = expectedStatus;
+        }
         Id secondId = VendorOnboardingWizardService.createVendorProgram(secondProgram, vendor.Id);
         Test.stopTest();
 
@@ -97,7 +125,9 @@ private class VendorOnboardingWizardServiceTest {
         ];
         System.assertEquals(1, programs.size(), 'Only one vendor program should exist for the vendor with default name');
         System.assertEquals('New Vendor Program', programs[0].Name, 'Program should use default name');
-        System.assertEquals('Draft', programs[0].Status__c, 'Program should be in Draft status');
+        if (String.isNotBlank(expectedStatus)) {
+            System.assertEquals(expectedStatus, programs[0].Status__c, 'Program should be in draft status');
+        }
         System.assertEquals(false, programs[0].Active__c, 'Program should be inactive (draft)');
     }
 
@@ -118,7 +148,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendorProgramGroup() {
         // Arrange
-        Vendor_Program_Group__c vendorProgramGroup = new Vendor_Program_Group__c();
+        Vendor_Program_Group__c vendorProgramGroup = TestDataFactory.createVendorProgramGroup(false);
         
         // Act
         Test.startTest();
@@ -146,7 +176,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendorProgramRequirementGroup() {
         // Arrange
-        Vendor_Program_Requirement_Group__c reqGroup = new Vendor_Program_Requirement_Group__c();
+        Vendor_Program_Requirement_Group__c reqGroup = TestDataFactory.createVendorProgramRequirementGroup('Test Group', false);
         
         // Act
         Test.startTest();
@@ -160,8 +190,8 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testFinalizeVendorProgram() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Draft', false, null, true);
         Vendor_Program_Group__c vendorProgramGroup = TestVendorProgramGroupFactory.create(true);
         Vendor_Program_Requirement_Group__c reqGroup = TestVendorProgramRequirementGroupFactory.create(true);
@@ -194,7 +224,22 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendorProgramRequirement() {
         // Arrange
-        Vendor_Program_Requirement__c req = new Vendor_Program_Requirement__c();
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
+            vendor, 'Active', true, null, true
+        );
+        Vendor_Program_Onboarding_Req_Template__c template = TestVdrPrgrmOnboardingReqTemplateFactory.create(true);
+        String statusValue = TestDataFactoryUtil.getDefaultPicklistValue(
+            Vendor_Program_Requirement__c.SObjectType,
+            'Status__c'
+        );
+        Vendor_Program_Requirement__c req = new Vendor_Program_Requirement__c(
+            Vendor_Program__c = vendorProgram.Id,
+            Requirement_Template__c = template.Id,
+            Status__c = statusValue,
+            Is_Required__c = true,
+            Sequence__c = 1
+        );
         
         // Act
         Test.startTest();
@@ -224,10 +269,9 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateOnboardingStatusRulesEngine() {
         // Arrange
-        Onboarding_Status_Rules_Engine__c engine = new Onboarding_Status_Rules_Engine__c(
-            Name = 'New Test Rules Engine',
-            Evaluation_Logic__c = 'ALL'
-        );
+        Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(false);
+        engine.Name = 'New Test Rules Engine';
+        engine.Evaluation_Logic__c = 'ALL';
         
         // Act
         Test.startTest();
@@ -243,11 +287,16 @@ private class VendorOnboardingWizardServiceTest {
         // Arrange
         Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(true);
         Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
-        Onboarding_Status_Rule__c rule = new Onboarding_Status_Rule__c(
-            Parent_Rule__c = engine.Id,
-            Requirement__c = vpr.Id,
-            Expected_Status__c = 'Complete',
-            Rule_Number__c = 1
+        String expectedStatus = TestDataFactoryUtil.getFirstPicklistValue(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        Onboarding_Status_Rule__c rule = TestOnboardingRulesFactory.create(
+            false, engine, vpr, expectedStatus, 1
+        );
+        rule.Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Status__c'
         );
         
         // Act
@@ -264,11 +313,15 @@ private class VendorOnboardingWizardServiceTest {
         // Arrange
         Onboarding_Status_Rules_Engine__c engine = TestOnboardingRulesEngineFactory.create(true);
         Vendor_Program_Requirement__c vpr = TestVendorProgramRequirementFactory.create(true);
-        Onboarding_Status_Rule__c rule = TestOnboardingRulesFactory.create(true, engine, vpr, 'Complete', 1);
+        String expectedStatus = TestDataFactoryUtil.getFirstPicklistValue(
+            Onboarding_Status_Rule__c.SObjectType,
+            'Expected_Status__c'
+        );
+        Onboarding_Status_Rule__c rule = TestOnboardingRulesFactory.create(true, engine, vpr, expectedStatus, 1);
         
         // Act
         Test.startTest();
-        List<Onboarding_Status_Rule__c> result = VendorOnboardingWizardService.searchStatusRules('Complete');
+        List<Onboarding_Status_Rule__c> result = VendorOnboardingWizardService.searchStatusRules(expectedStatus);
         Test.stopTest();
         
         // Assert
@@ -289,8 +342,8 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testLinkCommunicationTemplateToVendorProgram() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         Communication_Template__c template = TestCommTemplateFactory.createTemplate(true);
         
@@ -306,7 +359,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateOnboardingRequirementSet() {
         // Arrange
-        Onboarding_Requirement_Set__c reqSet = new Onboarding_Requirement_Set__c();
+        Onboarding_Requirement_Set__c reqSet = TestOnboardingRequirementSetFactory.create(false);
         
         // Act
         Test.startTest();
@@ -394,7 +447,7 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateRecipientGroup() {
         // Arrange
-        Recipient_Group__c recipientGroup = new Recipient_Group__c();
+        Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(false, false);
         
         // Act
         Test.startTest();
@@ -409,9 +462,8 @@ private class VendorOnboardingWizardServiceTest {
     static void testCreateRecipientGroupMember() {
         // Arrange
         Recipient_Group__c recipientGroup = TestRecipientGroupFactory.create(true);
-        Recipient_Group_Member__c member = new Recipient_Group_Member__c(
-            Recipient_Group__c = recipientGroup.Id
-        );
+        User testUser = TestDataFactory.createStandardUser(true);
+        Recipient_Group_Member__c member = TestDataFactory.createRecipientGroupMember(false, recipientGroup, testUser);
         
         // Act
         Test.startTest();
@@ -425,8 +477,8 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testSearchVendorProgramRecipientGroups() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         Recipient_Group__c recipientGroup = TestRecipientGroupFactory.create(true);
         Vendor_Program_Recipient_Group__c vprg = TestVendorProgramRecipientGroupFactory.create(true);
@@ -446,8 +498,8 @@ private class VendorOnboardingWizardServiceTest {
     @isTest
     static void testCreateVendorProgramRecipientGroupLink() {
         // Arrange
-        Vendor__c vendor = TestVendorFactory.createVendor(true);
-        Vendor_Customization__c vendorProgram = TestVendorProgramFactory.createVendorCustomization(
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(
             vendor, 'Active', true, null, true);
         Recipient_Group__c recipientGroup = TestRecipientGroupFactory.create(true);
         

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>ErrorFieldRequired</fullName>
-    <active>true</active>
-    <description>Makes Error field required</description>
-    <errorConditionFormula>Error__c = &apos;&apos;</errorConditionFormula>
-    <errorDisplayField>Error__c</errorDisplayField>
-    <errorMessage>An error is required. If internal, this is the error message from the exception + the line number, if API call, then it is the response</errorMessage>
-</ValidationRule>

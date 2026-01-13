@@ -5,24 +5,34 @@ private class OnlyOneActiveRecGrpPerPrgrmRuleTest {
     static void testSecondActiveFailsDueToExistingActive() {
         Vendor__c vendor = TestDataFactory.createVendor(true);
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
+        Recipient_Group__c secondRecipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c parent = TestDataFactory.createVendorCustomization(vendor, 'Draft', false, null, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, parent.Id, true);
 
-        Vendor_Program_Recipient_Group__c version1 = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Recipient_Group__c = recipientGroup.Id,
-            Vendor_Program__c = vendorProgram.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
         );
-        insert version1;
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
 
-        Vendor_Program_Recipient_Group__c version2 = new Vendor_Program_Recipient_Group__c(
-            Version__c = '2.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Recipient_Group__c = recipientGroup.Id,
-            Vendor_Program__c = vendorProgram.Id
+        Vendor_Program_Recipient_Group__c version1 = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            true
+        );
+
+        Vendor_Program_Recipient_Group__c version2 = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            secondRecipientGroup,
+            activeStatus,
+            '2.0',
+            true,
+            version1.Id,
+            false
         );
 
         Test.startTest();
@@ -30,9 +40,11 @@ private class OnlyOneActiveRecGrpPerPrgrmRuleTest {
         Test.stopTest();
 
         System.assert(!saveResult.isSuccess(), 'Expected second active version to be rejected.');
+        String errors = TestDataFactoryUtil.joinErrorMessages(saveResult);
         System.assert(
-            saveResult.getErrors()[0].getMessage().contains('Only one active'),
-            'Expected error about only one active record per recipient group per program.'
+            TestDataFactoryUtil.saveResultHasError(saveResult, 'Only one active Recipient Group') ||
+            TestDataFactoryUtil.saveResultHasError(saveResult, 'Only one active'),
+            'Expected error about only one active Recipient Group per Vendor Program. Errors: ' + errors
         );
     }
 }

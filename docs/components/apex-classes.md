@@ -882,7 +882,7 @@ Used by vendor onboarding wizard LWC components for multi-step vendor setup work
 - `insertVendorProgramRequirementGroup(Vendor_Program_Requirement_Group__c vendorProgramRequirementGroup)` - Inserts a requirement group record and returns the new record ID
 
 **Vendor Program Requirement Operations:**
-- `searchVendorProgramRequirements(String vendorProgramRequirements)` - Queries `Vendor_Program_Requirement__c` records by name using LIKE pattern. Returns `Id`, `Name`, `Vendor_Program__c`, `Inherited_From_Group__c`, `Requirement_Group_Member__c`, and `Requirement_Template__c` fields, limit 10
+- `searchVendorProgramRequirements(String vendorProgramRequirements)` - Queries `Vendor_Program_Requirement__c` records by name using LIKE pattern. Returns `Id`, `Name`, `Vendor_Program__c` (lookup to `Vendor_Customization__c`), `Inherited_From_Group__c`, `Requirement_Group_Member__c`, and `Requirement_Template__c` fields, limit 10
 - `insertVendorProgramRequirement(Vendor_Program_Requirement__c vendorProgramRequirement)` - Inserts a vendor program requirement record and returns the new record ID
 
 **Onboarding Status Rules Engine Operations:**
@@ -895,7 +895,7 @@ Used by vendor onboarding wizard LWC components for multi-step vendor setup work
 
 **Communication Templates Operations:**
 - `fetchCommunicationTemplates()` - Queries all `Communication_Template__c` records. Returns `Id` and `Name` fields, ordered by Name, limit 100
-- `linkCommunicationTemplate(Id vendorProgramId, Id templateId)` - Updates a communication template to link it to a vendor program. Queries the template first, then updates the `Vendor_Program__c` field
+- `linkCommunicationTemplate(Id vendorProgramId, Id templateId)` - Updates a communication template to link it to a vendor program. Queries the template first, then updates the `Vendor_Program__c` field (lookup to `Vendor_Customization__c`)
 
 **Onboarding Requirement Set Operations:**
 - `insertOnboardingRequirementSet(Onboarding_Requirement_Set__c requirementSet)` - Inserts a requirement set record and returns the new record ID
@@ -913,7 +913,7 @@ Used by vendor onboarding wizard LWC components for multi-step vendor setup work
 
 **Vendor Program Recipient Groups Operations:**
 - `searchVendorProgramRecipientGroups(String vprgName)` - Queries `Vendor_Program_Recipient_Group__c` records by name using LIKE pattern. Returns `Id` and `Name` fields, limit 10
-- `insertVendorProgramRecipientGroupLink(Id vendorProgramId, Id recipientGroupId)` - Creates and inserts a new `Vendor_Program_Recipient_Group__c` record linking a vendor program to a recipient group. Sets `Vendor_Program__c`, `Recipient_Group__c`, and `Status__c = 'Draft'` on the new record
+- `insertVendorProgramRecipientGroupLink(Id vendorProgramId, Id recipientGroupId)` - Creates and inserts a new `Vendor_Program_Recipient_Group__c` record linking a vendor program to a recipient group. Sets `Vendor_Program__c` (lookup to `Vendor_Customization__c`), `Recipient_Group__c`, and `Status__c = 'Draft'` on the new record
 
 **Miscellaneous Operations:**
 - `getTerritoryRoleAssignments()` - Queries all `Territory_Role_Assignment__c` records. Returns `Id`, `Name`, and `Role__c` fields, ordered by Name
@@ -947,7 +947,7 @@ Used by `VendorOnboardingWizardService` for all data access operations. All meth
 
 ### OnboardingAppRuleRegistry
 
-**Location:** `force-app/main/default/classes/OnboardingAppRuleRegistry.cls`
+**Location:** `force-app/main/default/classes/rules/OnboardingAppRuleRegistry.cls`
 
 **Purpose:** Central registry of validation rules and activation rules for onboarding application objects.
 
@@ -963,11 +963,11 @@ Used by `VendorOnboardingWizardService` for all data access operations. All meth
   - `PreventDupRecGrpAssignmentRule` - No duplicate assignments
 
 **Activation Rules (Activation-Time):**
-- `Vendor_Program__c`:
+- `Vendor_Customization__c` (Vendor Program):
+  - `AllRequirementGroupsMustBeActiveRule` - Requirement group must be active
+- Legacy registry key `Vendor_Program__c`:
   - `AllChildRequirementsMustBeActiveRule` - All child requirements must be active
   - `AllTemplatesInReqSetMustBeActiveRule` - All requirement templates must be active
-- `Vendor_Customization__c`:
-  - `AllRequirementGroupsMustBeActiveRule` - Requirement group must be active
 - `Onboarding_Status_Rule__c`:
   - `AllLinkedEngineMustBeActiveRule` - Parent rules engine must be active
 - `Onboarding_Status_Rules_Engine__c`:

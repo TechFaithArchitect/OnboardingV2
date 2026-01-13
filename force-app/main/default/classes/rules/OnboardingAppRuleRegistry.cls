@@ -16,26 +16,26 @@ public with sharing class OnboardingAppRuleRegistry {
 
     // ✅ Activation Rules Registry
     public static List<OnboardingAppActivationRule> getActivationRulesForObject(String objectApiName) {
-        List<OnboardingAppActivationRule> rules = new List<OnboardingAppActivationRule>();
+        List<OnboardingAppActivationRule> activationRules = new List<OnboardingAppActivationRule>();
 
         if (objectApiName == 'Vendor_Program__c') {
-            rules.add(new AllChildRequirementsMustBeActiveRule());
-            rules.add(new AllTemplatesInReqSetMustBeActiveRule());
+            activationRules.add(new AllChildRequirementsMustBeActiveRule());
+            activationRules.add(new AllTemplatesInReqSetMustBeActiveRule());
         }
 
         if (objectApiName == 'Vendor_Customization__c') {
-            rules.add(new AllRequirementGroupsMustBeActiveRule());
+            activationRules.add(new AllRequirementGroupsMustBeActiveRule());
         }
 
         if (objectApiName == 'Onboarding_Status_Rule__c') {
-            rules.add(new AllLinkedEngineMustBeActiveRule());
+            activationRules.add(new AllLinkedEngineMustBeActiveRule());
         }
 
         if (objectApiName == 'Onboarding_Status_Rules_Engine__c') {
-            rules.add(new AllStatusRulesMustBeActiveRule());
-            rules.add(new AllStatusRuleGroupMustBeActiveRule());
+            activationRules.add(new AllStatusRulesMustBeActiveRule());
+            activationRules.add(new AllStatusRuleGroupMustBeActiveRule());
         }
 
-        return rules;
+        return activationRules;
     }
 }

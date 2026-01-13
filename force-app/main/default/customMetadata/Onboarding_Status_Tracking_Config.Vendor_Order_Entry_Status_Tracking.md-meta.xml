@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>Field__c</field>
-        <value xsi:type="xsd:string">Setup_Status__c</value>
+        <value xsi:type="xsd:string">Vendor_Order_Entry_Setup_Status__c</value>
     </values>
     <values>
         <field>IsActive__c</field>
@@ -20,10 +20,10 @@
     </values>
     <values>
         <field>Lookup_To_Onboarding__c</field>
-        <value xsi:type="xsd:string">Vendor_Order_Entry_Platform__c</value>
+        <value xsi:type="xsd:string">Id</value>
     </values>
     <values>
         <field>Object__c</field>
-        <value xsi:type="xsd:string">Vendor_Order_Entry_Platform__c</value>
+        <value xsi:type="xsd:string">Onboarding__c</value>
     </values>
 </CustomMetadata>

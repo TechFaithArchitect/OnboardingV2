@@ -1,9 +1,9 @@
 public with sharing class OnboardingAppRuleEngineHandler {
 
     public static void apply(String sObjectType, List<SObject> newList, Map<Id, SObject> oldMap) {
-        List<OnboardingAppValidationRule> rules = getRulesFor(sObjectType);
-        for (OnboardingAppValidationRule rule : rules) {
-            rule.validate(newList, oldMap);
+        List<OnboardingAppValidationRule> validationRules = getRulesFor(sObjectType);
+        for (OnboardingAppValidationRule validationRule : validationRules) {
+            validationRule.validate(newList, oldMap);
         }
     }
 

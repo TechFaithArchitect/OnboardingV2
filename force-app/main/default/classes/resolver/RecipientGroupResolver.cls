@@ -36,16 +36,16 @@ public with sharing class RecipientGroupResolver {
         String memberQuery = 'SELECT ' + String.join(memberSelectFields, ', ') +
             ' FROM Recipient_Group_Member__c WHERE Recipient_Group__c IN :groupIds';
 
-        for (Recipient_Group_Member__c member : Database.query(memberQuery)) {
-            if (member.Recipient_User__c != null) {
-                userIds.add(member.Recipient_User__c);
+        for (Recipient_Group_Member__c recipientGroupMember : Database.query(memberQuery)) {
+            if (recipientGroupMember.Recipient_User__c != null) {
+                userIds.add(recipientGroupMember.Recipient_User__c);
             }
             // OwnerId can be a User or Group. Collect Groups to resolve nested members.
-            if (member.OwnerId != null && String.valueOf(member.OwnerId).startsWith('00G')) {
-                relatedGroupIds.add(member.OwnerId);
+            if (recipientGroupMember.OwnerId != null && String.valueOf(recipientGroupMember.OwnerId).startsWith('00G')) {
+                relatedGroupIds.add(recipientGroupMember.OwnerId);
             }
-            if (hasTerritoryRoleLookup && member.get('Role_Assignment__c') != null) {
-                Id territoryRoleId = (Id) member.get('Role_Assignment__c');
+            if (hasTerritoryRoleLookup && recipientGroupMember.get('Role_Assignment__c') != null) {
+                Id territoryRoleId = (Id) recipientGroupMember.get('Role_Assignment__c');
                 territoryRoleAssignmentIds.add(territoryRoleId);
             }
         }

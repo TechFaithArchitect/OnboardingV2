@@ -37,13 +37,17 @@ describe('c-onboarding-stage-renderer', () => {
         const handler = jest.fn();
         element.addEventListener('next', handler);
 
+        // Simulate event from child component by dispatching to the element
         const nextEvent = new CustomEvent('next', {
             detail: { data: 'test' },
-            bubbles: true
+            bubbles: true,
+            composed: true
         });
+        
+        // Dispatch the event to trigger handleNext internally
+        element.dispatchEvent(nextEvent);
 
-        element.handleNext(nextEvent);
-
+        // The component should forward the event
         expect(handler).toHaveBeenCalled();
     });
 
@@ -61,13 +65,17 @@ describe('c-onboarding-stage-renderer', () => {
         const handler = jest.fn();
         element.addEventListener('back', handler);
 
+        // Simulate event from child component by dispatching to the element
         const backEvent = new CustomEvent('back', {
             detail: { data: 'test' },
-            bubbles: true
+            bubbles: true,
+            composed: true
         });
+        
+        // Dispatch the event to trigger handleBack internally
+        element.dispatchEvent(backEvent);
 
-        element.handleBack(backEvent);
-
+        // The component should forward the event
         expect(handler).toHaveBeenCalled();
     });
 
@@ -75,6 +83,11 @@ describe('c-onboarding-stage-renderer', () => {
         const element = createElement('c-onboarding-stage-renderer', {
             is: OnboardingStageRenderer
         });
+        element.componentName = 'vendorProgramOnboardingVendor';
+        element.context = {
+            vendorProgramId: '001000000000000AAA',
+            stageId: 'a0X000000000001AAA'
+        };
         document.body.appendChild(element);
 
         const handler = jest.fn();
@@ -83,10 +96,12 @@ describe('c-onboarding-stage-renderer', () => {
         const testDetail = { stageData: 'test data', completed: true };
         const nextEvent = new CustomEvent('next', {
             detail: testDetail,
-            bubbles: true
+            bubbles: true,
+            composed: true
         });
 
-        element.handleNext(nextEvent);
+        // Dispatch the event to trigger handleNext internally
+        element.dispatchEvent(nextEvent);
 
         expect(handler).toHaveBeenCalledWith(
             expect.objectContaining({

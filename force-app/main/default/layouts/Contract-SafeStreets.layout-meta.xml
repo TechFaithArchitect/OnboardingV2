@@ -110,7 +110,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Background_Check__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>

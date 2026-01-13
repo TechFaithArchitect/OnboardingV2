@@ -35,7 +35,7 @@ public with sharing class AllChildRequirementsMustBeActiveRule implements Onboar
 
             for (Vendor_Program_Requirement__c vendorProgramRequirement : vendorProgramRequirementsForValidation) {
                 if (!vendorProgramRequirement.Active__c) {
-                    throw new AuraHandledException('Cannot activate Vendor Program because not all Requirements are active.');
+                    throw new AuraHandledException('Cannot activate Vendor Program because there are inactive requirements. All requirements must be active before activation.');
                 }
             }
         }

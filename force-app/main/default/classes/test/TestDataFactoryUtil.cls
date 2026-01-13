@@ -227,4 +227,34 @@ public class TestDataFactoryUtil {
     public static String getFirstPicklistValue(SObject sObj, String fieldName) {
         return getPicklistValue(sObj, fieldName, false);
     }
+
+    public static Boolean saveResultHasError(Database.SaveResult saveResult, String expectedSubstring) {
+        if (saveResult == null || String.isBlank(expectedSubstring)) {
+            return false;
+        }
+
+        for (Database.Error err : saveResult.getErrors()) {
+            if (err != null && err.getMessage() != null && err.getMessage().contains(expectedSubstring)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static String joinErrorMessages(Database.SaveResult saveResult) {
+        if (saveResult == null) {
+            return '';
+        }
+
+        List<String> messages = new List<String>();
+        for (Database.Error err : saveResult.getErrors()) {
+            if (err != null && err.getMessage() != null) {
+                messages.add(err.getMessage());
+            }
+        }
+
+        return String.join(messages, ' | ');
+    }
+
 }

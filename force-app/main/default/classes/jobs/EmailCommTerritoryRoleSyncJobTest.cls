@@ -14,8 +14,9 @@ private class EmailCommTerritoryRoleSyncJobTest {
         Test.stopTest();
 
         // VERIFY THE RESULTS
+        // Query all fields including required fields to avoid SObjectException
         List<Territory_Role_Assignment__c> roleAssignments = [
-            SELECT Id, User__c, Role__c, Territory_Assignments__c
+            SELECT Id, User__c, Role__c, Territory_Assignments__c, Name, CreatedDate, LastModifiedDate
             FROM Territory_Role_Assignment__c
             WHERE Territory_Assignments__c = :territoryAssignment.Id
         ];

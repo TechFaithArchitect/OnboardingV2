@@ -4,6 +4,23 @@
 
 The Onboarding V2 system is a comprehensive, metadata-driven onboarding framework built on Salesforce. It provides a flexible, configurable solution for managing vendor program onboarding processes with full auditability, progress tracking, and dynamic flow rendering.
 
+## Business Goals and User Roles
+
+Onboarding V2 manages the lifecycle of onboarding a Dealer (Account) into a specific Vendor Program (`Vendor_Customization__c`). Each `Onboarding__c` record represents one Account's progress against a single Vendor Program's requirements and status rules.
+
+### Internal User Roles
+
+- Program Specialists (Sales): Internal sales selling a program to a Dealer (Account); initiate onboarding from Accounts and Opportunities, ensure Account Contacts and roles are set, and link Dealers to Vendor Programs.
+- Program Managers: Internal owners selling us to Vendors so we can offer their Vendor Program; configure vendor program requirements, requirement groups, rules engines, and stage dependencies; manage versioned program changes.
+- Onboarding Managers (Account Services): Drive requirement completion with Dealers, update requirement statuses, and monitor progress to completion.
+- Compliance Managers: Maintain compliance-related requirements and rule changes effective on specific dates; audit status and requirement changes.
+- Finance Managers: Configure contracts/agreements and payment structures; ensure program requirements reflect new agreements and dealers are updated.
+
+### Status and Override
+
+- `Onboarding__c.Onboarding_Status__c` is the business-facing status for a Dealer's onboarding to a Vendor Program (for example: New, In Process, Pending Initial Review, Setup Complete).
+- External overrides are used when a Dealer is granted a pass outside normal requirement criteria; automation should not overwrite status while an override is enabled. See `docs/processes/status-evaluation.md` for evaluation details.
+
 ## High-Level Architecture
 
 The system follows a **layered architecture pattern** with three main layers:

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Fullfilled_Less_Than_Requested</fullName>
-    <active>true</active>
-    <description>Fulfilled Quantity should not be greater than Requested Quantity and must not be less than Zero.</description>
-    <errorConditionFormula>(Fulfilled_Quantity__c  &gt;  Requested_Quantity__c) ||  (Fulfilled_Quantity__c  &lt; 0)</errorConditionFormula>
-    <errorDisplayField>Fulfilled_Quantity__c</errorDisplayField>
-    <errorMessage>Fulfilled Quantity should not be greater than Requested Quantity and must not be less than Zero.</errorMessage>
-</ValidationRule>

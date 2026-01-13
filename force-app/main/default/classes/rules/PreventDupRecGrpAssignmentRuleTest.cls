@@ -7,22 +7,30 @@ private class PreventDupRecGrpAssignmentRuleTest {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
 
-        Vendor_Program_Recipient_Group__c existing = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
         );
-        insert existing;
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        
+        Vendor_Program_Recipient_Group__c existing = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            true
+        );
 
-        Vendor_Program_Recipient_Group__c duplicate = new Vendor_Program_Recipient_Group__c(
-            Version__c = '2.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id,
-            Parent_Version__c = existing.Id
+        Vendor_Program_Recipient_Group__c duplicate = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '2.0',
+            true,
+            null,
+            false
         );
 
         Test.startTest();
@@ -31,8 +39,9 @@ private class PreventDupRecGrpAssignmentRuleTest {
 
         System.assert(!saveResult.isSuccess(), 'Duplicate record should fail due to existing DB record.');
         System.assert(
-            saveResult.getErrors()[0].getMessage().contains('already has this Recipient Group'),
-            'Expected duplicate error from DB presence.'
+            TestDataFactoryUtil.saveResultHasError(saveResult, 'already has this Recipient Group'),
+            'Expected duplicate error from DB presence. Errors: ' +
+                TestDataFactoryUtil.joinErrorMessages(saveResult)
         );
     }
 
@@ -42,20 +51,30 @@ private class PreventDupRecGrpAssignmentRuleTest {
         Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
         Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
 
-        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup1 = new Vendor_Program_Recipient_Group__c(
-            Version__c = '1.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
+        );
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        
+        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup1 = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            false
         );
 
-        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup2 = new Vendor_Program_Recipient_Group__c(
-            Version__c = '2.0',
-            Status__c = 'Active',
-            Is_Active__c = true,
-            Vendor_Program__c = vendorProgram.Id,
-            Recipient_Group__c = recipientGroup.Id
+        Vendor_Program_Recipient_Group__c vendorProgramRecipientGroup2 = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '2.0',
+            true,
+            null,
+            false
         );
 
         Test.startTest();
@@ -64,8 +83,60 @@ private class PreventDupRecGrpAssignmentRuleTest {
 
         System.assert(saveResults[1].isSuccess() == false, 'Second record in same transaction should fail.');
         System.assert(
-            saveResults[1].getErrors()[0].getMessage().contains('same transaction'),
-            'Expected in-memory duplicate validation error.'
+            TestDataFactoryUtil.saveResultHasError(saveResults[1], 'already has this Recipient Group assigned in this transaction') ||
+            TestDataFactoryUtil.saveResultHasError(saveResults[1], 'in this transaction'),
+            'Expected in-memory duplicate validation error. Errors: ' +
+                TestDataFactoryUtil.joinErrorMessages(saveResults[1])
         );
+    }
+
+    @IsTest
+    static void testAllowsDraftOrVersionedDuplicate() {
+        Vendor__c vendor = TestDataFactory.createVendor(true);
+        Recipient_Group__c recipientGroup = TestDataFactory.createRecipientGroup(true, true);
+        Vendor_Customization__c vendorProgram = TestDataFactory.createVendorCustomization(vendor, 'Active', true, null, true);
+
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Vendor_Program_Recipient_Group__c.SObjectType,
+            'Status__c'
+        );
+        String activeStatus = validStatuses.contains('Active') ? 'Active' : validStatuses[0];
+        String draftStatus = validStatuses.contains('Draft') ? 'Draft' : null;
+        String nonActiveStatus = draftStatus;
+        if (nonActiveStatus == null) {
+            for (String status : validStatuses) {
+                if (status != activeStatus) {
+                    nonActiveStatus = status;
+                    break;
+                }
+            }
+        }
+
+        Vendor_Program_Recipient_Group__c existing = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            activeStatus,
+            '1.0',
+            true,
+            null,
+            true
+        );
+
+        Id parentVersionId = draftStatus == null ? existing.Id : null;
+        Vendor_Program_Recipient_Group__c duplicateDraft = TestDataFactory.createVendorProgramRecipientGroup(
+            vendorProgram,
+            recipientGroup,
+            nonActiveStatus,
+            '2.0',
+            false,
+            parentVersionId,
+            false
+        );
+
+        Test.startTest();
+        Database.SaveResult saveResult = Database.insert(duplicateDraft, false);
+        Test.stopTest();
+
+        System.assert(saveResult.isSuccess(), 'Expected draft/versioned duplicate to be allowed.');
     }
 }

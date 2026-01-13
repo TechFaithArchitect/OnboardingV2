@@ -3,11 +3,13 @@
     <fullName>Default_Requirement_Group__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Connects Program Group → Requirement Group (central for inheritance).</description>
+    <externalId>false</externalId>
     <label>Default Requirement Group</label>
     <referenceTo>Vendor_Program_Requirement_Group__c</referenceTo>
     <relationshipLabel>Vendor Program Group</relationshipLabel>
     <relationshipName>Default_Requirement_Groups</relationshipName>
     <required>false</required>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

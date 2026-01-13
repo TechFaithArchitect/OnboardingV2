@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>End_Date_Cannot_Be_Empty</fullName>
-    <active>true</active>
-    <errorConditionFormula>AND( ISBLANK( POE_Start_Date__c ), NOT(ISBLANK( POE_End_Date__c )))</errorConditionFormula>
-    <errorDisplayField>POE_End_Date__c</errorDisplayField>
-    <errorMessage>An End Date can&apos;t be set if the Store doesn&apos;t have a Start Date</errorMessage>
-</ValidationRule>

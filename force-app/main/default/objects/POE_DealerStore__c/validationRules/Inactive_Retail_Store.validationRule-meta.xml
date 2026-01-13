@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Inactive_Retail_Store</fullName>
-    <active>true</active>
-    <description>Checks Retail Store Status</description>
-    <errorConditionFormula>AND(POE_Store__r.Status__c = &apos;Inactive&apos;, ISNEW() = True)</errorConditionFormula>
-    <errorDisplayField>POE_Store__c</errorDisplayField>
-    <errorMessage>Can&apos;t create DealerStore record if the Store Status is Inactive</errorMessage>
-</ValidationRule>

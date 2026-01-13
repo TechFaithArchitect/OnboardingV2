@@ -6,21 +6,22 @@ private class FollowUpFatigueServiceTest {
         Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(true);
 
         // Two follow-ups within window totaling > default maxAttempts (3)
-        List<Follow_Up_Queue__c> queues = new List<Follow_Up_Queue__c>{
-            new Follow_Up_Queue__c(
+        List<Follow_Up_Queue__c> queues = new List<Follow_Up_Queue__c>();
+        Follow_Up_Queue__c queue1 = new Follow_Up_Queue__c(
                 Onboarding_Requirement__c = req.Id,
                 Attempt_Count__c = 2,
                 Last_Attempt_Date__c = DateTime.now().addDays(-1),
                 Is_Archived__c = false
-            ),
-            new Follow_Up_Queue__c(
+        );
+        Follow_Up_Queue__c queue2 = new Follow_Up_Queue__c(
                 Onboarding_Requirement__c = req.Id,
                 Attempt_Count__c = 2,
                 Last_Attempt_Date__c = DateTime.now().addDays(-2),
                 Is_Archived__c = false
-            )
-        };
-        insert queues;
+        );
+        queues.add(queue1);
+        queues.add(queue2);
+        TestDataFactoryUtil.maybeInsert(queues, true);
 
         Test.startTest();
         Boolean suppressed = FollowUpFatigueService.shouldSuppressDueToFatigue(req.Id, null);
@@ -38,7 +39,7 @@ private class FollowUpFatigueServiceTest {
             Last_Attempt_Date__c = DateTime.now().addDays(-1),
             Is_Archived__c = false
         );
-        insert queue;
+        TestDataFactoryUtil.maybeInsert(queue, true);
 
         Test.startTest();
         Boolean suppressed = FollowUpFatigueService.shouldSuppressDueToFatigue(req.Id, null);
@@ -50,14 +51,20 @@ private class FollowUpFatigueServiceTest {
     @isTest
     static void applyAndRemoveSuppressionUpdatesQueue() {
         Onboarding_Requirement__c req = TestOnboardingRequirementFactory.create(true);
+        List<String> validStatuses = TestDataFactoryUtil.getPicklistValues(
+            Follow_Up_Queue__c.SObjectType,
+            'Status__c'
+        );
+        String defaultStatus = validStatuses.size() > 0 ? validStatuses[0] : 'Pending';
+        
         Follow_Up_Queue__c queue = new Follow_Up_Queue__c(
             Onboarding_Requirement__c = req.Id,
             Attempt_Count__c = 1,
             Last_Attempt_Date__c = DateTime.now(),
             Is_Archived__c = false,
-            Status__c = 'Pending'
+            Status__c = defaultStatus
         );
-        insert queue;
+        TestDataFactoryUtil.maybeInsert(queue, true);
 
         Test.startTest();
         FollowUpFatigueService.applyFatigueSuppression(queue.Id, 'Test');
@@ -79,9 +86,12 @@ private class FollowUpFatigueServiceTest {
             Consecutive_Failures__c = 0,
             Last_Attempt_Date__c = DateTime.now().addDays(-3),
             Is_Archived__c = false,
-            Status__c = 'Pending'
+            Status__c = TestDataFactoryUtil.getDefaultPicklistValue(
+                Follow_Up_Queue__c.SObjectType,
+                'Status__c'
+            )
         );
-        insert queue;
+        TestDataFactoryUtil.maybeInsert(queue, true);
 
         Test.startTest();
         FollowUpFatigueService.updateAttemptTracking(queue.Id, false);

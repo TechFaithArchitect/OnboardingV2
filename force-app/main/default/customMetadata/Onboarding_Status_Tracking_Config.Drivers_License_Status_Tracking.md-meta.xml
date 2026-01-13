@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>Field__c</field>
-        <value xsi:type="xsd:string">Status__c</value>
+        <value xsi:type="xsd:string">Drivers_Licenses_Status__c</value>
     </values>
     <values>
         <field>IsActive__c</field>
@@ -20,10 +20,10 @@
     </values>
     <values>
         <field>Lookup_To_Onboarding__c</field>
-        <value xsi:type="xsd:string">Drivers_License__c</value>
+        <value xsi:type="xsd:string">Id</value>
     </values>
     <values>
         <field>Object__c</field>
-        <value xsi:type="xsd:string">License__c</value>
+        <value xsi:type="xsd:string">Onboarding__c</value>
     </values>
 </CustomMetadata>

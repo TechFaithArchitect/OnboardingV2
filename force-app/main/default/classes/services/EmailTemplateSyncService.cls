@@ -23,40 +23,40 @@ public with sharing class EmailTemplateSyncService {
         summary.manualRun = false;
 
         // Step 1️⃣ - Load source & destination data
-        List<EmailTemplateDTO> templates = EmailTemplateRepository.getAllActiveTemplates();
+        List<EmailTemplateDTO> emailTemplateDTOList = EmailTemplateRepository.getAllActiveTemplates();
         Map<String, Email_Template_Catalog__mdt> existingCMDTs = EmailCatalogCMDTRepository.getAllEmailCatalogs();
         Map<String, Communication_Template__c> existingComms = CommunicationTemplateRepository.getAllTemplates();
 
         // Step 2️⃣ - Compare and build worksets
         List<Metadata.CustomMetadata> newCmdts = new List<Metadata.CustomMetadata>();
-        List<Communication_Template__c> inserts = new List<Communication_Template__c>();
-        List<Communication_Template__c> updates = new List<Communication_Template__c>();
+        List<Communication_Template__c> communicationTemplatesToInsert = new List<Communication_Template__c>();
+        List<Communication_Template__c> communicationTemplatesToUpdate = new List<Communication_Template__c>();
 
-        for (EmailTemplateDTO dto : templates) {
-            if (!existingCMDTs.containsKey(dto.developerName)) {
-                newCmdts.add(EmailCatalogCMDTRepository.buildCMDT(dto, jobId));
+        for (EmailTemplateDTO emailTemplateDTO : emailTemplateDTOList) {
+            if (!existingCMDTs.containsKey(emailTemplateDTO.developerName)) {
+                newCmdts.add(EmailCatalogCMDTRepository.buildCMDT(emailTemplateDTO, jobId));
                 summary.newCMDTCount++;
             }
 
-            if (existingComms.containsKey(dto.developerName)) {
-                Communication_Template__c existing = existingComms.get(dto.developerName);
-                if (dto.hasChanges(existing)) {
-                    Communication_Template__c updated = dto.toSObject(existing);
+            if (existingComms.containsKey(emailTemplateDTO.developerName)) {
+                Communication_Template__c existing = existingComms.get(emailTemplateDTO.developerName);
+                if (emailTemplateDTO.hasChanges(existing)) {
+                    Communication_Template__c updated = emailTemplateDTO.toSObject(existing);
                     updated.Sync_Job__c = jobId;
-                    updates.add(updated);
+                    communicationTemplatesToUpdate.add(updated);
                     summary.updatedCount++;
                 }
             } else {
-                Communication_Template__c newRec = dto.toSObject();
+                Communication_Template__c newRec = emailTemplateDTO.toSObject();
                 newRec.Sync_Job__c = jobId;
-                inserts.add(newRec);
+                communicationTemplatesToInsert.add(newRec);
                 summary.insertedCount++;
             }
         }
 
         // Step 3️⃣ - Persist changes using retry-safe repository method
-        if (!inserts.isEmpty()) CommunicationTemplateRepository.saveWithRetry(inserts, true);
-        if (!updates.isEmpty()) CommunicationTemplateRepository.saveWithRetry(updates, false);
+        if (!communicationTemplatesToInsert.isEmpty()) CommunicationTemplateRepository.saveWithRetry(communicationTemplatesToInsert, true);
+        if (!communicationTemplatesToUpdate.isEmpty()) CommunicationTemplateRepository.saveWithRetry(communicationTemplatesToUpdate, false);
 
         // Step 4️⃣ - Deploy CMDT metadata
         if (!newCmdts.isEmpty()) {

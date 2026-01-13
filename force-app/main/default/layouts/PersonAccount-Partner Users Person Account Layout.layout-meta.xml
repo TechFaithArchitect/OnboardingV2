@@ -29,7 +29,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>POE_Dealer_Code__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -397,17 +396,11 @@
         <fields>ORDERS.TOTAL_AMOUNT</fields>
         <relatedList>Order.POE_Dealer__c</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Program_Dates__c.Account__c</relatedList>
-    </relatedLists>
+    
     <relatedLists>
         <relatedList>RelatedContentNoteList</relatedList>
     </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>Zip_Code__c.Account__c</relatedList>
-    </relatedLists>
+    
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showInteractionLogPanel>false</showInteractionLogPanel>

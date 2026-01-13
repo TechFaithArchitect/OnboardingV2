@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Vendor_Program_Requirement_Group__c</fullName>
-    <description>Default requirement group set tied to this program customization.</description>
     <deleteConstraint>SetNull</deleteConstraint>
+    <description>Default requirement group set tied to this program customization.</description>
+    <externalId>false</externalId>
     <label>Vendor Program Requirement Group</label>
     <referenceTo>Vendor_Program_Requirement_Group__c</referenceTo>
     <relationshipLabel>Vendor Programs</relationshipLabel>

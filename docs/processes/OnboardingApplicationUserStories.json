@@ -1,30 +1,30 @@
 [
   {
-    "epic": "Initiate Onboarding from Account (Sales Rep Experience)",
+    "epic": "Initiate Onboarding from Account (Program Specialist (Sales) Experience)",
     "stories": [
       {
         "summary": "Launch Quick Action for Onboarding",
-        "description": "As a Sales Rep, I want to launch an onboarding modal from the Account record, so that I can initiate the onboarding process in-context."
+        "description": "As a Program Specialist (Sales), I want to launch an onboarding modal from the Account record, so that I can initiate the onboarding process in-context."
       },
       {
         "summary": "Validate Account Contact Roles",
-        "description": "As a Sales Rep, I want the system to enforce that all Account Contacts have defined roles, so that I can ensure accurate responsibility assignments before onboarding."
+        "description": "As a Program Specialist (Sales), I want the system to enforce that all Account Contacts have defined roles, so that I can ensure accurate responsibility assignments before onboarding."
       },
       {
         "summary": "Check Program Eligibility",
-        "description": "As a Sales Rep, I want the system to check for NDA and Program Base Application eligibility, so that I can only select valid vendor programs for onboarding."
+        "description": "As a Program Specialist (Sales), I want the system to check for NDA and Program Base Application eligibility, so that I can only select valid vendor programs for onboarding."
       },
       {
         "summary": "Select Eligible Vendor Program",
-        "description": "As a Sales Rep, I want to search for and select from eligible Vendor Programs based on account eligibility, so that I can match the Account to the right program."
+        "description": "As a Program Specialist (Sales), I want to search for and select from eligible Vendor Programs based on account eligibility, so that I can match the Account to the right program."
       },
       {
         "summary": "Create Onboarding Package",
-        "description": "As a Sales Rep, I want the system to auto-create Opportunity, Onboarding, and linking records, so that I don't have to manually set them up."
+        "description": "As a Program Specialist (Sales), I want the system to auto-create Opportunity, Onboarding, and linking records, so that I don't have to manually set them up."
       },
       {
         "summary": "Emit Program Selected Event",
-        "description": "As a Sales Rep, I want the modal to emit an event with relevant record IDs after onboarding is created, so that I can use this information in follow-up processes."
+        "description": "As a Program Specialist (Sales), I want the modal to emit an event with relevant record IDs after onboarding is created, so that I can use this information in follow-up processes."
       }
     ]
   },

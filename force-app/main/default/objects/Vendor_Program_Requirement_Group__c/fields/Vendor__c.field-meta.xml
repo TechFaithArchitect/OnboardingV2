@@ -3,6 +3,7 @@
     <fullName>Vendor__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <description>Optional scoping — helps organize requirement groups per Vendor.</description>
+    <externalId>false</externalId>
     <label>Vendor</label>
     <referenceTo>Vendor__c</referenceTo>
     <relationshipLabel>Vendor Program Requirement Groups</relationshipLabel>
