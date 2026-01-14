@@ -103,11 +103,14 @@ public with sharing class OnboardingApplicationService {
     public String Name;
     @AuraEnabled
     public String Status;
+    @AuraEnabled
+    public Date dueDate;
 
     public RequirementDTO(Onboarding_Requirement__c onboardingRequirement) {
       Id = onboardingRequirement.Id;
       Name = onboardingRequirement.Name;
       Status = onboardingRequirement.Status__c;
+      dueDate = onboardingRequirement.Due_Date__c;
     }
   }
 
