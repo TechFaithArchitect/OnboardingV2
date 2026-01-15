@@ -54,8 +54,8 @@ describe("c-onboarding-status-rules-engine", () => {
   const mockRules = [
     {
       Id: "a0X000000000005AAA",
-      Requirement__c: "Req 1",
-      Resulting_Status__c: "Approved",
+      Name: "Test Rules Engine",
+      Target_Onboarding_Status__c: "Approved",
       Evaluation_Logic__c: "ALL",
       Custom_Evaluation_Logic__c: null
     }
@@ -277,7 +277,7 @@ describe("c-onboarding-status-rules-engine", () => {
           draftValues: [
             {
               Id: "a0X000000000005AAA",
-              Resulting_Status__c: "Rejected"
+              Target_Onboarding_Status__c: "Rejected"
             }
           ]
         },
@@ -303,10 +303,10 @@ describe("c-onboarding-status-rules-engine", () => {
       // Test the actual functionality: column configuration
       // The columns property defines the datatable structure
       const expectedColumns = [
-        { label: "Requirement", fieldName: "Requirement__c", editable: false },
+        { label: "Name", fieldName: "Name", editable: false },
         {
-          label: "Resulting Status",
-          fieldName: "Resulting_Status__c",
+          label: "Target Status",
+          fieldName: "Target_Onboarding_Status__c",
           editable: true
         },
         {
@@ -323,7 +323,7 @@ describe("c-onboarding-status-rules-engine", () => {
 
       // Verify the column structure is correct
       expect(expectedColumns.length).toBe(4);
-      expect(expectedColumns[0].fieldName).toBe("Requirement__c");
+      expect(expectedColumns[0].fieldName).toBe("Name");
       expect(expectedColumns[0].editable).toBe(false);
       expect(expectedColumns[1].editable).toBe(true);
     });

@@ -312,6 +312,7 @@ public with sharing class OnboardingRulesRepository {
     return [
       SELECT
         Id,
+        Name,
         Required_Status__c,
         Target_Onboarding_Status__c,
         Evaluation_Logic__c,
@@ -320,6 +321,7 @@ public with sharing class OnboardingRulesRepository {
       WHERE
         Vendor_Program_Group__c = :vendorProgramGroupId
         AND Requirement_Group__c = :requirementGroupId
+      ORDER BY Name
     ];
   }
 

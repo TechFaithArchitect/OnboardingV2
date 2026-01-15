@@ -143,6 +143,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <description>Junction record linking ECC_Field_Configuration_Group__c to ECC_Field_Display_Configuration__c, defining which field configurations belong to which groups. Enables reusable field configuration groups that can be applied to different form contexts. Example: An ECC_Field_Configuration_Group named &quot;Insurance Information Fields&quot; might have multiple ECC_Field_Configuration_Group_Mapping records linking it to field configurations for Policy Number, Policy Expiry Date, Insurance Carrier, and Coverage Amount. When a form needs to display insurance information, it references the group, and all linked field configurations are automatically included. This enables consistent field layouts across multiple forms while maintaining centralized configuration management.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>

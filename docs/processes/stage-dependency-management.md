@@ -8,26 +8,31 @@ The Stage Dependency Management system allows you to define dependencies between
 
 ### Objects
 
-#### Onboarding_Application_Stage_Dependency__c
+#### Onboarding_Application_Stage_Dependency\_\_c
+
 The "Campaign" object - defines a dependency rule.
 
 **Key Fields:**
+
 - `Name` - Descriptive name for the dependency rule
 - `Logic_Type__c` - Evaluation logic: ALL, ANY, or CUSTOM
 - `Required__c` - Whether this dependency is required
 - `Target_Stage__c` - The stage that requires dependencies to be met
 
-#### Onboarding_App_Stage_Dependency_Member__c
+#### Onboarding_App_Stage_Dependency_Member\_\_c
+
 The "Campaign Member" object - individual required stages within a dependency rule.
 
 **Key Fields:**
-- `Dependency__c` - Master-Detail to Onboarding_Application_Stage_Dependency__c
+
+- `Dependency__c` - Master-Detail to Onboarding_Application_Stage_Dependency\_\_c
 - `Required_Stage__c` - The stage that must be completed
 - `Required__c` - Whether this specific member is required
 
 ### Pattern Benefits
 
 The Campaign/Campaign Member pattern provides:
+
 1. **Long-term stability**: Dependencies reference stages by ID, not by order, so they persist even if stage orders change
 2. **Flexibility**: Multiple members can be added to a single dependency rule
 3. **Scalability**: Easy to add or remove required stages without changing the dependency rule structure
@@ -35,40 +40,74 @@ The Campaign/Campaign Member pattern provides:
 ## Logic Types
 
 ### ALL
+
 All required stages must be completed before the target stage can be started.
 
 **Example**: "Vendor Selection" and "Vendor Program Creation" must both be completed before "Requirement Set Selection" can start.
 
 ### ANY
+
 At least one required stage must be completed before the target stage can be started.
 
 **Example**: Either "Vendor Selection" OR "Vendor Program Search" must be completed before proceeding.
 
 ### CUSTOM
+
 Custom evaluation logic (not yet fully implemented - defaults to ALL for safety).
+
+## Visualization
+
+The `onboardingStageDependencyViewer` component provides a visual representation of stage dependencies:
+
+- **Visual Layout**: Stages displayed in SVG-based layout showing dependency relationships
+- **Status Indicators**: Color-coded completion status for each stage
+- **Dependency Lines**: Visual connections showing which stages depend on others
+- **Blocked Indicators**: Highlights stages that cannot be started due to unmet dependencies
+
+### Usage
+
+Add the component to a Lightning page with:
+
+- `vendorProgramId` - Vendor program ID
+- `processId` - Onboarding process ID
+
+The component automatically:
+
+- Loads stages with dependency information
+- Calculates stage positions based on dependencies
+- Displays completion status for each stage
+- Shows blocked stages with visual indicators
+
+See [Onboarding Stage Dependency Viewer](../components/lwc-components.md#onboardingstagedependencyviewer) for component documentation.
 
 ## Implementation
 
 ### Apex Classes
 
 #### OnboardingStageDependencyRepository
+
 Repository layer for dependency queries.
 
 **Key Methods:**
+
 - `getDependenciesForTargetStage(Id targetStageId)` - Gets all dependencies for a target stage
 - `getCompletedStageIds(Id vendorProgramId, Id processId)` - Gets completed stage IDs for a vendor program
 
 #### OnboardingStageDependencyService
+
 Service layer for dependency validation.
 
 **Key Methods:**
+
 - `canStartStage(Id targetStageId, Id vendorProgramId, Id processId)` - Validates if a stage can be started
 - `getDependencyInfo(Id targetStageId, Id vendorProgramId, Id processId)` - Gets dependency information for display
 
 #### OnboardingApplicationService
+
 Updated to include dependency validation.
 
 **Key Methods:**
+
 - `saveProgress()` - Now validates dependencies before saving progress
 - `canStartStage()` - Exposes dependency validation to LWC
 - `getStageDependencies()` - Gets dependency information for display
@@ -146,7 +185,7 @@ Cannot proceed to this stage. The following dependencies must be completed first
 ## Best Practices
 
 1. **Use descriptive names** for dependency rules to make them easy to understand
-2. **Set Required__c = true** for dependencies that should block navigation
+2. **Set Required\_\_c = true** for dependencies that should block navigation
 3. **Use ALL logic** when all dependencies must be met (most common)
 4. **Use ANY logic** when at least one dependency is sufficient
 5. **Test dependencies** after creating them to ensure they work as expected
@@ -157,5 +196,3 @@ Cannot proceed to this stage. The following dependencies must be completed first
 - [Custom Objects - Stage Dependencies](../objects/custom-objects.md#onboarding_application_stage_dependency__c)
 - [Application Flow Engine](./application-flow-engine.md)
 - [Onboarding Process](./onboarding-process.md)
-
-

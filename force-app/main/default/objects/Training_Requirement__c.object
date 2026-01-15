@@ -149,9 +149,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>A required training program/course assigned by a vendor as part of onboarding. Points to a Training Source System (e.g., LearnUpon, External Portal) and may include identifiers like Group Number or Training Code.
-
-Example Record: “LearnUpon Safety Training – Group 101”</description>
+    <description>A required training program/course assigned by a vendor as part of onboarding. Points to a Training Source System (e.g., LearnUpon, External Portal) and may include identifiers like Group Number or Training Code. Example: A Training_Requirement record named &quot;LearnUpon Safety Training – Group 101&quot; might have Training_System__c pointing to &quot;LearnUpon&quot; system and Active__c=true. When a dealer is onboarded for a Vendor Program that requires this training, Training_Assignment__c records are created linking the requirement to Contacts who must complete the training. The training system integration can automatically sync completion status from external training platforms, updating Training_Assignment Status__c when contacts complete the course in the external system.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>

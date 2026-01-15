@@ -20,10 +20,10 @@ export default class OnboardingStatusRulesEngine extends LightningElement {
   selectedRequirementGroup;
 
   columns = [
-    { label: "Requirement", fieldName: "Requirement__c", editable: false },
+    { label: "Name", fieldName: "Name", editable: false },
     {
-      label: "Resulting Status",
-      fieldName: "Resulting_Status__c",
+      label: "Target Status",
+      fieldName: "Target_Onboarding_Status__c",
       editable: true
     },
     {
@@ -105,7 +105,7 @@ export default class OnboardingStatusRulesEngine extends LightningElement {
     }
 
     try {
-      await saveRules({ rules: updatedFields });
+      await saveRules({ statusRulesEngineRecords: updatedFields });
       await this.loadRules();
       this.showToast("Success", "Status rules saved.", "success");
     } catch (error) {

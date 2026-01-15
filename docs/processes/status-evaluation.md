@@ -12,7 +12,7 @@ The Status Evaluation Engine is a rules-based system that automatically evaluate
 
 See [User Journey Summary](../user-guides/user-journey-summary.md) for the end-to-end flow.
 
-## Rules Engine Override (Override_Status__c)
+## Rules Engine Override (Override_Status\_\_c)
 
 `Override_Status__c` on `Onboarding_Status_Rules_Engine__c` forces the engine's `Target_Onboarding_Status__c` without checking rule conditions.
 This is the rules-based exception for when a Dealer should pass even if requirements are not complete.
@@ -48,6 +48,47 @@ For each Onboarding_Status_Rules_Engine__c:
     Apply evaluation logic (ALL/ANY/CUSTOM)
         ↓
     If rule passes: Update Onboarding__c.Onboarding_Status__c
+```
+
+## Preview Evaluation
+
+The status evaluation engine supports preview evaluation, allowing administrators to test rule evaluation without applying changes to onboarding records.
+
+### Features
+
+- **Preview Without Changes**: Evaluate rules and see what status would be applied without actually updating records
+- **Evaluation Trace**: View detailed trace of which rules were evaluated, passed/failed status, and resulting status
+- **Filtering**: Filter trace data by group name, engine name, and rule number
+- **CSV Export**: Export evaluation trace data for analysis
+
+### Usage
+
+1. Navigate to `onboardingStatusRulesEngine` component
+2. Select Vendor Program Group and Requirement Group
+3. Load rules
+4. Select an onboarding record from the dropdown
+5. Click "Preview Evaluation" button
+6. Review evaluation trace in the preview modal
+
+### Preview Modal
+
+The `statusEvaluationPreviewModal` component displays:
+
+- Rule order and evaluation sequence
+- Group and engine information
+- Individual rule conditions and their pass/fail status
+- Expected status vs actual status
+- Evaluation logic used
+- Resulting status that would be applied
+- Short-circuit reasons (if evaluation stopped early)
+
+### API
+
+- `OnboardingStatusRulesEngineController.previewStatusEvaluation()` - Returns `List<StatusEvaluationTraceDTO>`
+- `OnboardingStatusRulesEngineController.getOnboardingOptions()` - Returns onboarding records for selection
+
+See [Status Evaluation Preview Modal](../components/lwc-components.md#statusevaluationpreviewmodal) for component documentation.
+
 ```
 
 ## Rule Structure
@@ -108,11 +149,13 @@ Uses a custom expression with rule numbers.
 
 **Examples:**
 ```
-"1 AND 2"                    # Rules 1 AND 2 must pass
-"1 OR 2"                     # Rule 1 OR Rule 2 must pass
-"(1 AND 2) OR 3"             # (Rule 1 AND Rule 2) OR Rule 3
-"1 AND (2 OR 3)"             # Rule 1 AND (Rule 2 OR Rule 3)
-```
+
+"1 AND 2" # Rules 1 AND 2 must pass
+"1 OR 2" # Rule 1 OR Rule 2 must pass
+"(1 AND 2) OR 3" # (Rule 1 AND Rule 2) OR Rule 3
+"1 AND (2 OR 3)" # Rule 1 AND (Rule 2 OR Rule 3)
+
+````
 
 **Expression Processing:**
 1. Rule numbers are replaced with boolean values (true/false)
@@ -125,9 +168,9 @@ Uses a custom expression with rule numbers.
 ### Step 1: Gather Requirements
 
 ```apex
-Map<Id, Onboarding_Requirement__c> reqByVPR = 
+Map<Id, Onboarding_Requirement__c> reqByVPR =
     OnboardingRulesService.getRequirementsByVPR(onboarding.Id);
-```
+````
 
 Maps requirements by `Vendor_Program_Requirement__c` ID for quick lookup.
 
@@ -143,7 +186,7 @@ Retrieves vendor program groups associated with the onboarding.
 ### Step 3: Get Rules
 
 ```apex
-List<Onboarding_Status_Rules_Engine__c> rules = 
+List<Onboarding_Status_Rules_Engine__c> rules =
     OnboardingRulesService.getRulesForGroups(groupIds);
 ```
 
@@ -170,11 +213,13 @@ For each rule engine:
 ### OnboardingExpressionEngine
 
 Recursively evaluates boolean expressions with support for:
+
 - Parentheses grouping
 - AND (`&&`) and OR (`||`) operators
 - Nested expressions
 
 **Algorithm:**
+
 1. Process innermost parentheses first
 2. Evaluate OR operations
 3. Evaluate AND operations
@@ -199,26 +244,27 @@ Apply evaluation logic (ALL/ANY/CUSTOM)
 ↓
 If rule passes: Update Onboardingc.Onboarding_Status_c
 
-
 ## Rule Structure
 
-### Onboarding_Status_Rules_Engine__c
+### Onboarding_Status_Rules_Engine\_\_c
 
 The rules engine defines a set of rules and evaluation logic:
 
 **Key Fields:**
+
 - `Vendor_Program_Group__c` - Associated vendor program group
 - `Target_Onboarding_Status__c` - Status to set when rule passes
 - `Evaluation_Logic__c` - Logic type: "ALL", "ANY", or "CUSTOM"
-- `Custom_Evaluation_Logic__c` - Custom expression (if Evaluation_Logic__c = "CUSTOM")
+- `Custom_Evaluation_Logic__c` - Custom expression (if Evaluation_Logic\_\_c = "CUSTOM")
 
-### Onboarding_Status_Rule__c
+### Onboarding_Status_Rule\_\_c
 
 Individual rule conditions:
 
 **Key Fields:**
+
 - `Parent_Rule__c` - Parent rules engine
-- `Requirement__c` - Requirement to evaluate (Vendor_Program_Requirement__c)
+- `Requirement__c` - Requirement to evaluate (Vendor_Program_Requirement\_\_c)
 - `Expected_Status__c` - Expected requirement status (e.g., "Complete", "Approved")
 - `Rule_Number__c` - Order of evaluation (used in custom expressions)
 
@@ -229,6 +275,7 @@ Individual rule conditions:
 All rules must pass for the engine to pass.
 
 **Example:**
+
 - Rule 1: Requirement A = "Complete" ✓
 - Rule 2: Requirement B = "Complete" ✓
 - Rule 3: Requirement C = "Approved" ✓
@@ -239,6 +286,7 @@ All rules must pass for the engine to pass.
 At least one rule must pass for the engine to pass.
 
 **Example:**
+
 - Rule 1: Requirement A = "Complete" ✗
 - Rule 2: Requirement B = "Complete" ✓
 - Rule 3: Requirement C = "Approved" ✗
@@ -249,6 +297,7 @@ At least one rule must pass for the engine to pass.
 Uses a custom expression with rule numbers.
 
 **Expression Syntax:**
+
 - Use rule numbers (e.g., "1", "2", "3")
 - Operators: `AND`, `OR`
 - Parentheses for grouping
@@ -257,6 +306,7 @@ Uses a custom expression with rule numbers.
 **Examples:**Complete" OR Compliance is "Approved")
 
 **Configuration:**
+
 1. Rules Engine:
    - `Target_Onboarding_Status__c`: "Ready for Review"
    - `Evaluation_Logic__c`: "CUSTOM"
@@ -273,6 +323,7 @@ Uses a custom expression with rule numbers.
 ### onboardingStatusRulesEngine
 
 Admin UI for configuring rules:
+
 - Select Vendor Program Group
 - Select Requirement Group
 - Load existing rules
@@ -282,6 +333,7 @@ Admin UI for configuring rules:
 ### onboardingRequirementsPanel
 
 User UI for managing requirements:
+
 - View all requirements
 - Update requirement statuses
 - Trigger status re-evaluation
@@ -321,8 +373,8 @@ User UI for managing requirements:
 "(1 AND 2) OR 3" # (Rule 1 AND Rule 2) OR Rule 3
 "1 AND (2 OR 3)" # Rule 1 AND (Rule 2 OR Rule 3)
 
-
 **Expression Processing:**
+
 1. Rule numbers are replaced with boolean values (true/false)
 2. `AND` is replaced with `&&`
 3. `OR` is replaced with `||`
@@ -332,30 +384,29 @@ User UI for managing requirements:
 
 ### Step 1: Gather Requirements
 
-Map<Id, Onboarding_Requirement__c> reqByVPR = 
-    OnboardingRulesService.getRequirementsByVPR(onboarding.Id);
+Map<Id, Onboarding_Requirement\_\_c> reqByVPR =
+OnboardingRulesService.getRequirementsByVPR(onboarding.Id);
 
-Maps requirements by Vendor_Program_Requirement__c ID for quick lookup.
+Maps requirements by Vendor_Program_Requirement\_\_c ID for quick lookup.
 
 Step 2: Get Vendor Program Groups
 
 Id vendorProgramId = OnboardingRulesService.getVendorProgramId(onboarding.Id);
-List<Id> groupIds = OnboardingRulesService.getVendorProgramGroupIds(vendorProgramId);rdId` (Vendor Program ID) from Lightning record page
-2. Calls `OnboardingApplicationService.getProcessIdForVendorProgram()`
-3. Passes `processId` to `onboardingFlowEngine`
-4. Handles loading and error states
+List<Id> groupIds = OnboardingRulesService.getVendorProgramGroupIds(vendorProgramId);rdId`(Vendor Program ID) from Lightning record page
+2. Calls`OnboardingApplicationService.getProcessIdForVendorProgram()`3. Passes`processId`to`onboardingFlowEngine` 4. Handles loading and error states
 
 **Code:**
 @wire(getProcessIdForVendorProgram, { vendorProgramId: '$recordId' })
 wiredProcess({ error, data }) {
-  if (data) {
-    this.processId = data;
-  }
+if (data) {
+this.processId = data;
+}
 }### 2. Flow Controller: onboardingFlowEngine
 
 **Purpose**: Manages the onboarding flow lifecycle.
 
 **Responsibilities:**
+
 - Load stages from metadata
 - Track current stage index
 - Handle navigation (next/back)
@@ -365,22 +416,26 @@ wiredProcess({ error, data }) {
 **Key Methods:**
 
 **initializeFlow()**
+
 - Loads stages: `getStagesForProcess()`
 - Loads progress: `getProgress()`
 - Loads process details: `getProcessDetails()`
 - Resumes from saved stage if exists
 
 **handleNext()**
+
 - Advances to next stage
 - Supports branching via `Next_Stage__c`
 - Falls back to sequential order
 - Saves progress
 
 **handleBack()**
+
 - Returns to previous stage
 - Saves progress
 
 **persistProgress()**
+
 - Saves to `Onboarding_Application_Progress__c`
 - Logs to `Onboarding_Application_Stage_Completion__c`
 
@@ -389,6 +444,7 @@ wiredProcess({ error, data }) {
 **Purpose**: Dynamically renders stage components.
 
 **Flow:**
+
 1. Receives `componentName` (API name) from flow engine
 2. Receives `context` object
 3. Dynamically instantiates component using `<c-{componentName}>`
@@ -397,17 +453,18 @@ wiredProcess({ error, data }) {
 
 **Dynamic Instantiation:**
 <template>
-  <template if:true={componentName}>
-    <c-{componentName} context={context}></c-{componentName}>
-  </template>
+<template if:true={componentName}>
+<c-{componentName} context={context}></c-{componentName}>
+</template>
 </template>**Event Handling:**
 handleNext(event) {
-  this.dispatchEvent(new CustomEvent('next', { detail: event.detail }));
+this.dispatchEvent(new CustomEvent('next', { detail: event.detail }));
 }### 4. Stage Components
 
 **Purpose**: Implement stage-specific functionality.
 
 **Requirements:**
+
 - Accept `context` prop with `vendorProgramId` and `stageId`
 - Fire `next` event when stage complete
 - Fire `back` event to return to previous stage
@@ -417,33 +474,35 @@ handleNext(event) {
 
 **Example Structure:**
 export default class VendorProgramOnboardingVendor extends LightningElement {
-  @api context;
-  
-  get vendorProgramId() {
-    return this.context?.vendorProgramId;
-  }
-  
-  handleNext() {
-    this.dispatchEvent(new CustomEvent('next', { 
-      detail: { /* stage data */ } 
-    }));
-  }
+@api context;
+
+get vendorProgramId() {
+return this.context?.vendorProgramId;
+}
+
+handleNext() {
+this.dispatchEvent(new CustomEvent('next', {
+detail: { /_ stage data _/ }
+}));
+}
 }## Metadata Model
 
-### Onboarding_Application_Process__c
+### Onboarding_Application_Process\_\_c
 
 Defines a reusable onboarding process.
 
 **Fields:**
+
 - `Name` - Process name
 - `Description__c` - Process description
 - `Active__c` - Whether process is active
 
-### Onboarding_Application_Stage__c
+### Onboarding_Application_Stage\_\_c
 
 Defines a stage within a process.
 
 **Fields:**
+
 - `Onboarding_Application_Process__c` - Parent process
 - `Onboarding_Component_Library__c` - Component to render
 - `Display_Order__c` - Order in flow
@@ -451,29 +510,32 @@ Defines a stage within a process.
 - `Required__c` - Whether stage is required
 - `Next_Stage__c` - Next stage (for branching)
 
-### Onboarding_Component_Library__c
+### Onboarding_Component_Library\_\_c
 
 Maps LWC components to metadata.
 
 **Fields:**
+
 - `Component_API_Name__c` - LWC component API name
 - `Name` - Component name
 - `Description__c` - Component description
 
-### Onboarding_Application_Progress__c
+### Onboarding_Application_Progress\_\_c
 
 Tracks user progress.
 
 **Fields:**
+
 - `Onboarding_Application_Process__c` - Process being executed
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` - Current stage ID
 
-### Onboarding_Application_Stage_Completion__c
+### Onboarding_Application_Stage_Completion\_\_c
 
 Audit log of completed stages.
 
 **Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` - Process
 - `Onboarding_Application_Stage__c` - Completed stage
@@ -485,38 +547,42 @@ Audit log of completed stages.
 ### Sequential Navigation
 
 Default navigation follows `Display_Order__c`:
+
 - Stage 1 → Stage 2 → Stage 3 → ...
 
 ### Branching Navigation
 
 Stages can branch by setting `Next_Stage__c`:
+
 - Stage 1 → Stage 2 (if condition A)
 - Stage 1 → Stage 3 (if condition B)
 
 **Implementation:**avascript
 async handleNext(event) {
-  const nextStageId = this.activeStage?.Next_Stage__c;
-  
-  if (nextStageId) {
-    const nextIndex = this.stages.findIndex(stage => stage.Id === nextStageId);
-    if (nextIndex >= 0) {
-      this.activeStageIndex = nextIndex;
-    }
-  } else {
-    // Sequential navigation
-    this.activeStageIndex++;
-  }
+const nextStageId = this.activeStage?.Next_Stage\_\_c;
+
+if (nextStageId) {
+const nextIndex = this.stages.findIndex(stage => stage.Id === nextStageId);
+if (nextIndex >= 0) {
+this.activeStageIndex = nextIndex;
+}
+} else {
+// Sequential navigation
+this.activeStageIndex++;
+}
 }## Progress Persistence
 
 ### Saving Progress
 
 Progress is saved after each stage navigation:
+
 1. `Onboarding_Application_Progress__c` is upserted with current stage
 2. `Onboarding_Application_Stage_Completion__c` is inserted for audit
 
 ### Resuming Progress
 
 On initialization:
+
 1. Load `Onboarding_Application_Progress__c` for vendor program
 2. Find `Current_Stage__c` in stage list
 3. Set `activeStageIndex` to saved stage
@@ -525,18 +591,22 @@ On initialization:
 ## Error Handling
 
 ### Missing Process
+
 - Displays error message
 - Prevents flow initialization
 
 ### Missing Stages
+
 - Displays error message
 - Prevents flow initialization
 
 ### Invalid Component
+
 - Logs error to console
 - Shows error message to user
 
 ### Progress Save Failure
+
 - Logs error
 - Allows user to continue (progress may be lost)
 
@@ -593,40 +663,48 @@ On initialization:
 Retrieves vendor program groups associated with the onboarding.
 
 Step 3: Get Rules
-List<Onboarding_Status_Rules_Engine__c> rules = 
-    OnboardingRulesService.getRulesForGroups(groupIds); architectural layers: Application Layer, Business Logic Layer, and Domain Layer. Flows follow a consistent naming convention and handle various automation scenarios.
+List<Onboarding_Status_Rules_Engine\_\_c> rules =
+OnboardingRulesService.getRulesForGroups(groupIds); architectural layers: Application Layer, Business Logic Layer, and Domain Layer. Flows follow a consistent naming convention and handle various automation scenarios.
 
 ## Naming Convention
 
 ### Application Layer Flows
+
 **Pattern**: `APP_[Object]_[Description]`
 
 **Examples:**
+
 - `APP_Onboarding` - Main onboarding orchestration flow
 
 ### Business Logic Layer Flows
+
 **Pattern**: `BLL_[Object]_[Trigger]_[Description]`
 
 **Examples:**
+
 - `BLL_Training_Assignment_Credential_RCD_Unique_Key_Creation` - Creates unique keys
 - `BLL_Contact_Training_Assignment_RCD_Update_Related_Records` - Updates related records
 - `BLL_External_Contact_Credential_RCD_Execute_Supplemental_Onboarding_Requirements` - Executes supplemental requirements
 - `BLL_Order_RCD_GET_Onboarding_Record` - Gets onboarding record from order
 
 ### Domain Layer Flows
+
 **Pattern**: `DOMAIN_[Object]_[Type]_[Operation]_[Description]`
 
 **Types:**
+
 - `SFL` - Subflow
 - `RCD` - Record-triggered flow
 
 **Operations:**
+
 - `CREATE` - Create records
 - `UPDATE` - Update records
 - `GET` - Get/query records
 - `SEND` - Send communications
 
 **Examples:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order` - Creates order
 - `DOMAIN_Onboarding_SFL_UPDATE_Onboarding_Record` - Updates onboarding record
 - `DOMAIN_Onboarding_SFL_GET_Records` - Gets onboarding records
@@ -639,17 +717,19 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### APP_Onboarding
 
 **Type**: Orchestrated Flow  
-**Trigger**: Record-triggered on Onboarding__c
+**Trigger**: Record-triggered on Onboarding\_\_c
 
 **Purpose**: Main application layer flow that orchestrates onboarding record updates.
 
 **Stages:**
+
 1. **Create Order for Onboarding Record** - Creates order and assigns products
 2. **Send Email Notification** - Sends notification emails
 3. **Close All Onboarding Tasks** - Closes related tasks
 4. Additional orchestrated stages for various operations
 
 **Key Subflows:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order`
 - `DOMAIN_Onboarding_SFL_Send_Email_Notification`
 - `Onboarding_Autolaunch_Close_All_Tasks`
@@ -657,11 +737,12 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### Onboarding_Record_Trigger_Update_Onboarding_Status
 
 **Type**: Record-Triggered Flow  
-**Trigger**: After Save on Onboarding__c
+**Trigger**: After Save on Onboarding\_\_c
 
 **Purpose**: Updates onboarding status based on rules engine.
 
 **Logic:**
+
 1. Checks bypass conditions:
    - User has `Onboarding_Bypass_Flow` permission
    - Status is "Setup Complete", "Expired", or "Denied"
@@ -669,6 +750,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
    - `OnboardingStatusEvaluator.evaluateAndApplyStatus()`
 
 **Bypass Conditions:**
+
 - Permission: `Onboarding_Bypass_Flow`
 - Status: "Setup Complete"
 - Status: "Expired"
@@ -680,9 +762,11 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 **Purpose**: Creates order record and assigns products for onboarding.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record
 
 **Operations:**
+
 1. Creates Order record
 2. Assigns products to order
 3. Updates onboarding record with order reference
@@ -693,6 +777,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 **Purpose**: Updates onboarding record fields.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record to update
 - Update fields as needed
 
@@ -702,6 +787,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 **Purpose**: Queries and returns onboarding-related records.
 
 **Output Variables:**
+
 - Returns collection of records
 
 ### DOMAIN_Onboarding_SFL_Send_Email_Notification
@@ -710,6 +796,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 **Purpose**: Sends email notifications for onboarding events.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record
 - `EmailTemplate` - Email template to use
 - `Recipients` - Recipient list
@@ -720,6 +807,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 **Purpose**: Creates training assignment records for contacts based on credentials.
 
 **Logic:**
+
 1. Checks if onboarding record exists
 2. Gets account associated with contact
 3. Gets active onboarding records
@@ -728,11 +816,12 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### DOMAIN_External_Contact_Credential_RCD_Before_Save_Flow_to_Prevent_Duplicates
 
 **Type**: Record-Triggered Flow (Before Save)  
-**Trigger**: Before Save on POE_External_Contact_Credential__c
+**Trigger**: Before Save on POE_External_Contact_Credential\_\_c
 
 **Purpose**: Prevents duplicate credential records.
 
 **Logic:**
+
 1. Creates unique key from contact and credential type
 2. Checks for existing records with same unique key
 3. Prevents save if duplicate found
@@ -740,7 +829,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### DOMAIN_External_Contact_Credential_Type_RCD_Before_Save_Flow_to_Prevent_Duplicate
 
 **Type**: Record-Triggered Flow (Before Save)  
-**Trigger**: Before Save on External_Contact_Credential_Type__c
+**Trigger**: Before Save on External_Contact_Credential_Type\_\_c
 
 **Purpose**: Prevents duplicate credential types.
 
@@ -764,11 +853,13 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### Record-Triggered Flows
 
 **Before Save:**
+
 - Validation and duplicate prevention
 - Unique key creation
 - Field calculations
 
 **After Save:**
+
 - Status updates
 - Related record creation
 - Email notifications
@@ -776,6 +867,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### Autolaunched Flows
 
 **Purpose**: Background automation
+
 - Task management
 - Record updates
 - Data synchronization
@@ -783,6 +875,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### Screen Flows
 
 **Purpose**: User interaction
+
 - Contact creation
 - Opportunity creation
 - Onboarding record updates
@@ -790,6 +883,7 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ### Subflows
 
 **Purpose**: Reusable flow logic
+
 - Common operations
 - Data transformations
 - Business rule execution
@@ -797,21 +891,25 @@ List<Onboarding_Status_Rules_Engine__c> rules =
 ## Flow Best Practices
 
 ### Naming
+
 - Follow naming convention
 - Use descriptive names
 - Include operation type (CREATE, UPDATE, GET, etc.)
 
 ### Error Handling
+
 - Use decision elements for error conditions
 - Provide clear error messages
 - Log errors appropriately
 
 ### Performance
+
 - Use bulkified operations
 - Minimize SOQL queries
 - Use collections efficiently
 
 ### Maintainability
+
 - Document flow purpose
 - Use clear element labels
 - Organize flows by layer
@@ -826,15 +924,15 @@ Retrieves all rules engines for the groups.
 Step 4: Evaluate Each Rule
 
 For each rule engine:
-Build Conditions Map: For each Onboarding_Status_Rule__c:
+Build Conditions Map: For each Onboarding_Status_Rule**c:
 Look up requirement status
-Compare with Expected_Status__c
-Store result in map keyed by Rule_Number__c
+Compare with Expected_Status**c
+Store result in map keyed by Rule_Number**c
 Apply Evaluation Logic:
 ALL: Check all values are true
 ANY: Check at least one value is true
 CUSTOM: Evaluate expression using OnboardingExpressionEngine
-Update Status: If rule passes, update Onboarding__c.Onboarding_Status__c and return
+Update Status: If rule passes, update Onboarding**c.Onboarding_Status\_\_c and return
 Expression Engine
 OnboardingExpressionEngine
 Recursively evaluates boolean expressions with support for:
@@ -852,41 +950,45 @@ Expression: "(1 AND 2) OR 3"
 Rule 1: true, Rule 2: true, Rule 3: false
 
 Step 1: Replace rule numbers
-  → "(true && true) || false"
+→ "(true && true) || false"
 
 Step 2: Evaluate parentheses
-  → "true || false"
+→ "true || false"
 
 Step 3: Evaluate OR
-  → true
+→ true
 
 Result: true
 
-### Onboarding__c
+### Onboarding\_\_c
 
 **Key Fields:**
+
 - `Account__c` (Master-Detail to Account) - Vendor account
 - `Onboarding_Status__c` (Picklist) - Current status
 - `Interview_Status__c` (Picklist) - Interview status
 - `Vendor_Customization__c` (Lookup) - Related vendor program
 
 **Relationships:**
+
 - Master-Detail to Account
-- Has many Onboarding_Requirement__c
+- Has many Onboarding_Requirement\_\_c
 
 **Sharing**: Controlled by Parent (Account)
 
 **Key Flows:**
+
 - `APP_Onboarding` - Main orchestration
 - `Onboarding_Record_Trigger_Update_Onboarding_Status` - Status evaluation
 
-**Note**: Interview status is sourced from `Interview__c.Interview_Status__c`, but the mapping to the correct Onboarding__c (Account + Vendor Program) still needs to be defined.
+**Note**: Interview status is sourced from `Interview__c.Interview_Status__c`, but the mapping to the correct Onboarding\_\_c (Account + Vendor Program) still needs to be defined.
 
-### Vendor Program (Vendor_Customization__c)
+### Vendor Program (Vendor_Customization\_\_c)
 
 **Purpose**: Versioned vendor program configuration. The object label is "Vendor Program" while the API name is `Vendor_Customization__c`. Lookups named `Vendor_Program__c` reference this object.
 
 **Key Fields:**
+
 - `Name` (Text) - Program name
 - `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
 - `Active__c` (Checkbox) - Active status
@@ -896,32 +998,36 @@ Result: true
 - `Previous_Version__c` (Lookup) - Parent version
 
 **Relationships:**
-- Has many Vendor_Program_Requirement__c
-- Has many Vendor_Program_Requirement_Set__c
-- Has many Vendor_Program_Recipient_Group__c
-- Has many Onboarding__c (via `Vendor_Customization__c`)
-- Linked to Vendor_Program_Group__c via Vendor_Program_Group_Member__c
 
-### Vendor_Program_Group__c
+- Has many Vendor_Program_Requirement\_\_c
+- Has many Vendor_Program_Requirement_Set\_\_c
+- Has many Vendor_Program_Recipient_Group\_\_c
+- Has many Onboarding**c (via `Vendor_Customization**c`)
+- Linked to Vendor_Program_Group**c via Vendor_Program_Group_Member**c
+
+### Vendor_Program_Group\_\_c
 
 **Purpose**: Groups requirements and rules for a vendor program.
 
 **Key Fields:**
+
 - `Name` (Text) - Group name
 - `Active__c` (Checkbox) - Active status
 - `Logic_Type__c` (Picklist) - Inheritance logic
 - `Parent_Group__c` (Lookup) - Optional parent group
 
 **Relationships:**
-- Has many Vendor_Program_Group_Member__c
-- Has many Onboarding_Status_Rules_Engine__c
-- Referenced by Vendor_Customization__c as a default program group
 
-### Vendor_Program_Group_Member__c
+- Has many Vendor_Program_Group_Member\_\_c
+- Has many Onboarding_Status_Rules_Engine\_\_c
+- Referenced by Vendor_Customization\_\_c as a default program group
+
+### Vendor_Program_Group_Member\_\_c
 
 **Purpose**: Members of a vendor program group.
 
 **Key Fields:**
+
 - `Vendor_Program_Group__c` (Lookup) - Parent group
 - `Required_Program__c` (Lookup to `Vendor_Customization__c`) - Required/included program
 - `Inherited_Program_Requirement_Group__c` (Lookup) - Inherited requirement group
@@ -929,31 +1035,35 @@ Result: true
 - `Active__c` (Checkbox) - Active membership flag
 
 **Relationships:**
-- Junction between Vendor_Program_Group__c and Vendor_Customization__c
+
+- Junction between Vendor_Program_Group**c and Vendor_Customization**c
 
 ## Requirement Objects
 
-### Onboarding_Requirement__c
+### Onboarding_Requirement\_\_c
 
 **Purpose**: Tracks individual requirements for an onboarding.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Onboarding__c` (Lookup) - Parent onboarding
 - `Vendor_Program_Requirement__c` (Lookup) - Requirement definition
 - `Status__c` (Picklist) - Status (Not Started, Incomplete, Complete, Approved, Denied)
 
 **Relationships:**
-- Belongs to Onboarding__c
-- References Vendor_Program_Requirement__c
+
+- Belongs to Onboarding\_\_c
+- References Vendor_Program_Requirement\_\_c
 
 **Usage**: Used by status evaluation engine
 
-### Vendor_Program_Requirement__c
+### Vendor_Program_Requirement\_\_c
 
 **Purpose**: Defines requirements for a vendor program.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Parent program
 - `Requirement_Template__c` (Lookup) - Source template
@@ -962,16 +1072,18 @@ Result: true
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Belongs to Vendor_Customization__c (via `Vendor_Program__c`)
-- Referenced by Onboarding_Requirement__c
+
+- Belongs to Vendor_Customization**c (via `Vendor_Program**c`)
+- Referenced by Onboarding_Requirement\_\_c
 
 ## Status Rules Objects
 
-### Onboarding_Status_Rules_Engine__c
+### Onboarding_Status_Rules_Engine\_\_c
 
 **Purpose**: Defines a rules engine for status evaluation.
 
 **Key Fields:**
+
 - `Name` (Text) - Rules engine name
 - `Vendor_Program_Group__c` (Lookup) - Associated program group
 - `Requirement_Group__c` (Lookup) - Associated requirement group
@@ -980,16 +1092,18 @@ Result: true
 - `Custom_Evaluation_Logic__c` (Text) - Custom expression
 
 **Relationships:**
-- Belongs to Vendor_Program_Group__c
-- Has many Onboarding_Status_Rule__c
+
+- Belongs to Vendor_Program_Group\_\_c
+- Has many Onboarding_Status_Rule\_\_c
 
 **Usage**: Used by status evaluation engine
 
-### Onboarding_Status_Rule__c
+### Onboarding_Status_Rule\_\_c
 
 **Purpose**: Individual rule conditions within a rules engine.
 
 **Key Fields:**
+
 - `Name` (Text) - Rule name
 - `Parent_Rule__c` (Lookup) - Parent rules engine
 - `Requirement__c` (Lookup) - Requirement to evaluate
@@ -997,31 +1111,35 @@ Result: true
 - `Rule_Number__c` (Number) - Order of evaluation
 
 **Relationships:**
-- Belongs to Onboarding_Status_Rules_Engine__c
-- References Vendor_Program_Requirement__c
+
+- Belongs to Onboarding_Status_Rules_Engine\_\_c
+- References Vendor_Program_Requirement\_\_c
 
 **Usage**: Used in rule evaluation logic
 
 ## Application Framework Objects
 
-### Onboarding_Application_Process__c
+### Onboarding_Application_Process\_\_c
 
 **Purpose**: Defines a reusable onboarding flow process.
 
 **Key Fields:**
+
 - `Name` (Text) - Process name
 - `Description__c` (Text) - Process description
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many Onboarding_Application_Stage__c
-- Has many Onboarding_Application_Progress__c
 
-### Onboarding_Application_Stage__c
+- Has many Onboarding_Application_Stage\_\_c
+- Has many Onboarding_Application_Progress\_\_c
+
+### Onboarding_Application_Stage\_\_c
 
 **Purpose**: Defines a stage within an onboarding process.
 
 **Key Fields:**
+
 - `Name` (Text) - Stage name
 - `Onboarding_Application_Process__c` (Lookup) - Parent process
 - `Onboarding_Component_Library__c` (Lookup) - Component to render
@@ -1031,41 +1149,47 @@ Result: true
 - `Next_Stage__c` (Lookup) - Next stage (for branching)
 
 **Relationships:**
-- Belongs to Onboarding_Application_Process__c
-- References Onboarding_Component_Library__c
+
+- Belongs to Onboarding_Application_Process\_\_c
+- References Onboarding_Component_Library\_\_c
 - Self-referential for branching
 
-### Onboarding_Component_Library__c
+### Onboarding_Component_Library\_\_c
 
 **Purpose**: Maps LWC components to metadata.
 
 **Key Fields:**
+
 - `Name` (Text) - Component name
 - `Component_API_Name__c` (Text) - LWC component API name
 - `Description__c` (Text) - Component description
 
 **Relationships:**
-- Referenced by Onboarding_Application_Stage__c
 
-### Onboarding_Application_Progress__c
+- Referenced by Onboarding_Application_Stage\_\_c
+
+### Onboarding_Application_Progress\_\_c
 
 **Purpose**: Tracks user progress through an onboarding process.
 
 **Key Fields:**
+
 - `Onboarding_Application_Process__c` (Lookup) - Process being executed
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` (Lookup) - Current stage
 
 **Relationships:**
-- Belongs to Onboarding_Application_Process__c
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Onboarding_Application_Stage__c
 
-### Onboarding_Application_Stage_Completion__c
+- Belongs to Onboarding_Application_Process\_\_c
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Onboarding_Application_Stage\_\_c
+
+### Onboarding_Application_Stage_Completion\_\_c
 
 **Purpose**: Audit log of completed stages.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` (Lookup) - Process
 - `Onboarding_Application_Stage__c` (Lookup) - Completed stage
@@ -1073,69 +1197,79 @@ Result: true
 - `Completed_By__c` (Lookup to User) - User who completed
 
 **Relationships:**
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Onboarding_Application_Process__c
-- References Onboarding_Application_Stage__c
+
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Onboarding_Application_Process\_\_c
+- References Onboarding_Application_Stage\_\_c
 
 ## Training Objects
 
-### Training_Requirement__c
+### Training_Requirement\_\_c
 
 **Purpose**: Defines training requirements.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Training_System__c` (Lookup) - Training system
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- References Training_System__c
 
-### Training_Assignment__c
+- References Training_System\_\_c
+
+### Training_Assignment\_\_c
 
 **Purpose**: Tracks training assignments to contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Assignment name
 - `Contact__c` (Lookup) - Assigned contact
 - `Training_Requirement__c` (Lookup) - Training requirement
 - `Status__c` (Picklist) - Assignment status
 
 **Relationships:**
-- Belongs to Contact
-- References Training_Requirement__c
 
-### Training_System__c
+- Belongs to Contact
+- References Training_Requirement\_\_c
+
+### Training_System\_\_c
 
 **Purpose**: Defines training systems.
 
 **Key Fields:**
+
 - `Name` (Text) - System name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many Training_Requirement__c
+
+- Has many Training_Requirement\_\_c
 
 ## Credential Objects
 
-### External_Contact_Credential_Type__c
+### External_Contact_Credential_Type\_\_c
 
 **Purpose**: Defines types of credentials for external contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Credential type name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many POE_External_Contact_Credential__c
+
+- Has many POE_External_Contact_Credential\_\_c
 
 **Duplicate Prevention**: Matching rule prevents duplicates
 
-### POE_External_Contact_Credential__c
+### POE_External_Contact_Credential\_\_c
 
 **Purpose**: Tracks credentials for external contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Credential name
 - `Contact__c` (Lookup) - Contact
 - `External_Contact_Credential_Type__c` (Lookup) - Credential type
@@ -1143,64 +1277,74 @@ Result: true
 - `Unique_Key__c` (Text) - Unique identifier (auto-generated)
 
 **Relationships:**
+
 - Belongs to Contact
-- References External_Contact_Credential_Type__c
+- References External_Contact_Credential_Type\_\_c
 
 **Duplicate Prevention**: Matching rule prevents duplicates per contact/type
 
-### Required_Credential__c
+### Required_Credential\_\_c
 
 **Purpose**: Defines required credentials for programs.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Credential_Type__c` (Lookup) - Required credential type
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- References External_Contact_Credential_Type__c
 
-### Required_External_Contact_Credential__c
+- References External_Contact_Credential_Type\_\_c
+
+### Required_External_Contact_Credential\_\_c
 
 **Purpose**: Links required credentials to vendor programs.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Required_Credential__c` (Lookup) - Required credential
 
 **Relationships:**
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Required_Credential__c
 
-### External_Credential_Type_Dependency__c
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Required_Credential\_\_c
+
+### External_Credential_Type_Dependency\_\_c
 
 **Purpose**: Defines dependencies between credential types.
 
 **Key Fields:**
+
 - `Credential_Type__c` (Lookup) - Credential type
 - `Dependent_Credential_Type__c` (Lookup) - Dependent credential type
 
 **Relationships:**
-- References External_Contact_Credential_Type__c (self-referential)
+
+- References External_Contact_Credential_Type\_\_c (self-referential)
 
 ## ECC Configuration Objects
 
-### ECC_Field_Configuration_Group__c
+### ECC_Field_Configuration_Group\_\_c
 
 **Purpose**: Groups field configurations for ECC forms.
 
 **Key Fields:**
+
 - `Name` (Text) - Group name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many ECC_Field_Configuration_Group_Mapping__c
 
-### ECC_Field_Display_Configuration__c
+- Has many ECC_Field_Configuration_Group_Mapping\_\_c
+
+### ECC_Field_Display_Configuration\_\_c
 
 **Purpose**: Defines how fields are displayed in ECC forms.
 
 **Key Fields:**
+
 - `Name` (Text) - Configuration name
 - `Field_API_Name__c` (Text) - Salesforce field API name
 - `Display_Label__c` (Text) - Display label
@@ -1208,19 +1352,22 @@ Result: true
 - `Display_Order__c` (Number) - Order in form
 
 **Relationships:**
-- Referenced by ECC_Field_Configuration_Group_Mapping__c
 
-### ECC_Field_Configuration_Group_Mapping__c
+- Referenced by ECC_Field_Configuration_Group_Mapping\_\_c
+
+### ECC_Field_Configuration_Group_Mapping\_\_c
 
 **Purpose**: Maps field configurations to groups.
 
 **Key Fields:**
+
 - `ECC_Field_Configuration_Group__c` (Lookup) - Configuration group
 - `ECC_Field_Display_Configuration__c` (Lookup) - Field configuration
 
 **Relationships:**
-- Belongs to ECC_Field_Configuration_Group__c
-- References ECC_Field_Display_Configuration__c
+
+- Belongs to ECC_Field_Configuration_Group\_\_c
+- References ECC_Field_Display_Configuration\_\_c
 
 ## Related Documentation
 
@@ -1245,16 +1392,16 @@ OnboardingRequirementsPanelController.runRuleEvaluation()
 Called from onboardingRequirementsPanel LWC after requirement updates
 Configuration
 Creating a Rules Engine
-Create Rules Engine: Create Onboarding_Status_Rules_Engine__c record
-Set Vendor_Program_Group__c
-Set Target_Onboarding_Status__c
-Set Evaluation_Logic__c (ALL, ANY, or CUSTOM)
-If CUSTOM, set Custom_Evaluation_Logic__c
-Create Rules: Create Onboarding_Status_Rule__c records
-Set Parent_Rule__c to rules engine
-Set Requirement__c to Vendor_Program_Requirementc
-Set Expected_Status__c (e.g., "Complete", "Approved")
-Set Rule_Number__c for ordering and custom expressions
+Create Rules Engine: Create Onboarding_Status_Rules_Engine**c record
+Set Vendor_Program_Group**c
+Set Target_Onboarding_Status**c
+Set Evaluation_Logic**c (ALL, ANY, or CUSTOM)
+If CUSTOM, set Custom_Evaluation_Logic**c
+Create Rules: Create Onboarding_Status_Rule**c records
+Set Parent_Rule**c to rules engine
+Set Requirement**c to Vendor_Program_Requirementc
+Set Expected_Status**c (e.g., "Complete", "Approved")
+Set Rule_Number**c for ordering and custom expressions
 Example Configuration
 Scenario: Set status to "Ready for Review" when:
 Background Check is "Complete" AND
@@ -1262,9 +1409,9 @@ Business License is "Approved" AND
 (Credit Check is "Complete" OR Compliance is "Approved")
 Configuration:
 Rules Engine:
-Target_Onboarding_Status__c: "Ready for Review"
-Evaluation_Logic__c: "CUSTOM"
-Custom_Evaluation_Logic__c: "1 AND 2 AND (3 OR 4)"
+Target_Onboarding_Status**c: "Ready for Review"
+Evaluation_Logic**c: "CUSTOM"
+Custom_Evaluation_Logic**c: "1 AND 2 AND (3 OR 4)"
 Rules:
 Rule 1: Background Check = "Complete"
 Rule 2: Business License = "Approved"
@@ -1296,7 +1443,7 @@ Verify requirement statuses match expected values
 Check evaluation logic (especially custom expressions)
 Verify rule order (first passing rule wins)
 Custom Expression Errors
-Check rule numbers match Rule_Number__c values
+Check rule numbers match Rule_Number**c values
 Verify parentheses are balanced
 Check for typos in operators (AND/OR)
 Test expression with known values
@@ -1305,11 +1452,11 @@ Onboarding Process
 Apex Classes
 Data Model
 
-
 ## 9. Create docs/processes/application-flow-engine.md
 
 Create `docs/processes/application-flow-engine.md`:
 rkdown
+
 # Application Flow Engine
 
 ## Overview
@@ -1318,12 +1465,13 @@ The Application Flow Engine is a metadata-driven system that dynamically renders
 
 ## Architecture
 
-unpackaged:**
+unpackaged:\*\*
 sf project deploy start --source-dir force-app/unpackaged### 4. Run Tests
 
 sf apex run test --class-names OnboardingRulesServiceTest,OnboardingStatusEvaluatorTest### 5. Assign Permission Sets
 
 Assign the following permission sets to users:
+
 - `Onboarding_Account_Services`
 - `Onboarding_Compliance_Team`
 - `Onboarding_Program_Sales_Team`
@@ -1334,6 +1482,7 @@ Assign the following permission sets to users:
 ### 1. Configure Custom Metadata
 
 Create required custom metadata records:
+
 - Global Value Sets
 - Custom Labels
 
@@ -1354,6 +1503,7 @@ Create required custom metadata records:
 ### 4. Set Up Record Pages
 
 Add components to Lightning record pages:
+
 - **Vendor Program Page**: Add `vendorProgramOnboardingFlow`
 - **Onboarding Page**: Add `onboardingRequirementsPanel`
 
@@ -1384,16 +1534,19 @@ Add components to Lightning record pages:
 ### Common Issues
 
 **Deployment Errors:**
+
 - Check API version compatibility
 - Verify all dependencies are deployed
 - Check for missing fields or objects
 
 **Component Not Appearing:**
+
 - Verify component is deployed
 - Check Lightning page configuration
 - Verify user has appropriate permissions
 
 **Status Not Updating:**
+
 - Check rules engine configuration
 - Verify requirements are linked correctly
 - Check flow is active and not bypassed
@@ -1431,7 +1584,6 @@ Add components to Lightning record pages:
 │ - Fires navigation events │
 └─────────────────────────────────────────┘
 
-
 ## Component Flow
 
 ### 1. Entry Point: vendorProgramOnboardingFlow
@@ -1439,16 +1591,19 @@ Add components to Lightning record pages:
 **Purpose**: Resolves the onboarding process for a vendor program.
 
 **Flow:**
+
 1. Receives `recordId` (Vendor Program ID) from Lightning record page
 2. Calls `OnboardingApplicationService.getProcessIdForVendorProgram()`
 3. Passes `processId` to `onboardingFlowEngine`
 4. Handles loading and error states
 
 **Code:**e name (e.g., "Vendor Selection")
-   - **Component API Name**: LWC component API name (e.g., "vendorProgramOnboardingVendor")
-   - **Description**: Component description
+
+- **Component API Name**: LWC component API name (e.g., "vendorProgramOnboardingVendor")
+- **Description**: Component description
 
 **Available Components:**
+
 - `vendorProgramOnboardingVendor`
 - `vendorProgramOnboardingVendorProgramSearchOrCreate`
 - `vendorProgramOnboardingVendorProgramCreate`
@@ -1480,6 +1635,7 @@ Add components to Lightning record pages:
    - **Next Stage**: (Optional) For branching logic
 
 **Example Stage Configuration:**
+
 1. Stage 1: Vendor Selection (Order: 1)
 2. Stage 2: Program Search/Create (Order: 2)
 3. Stage 3: Program Group Assignment (Order: 3)
@@ -1519,6 +1675,7 @@ Add components to Lightning record pages:
    - **Custom Evaluation Logic**: (If CUSTOM) Enter expression
 
 **Evaluation Logic Options:**
+
 - **ALL**: All rules must pass
 - **ANY**: At least one rule must pass
 - **CUSTOM**: Use custom expression
@@ -1533,6 +1690,7 @@ Add components to Lightning record pages:
    - **Rule Number**: Sequential number (1, 2, 3, ...)
 
 **Example Rule Configuration:**
+
 - Rule 1: Background Check = "Complete"
 - Rule 2: Business License = "Approved"
 - Rule 3: Credit Check = "Complete"
@@ -1545,6 +1703,7 @@ Add components to Lightning record pages:
 **Purpose**: Manages the onboarding flow lifecycle.
 
 **Responsibilities:**
+
 - Load stages from metadata
 - Track current stage index
 - Handle navigation (next/back)
@@ -1554,22 +1713,26 @@ Add components to Lightning record pages:
 **Key Methods:**
 
 **initializeFlow()**
+
 - Loads stages: `getStagesForProcess()`
 - Loads progress: `getProgress()`
 - Loads process details: `getProcessDetails()`
 - Resumes from saved stage if exists
 
 **handleNext()**
+
 - Advances to next stage
 - Supports branching via `Next_Stage__c`
 - Falls back to sequential order
 - Saves progress
 
 **handleBack()**
+
 - Returns to previous stage
 - Saves progress
 
 **persistProgress()**
+
 - Saves to `Onboarding_Application_Progress__c`
 - Logs to `Onboarding_Application_Stage_Completion__c`
 
@@ -1578,6 +1741,7 @@ Add components to Lightning record pages:
 **Purpose**: Dynamically renders stage components.
 
 **Flow:**
+
 1. Receives `componentName` (API name) from flow engine
 2. Receives `context` object
 3. Dynamically instantiates component using `<c-{componentName}>`
@@ -1586,11 +1750,12 @@ Add components to Lightning record pages:
 
 **Dynamic Instantiation:**
 <template>
-  <template if:true={componentName}>
-    <c-{componentName} context={context}></c-{componentName}>
-  </template>
+<template if:true={componentName}>
+<c-{componentName} context={context}></c-{componentName}>
+</template>
 </template>
 nt group per program
+
 - Parent version required on activation
 - Recipient and program must be active
 - Prevent duplicate assignments
@@ -1626,7 +1791,7 @@ nt group per program
 Event Handling:
 
 handleNext(event) {
-  this.dispatchEvent(new CustomEvent('next', { detail: event.detail }));
+this.dispatchEvent(new CustomEvent('next', { detail: event.detail }));
 }pattern that separates concerns and promotes maintainability:
 
 1. **Application Layer** - User interface and orchestration
@@ -1640,12 +1805,14 @@ handleNext(event) {
 **Purpose**: Handles user interactions and high-level process orchestration.
 
 **Components:**
+
 - Lightning Web Components (LWC)
-- Salesforce Flows (APP_*)
+- Salesforce Flows (APP\_\*)
 - Lightning Record Pages
 - Screen Flows
 
 **Responsibilities:**
+
 - User interface rendering
 - User input handling
 - Process orchestration
@@ -1653,15 +1820,18 @@ handleNext(event) {
 - Progress tracking
 
 **Key Flows:**
+
 - `APP_Onboarding` - Main onboarding orchestration
 
 **Key Components:**
+
 - `onboardingFlowEngine` - Flow controller
 - `onboardingStageRenderer` - Component renderer
 - `vendorProgramOnboardingFlow` - Entry point
 - `onboardingRequirementsPanel` - Requirements UI
 
 **Communication:**
+
 - Calls Business Logic Layer services
 - Receives data from Business Logic Layer
 - Delegates data operations to Domain Layer
@@ -1671,13 +1841,15 @@ handleNext(event) {
 **Purpose**: Contains business rules, validation, and coordination logic.
 
 **Components:**
-- Apex Services (*Service.cls)
-- Apex Orchestrators (*Orch.cls)
-- Apex Controllers (*Ctlr.cls)
-- Apex Handlers (*Hdlr.cls)
-- Salesforce Flows (BLL_*)
+
+- Apex Services (\*Service.cls)
+- Apex Orchestrators (\*Orch.cls)
+- Apex Controllers (\*Ctlr.cls)
+- Apex Handlers (\*Hdlr.cls)
+- Salesforce Flows (BLL\_\*)
 
 **Responsibilities:**
+
 - Business rule enforcement
 - Validation logic
 - Service coordination
@@ -1685,6 +1857,7 @@ handleNext(event) {
 - Rules engine execution
 
 **Key Classes:**
+
 - `OnboardingApplicationService` - Process management
 - `OnboardingRulesService` - Rules data access
 - `OnboardingStatusEvaluator` - Status evaluation
@@ -1692,12 +1865,14 @@ handleNext(event) {
 - `OnboardingAppActivationOrchestrator` - Activation workflow
 
 **Key Flows:**
+
 - `BLL_Training_Assignment_Credential_RCD_Unique_Key_Creation`
 - `BLL_Contact_Training_Assignment_RCD_Update_Related_Records`
 - `BLL_External_Contact_Credential_RCD_Execute_Supplemental_Onboarding_Requirements`
 - `BLL_Order_RCD_GET_Onboarding_Record`
 
 **Communication:**
+
 - Called by Application Layer
 - Calls Domain Layer for data operations
 - Contains business logic only (no direct data access)
@@ -1707,11 +1882,13 @@ handleNext(event) {
 **Purpose**: Handles data operations and domain-specific logic.
 
 **Components:**
-- Salesforce Flows (DOMAIN_*)
+
+- Salesforce Flows (DOMAIN\_\*)
 - Record-Triggered Flows
 - Subflows
 
 **Responsibilities:**
+
 - Data creation
 - Data updates
 - Data queries
@@ -1720,6 +1897,7 @@ handleNext(event) {
 - Email communications
 
 **Key Flows:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order`
 - `DOMAIN_Onboarding_SFL_UPDATE_Onboarding_Record`
 - `DOMAIN_Onboarding_SFL_GET_Records`
@@ -1728,10 +1906,12 @@ handleNext(event) {
 - `DOMAIN_External_Contact_Credential_RCD_Before_Save_Flow_to_Prevent_Duplicates`
 
 **Naming Convention:**
+
 - `DOMAIN_[Object]_SFL_[Operation]_[Description]` - Subflows
 - `DOMAIN_[Object]_RCD_[Trigger]_[Description]` - Record-triggered flows
 
 **Communication:**
+
 - Called by Business Logic Layer
 - Called by Application Layer (for simple operations)
 - No business logic (pure data operations)
@@ -1741,46 +1921,48 @@ handleNext(event) {
 ### Example: Status Evaluation
 
 4. Stage Components
-Purpose: Implement stage-specific functionality.
-Requirements:
-Accept context prop with vendorProgramId and stageId
-Fire next event when stage complete
-Fire back event to return to previous stage
-Handle own data operations
-Show loading states
-Handle errors gracefully
-Example Structure:
+   Purpose: Implement stage-specific functionality.
+   Requirements:
+   Accept context prop with vendorProgramId and stageId
+   Fire next event when stage complete
+   Fire back event to return to previous stage
+   Handle own data operations
+   Show loading states
+   Handle errors gracefully
+   Example Structure:
 
 export default class VendorProgramOnboardingVendor extends LightningElement {
-  @api context;
-  
-  get vendorProgramId() {
-    return this.context?.vendorProgramId;
-  }
-  
-  handleNext() {
-    this.dispatchEvent(new CustomEvent('next', { 
-      detail: { /* stage data */ } 
-    }));
-  }
+@api context;
+
+get vendorProgramId() {
+return this.context?.vendorProgramId;
+}
+
+handleNext() {
+this.dispatchEvent(new CustomEvent('next', {
+detail: { /_ stage data _/ }
+}));
+}
 }
 
 ## Metadata Model
+
 See [Data Model](../architecture/data-model.md) for the canonical object reference used by the onboarding flow engine.
 
 async handleNext(event) {
-  const nextStageId = this.activeStage?.Next_Stage__c;
-  
-  if (nextStageId) {
-    const nextIndex = this.stages.findIndex(stage => stage.Id === nextStageId);
-    if (nextIndex >= 0) {
-      this.activeStageIndex = nextIndex;
-    }
-  } else {
-    // Sequential navigation
-    this.activeStageIndex++;
-  }
+const nextStageId = this.activeStage?.Next_Stage\_\_c;
+
+if (nextStageId) {
+const nextIndex = this.stages.findIndex(stage => stage.Id === nextStageId);
+if (nextIndex >= 0) {
+this.activeStageIndex = nextIndex;
+}
+} else {
+// Sequential navigation
+this.activeStageIndex++;
+}
 }ations
+
 - Data model changes isolated to Domain Layer
 
 ### Testability
@@ -1824,8 +2006,7 @@ async handleNext(event) {
 - [Data Model](./data-model.md)
 - [Flows](../processes/flows.md)
 
-## Progress Persistence### Saving ProgressProgress is saved after each stage navigation: 1. Onboarding_Application_Progress__c is upserted with current stage 2. Onboarding_Application_Stage_Completion__c is inserted for audit### Resuming ProgressOn initialization: 1. Load Onboarding_Application_Progress__c for vendor program 2. Find Current_Stage__c in stage list 3. Set activeStageIndex to saved stage 4. User continues from that point## Error Handling### Missing Process - Displays error message - Prevents flow initialization### Missing Stages - Displays error message - Prevents flow initialization### Invalid Component - Logs error to console - Shows error message to user### Progress Save Failure - Logs error - Allows user to continue (progress may be lost)## Best Practices### Stage Components1. Self-Contained: Handle own data operations 2. Error Handling: Gracefully handle errors 3. Loading States: Show loading indicators 4. Validation: Validate before firing 'next' event 5. Context Usage: Use context for vendor program and stage IDs### Process Configuration1. Clear Labels: Use descriptive stage labels 2. Logical Ordering: Order stages logically 3. Component Naming: Use consistent component API names 4. Documentation: Document complex branching logic### Performance1. Lazy Loading: Load stage data on demand 2. Caching: Cache process and stage metadata 3. Batch Operations: Batch data operations when possible## Extending the Engine### Adding New Stages1. Create LWC component 2. Create Onboarding_Component_Library__c record 3. Create Onboarding_Application_Stage__c record 4. Add to process### Adding Branching Logic1. Set Next_Stage__c on stage records 2. Implement conditional logic in stage components 3. Pass condition data in 'next' event detail### Adding Progress Indicators1. Calculate progress percentage 2. Display progress bar 3. Show completed stages## Related Documentation- Onboarding Process - LWC Components - Data Model
-
+## Progress Persistence### Saving ProgressProgress is saved after each stage navigation: 1. Onboarding_Application_Progress**c is upserted with current stage 2. Onboarding_Application_Stage_Completion**c is inserted for audit### Resuming ProgressOn initialization: 1. Load Onboarding_Application_Progress**c for vendor program 2. Find Current_Stage**c in stage list 3. Set activeStageIndex to saved stage 4. User continues from that point## Error Handling### Missing Process - Displays error message - Prevents flow initialization### Missing Stages - Displays error message - Prevents flow initialization### Invalid Component - Logs error to console - Shows error message to user### Progress Save Failure - Logs error - Allows user to continue (progress may be lost)## Best Practices### Stage Components1. Self-Contained: Handle own data operations 2. Error Handling: Gracefully handle errors 3. Loading States: Show loading indicators 4. Validation: Validate before firing 'next' event 5. Context Usage: Use context for vendor program and stage IDs### Process Configuration1. Clear Labels: Use descriptive stage labels 2. Logical Ordering: Order stages logically 3. Component Naming: Use consistent component API names 4. Documentation: Document complex branching logic### Performance1. Lazy Loading: Load stage data on demand 2. Caching: Cache process and stage metadata 3. Batch Operations: Batch data operations when possible## Extending the Engine### Adding New Stages1. Create LWC component 2. Create Onboarding_Component_Library**c record 3. Create Onboarding_Application_Stage**c record 4. Add to process### Adding Branching Logic1. Set Next_Stage\_\_c on stage records 2. Implement conditional logic in stage components 3. Pass condition data in 'next' event detail### Adding Progress Indicators1. Calculate progress percentage 2. Display progress bar 3. Show completed stages## Related Documentation- Onboarding Process - LWC Components - Data Model
 
 ## 10. Create docs/processes/flows.md
 
@@ -1840,34 +2021,42 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ## Naming Convention
 
 ### Application Layer Flows
+
 **Pattern**: `APP_[Object]_[Description]`
 
 **Examples:**
+
 - `APP_Onboarding` - Main onboarding orchestration flow
 
 ### Business Logic Layer Flows
+
 **Pattern**: `BLL_[Object]_[Trigger]_[Description]`
 
 **Examples:**
+
 - `BLL_Training_Assignment_Credential_RCD_Unique_Key_Creation` - Creates unique keys
 - `BLL_Contact_Training_Assignment_RCD_Update_Related_Records` - Updates related records
 - `BLL_External_Contact_Credential_RCD_Execute_Supplemental_Onboarding_Requirements` - Executes supplemental requirements
 - `BLL_Order_RCD_GET_Onboarding_Record` - Gets onboarding record from order
 
 ### Domain Layer Flows
+
 **Pattern**: `DOMAIN_[Object]_[Type]_[Operation]_[Description]`
 
 **Types:**
+
 - `SFL` - Subflow
 - `RCD` - Record-triggered flow
 
 **Operations:**
+
 - `CREATE` - Create records
 - `UPDATE` - Update records
 - `GET` - Get/query records
 - `SEND` - Send communications
 
 **Examples:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order` - Creates order
 - `DOMAIN_Onboarding_SFL_UPDATE_Onboarding_Record` - Updates onboarding record
 - `DOMAIN_Onboarding_SFL_GET_Records` - Gets onboarding records
@@ -1880,17 +2069,19 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### APP_Onboarding
 
 **Type**: Orchestrated Flow  
-**Trigger**: Record-triggered on Onboarding__c
+**Trigger**: Record-triggered on Onboarding\_\_c
 
 **Purpose**: Main application layer flow that orchestrates onboarding record updates.
 
 **Stages:**
+
 1. **Create Order for Onboarding Record** - Creates order and assigns products
 2. **Send Email Notification** - Sends notification emails
 3. **Close All Onboarding Tasks** - Closes related tasks
 4. Additional orchestrated stages for various operations
 
 **Key Subflows:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order`
 - `DOMAIN_Onboarding_SFL_Send_Email_Notification`
 - `Onboarding_Autolaunch_Close_All_Tasks`
@@ -1898,11 +2089,12 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### Onboarding_Record_Trigger_Update_Onboarding_Status
 
 **Type**: Record-Triggered Flow  
-**Trigger**: After Save on Onboarding__c
+**Trigger**: After Save on Onboarding\_\_c
 
 **Purpose**: Updates onboarding status based on rules engine.
 
 **Logic:**
+
 1. Checks bypass conditions:
    - User has `Onboarding_Bypass_Flow` permission
    - Status is "Setup Complete", "Expired", or "Denied"
@@ -1910,6 +2102,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
    - `OnboardingStatusEvaluator.evaluateAndApplyStatus()`
 
 **Bypass Conditions:**
+
 - Permission: `Onboarding_Bypass_Flow`
 - Status: "Setup Complete"
 - Status: "Expired"
@@ -1921,9 +2114,11 @@ The onboarding system uses Salesforce Flows for automation across three architec
 **Purpose**: Creates order record and assigns products for onboarding.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record
 
 **Operations:**
+
 1. Creates Order record
 2. Assigns products to order
 3. Updates onboarding record with order reference
@@ -1934,6 +2129,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 **Purpose**: Updates onboarding record fields.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record to update
 - Update fields as needed
 
@@ -1943,6 +2139,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 **Purpose**: Queries and returns onboarding-related records.
 
 **Output Variables:**
+
 - Returns collection of records
 
 ### DOMAIN_Onboarding_SFL_Send_Email_Notification
@@ -1951,6 +2148,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 **Purpose**: Sends email notifications for onboarding events.
 
 **Input Variables:**
+
 - `OnboardingRecord` - Onboarding record
 - `EmailTemplate` - Email template to use
 - `Recipients` - Recipient list
@@ -1961,6 +2159,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 **Purpose**: Creates training assignment records for contacts based on credentials.
 
 **Logic:**
+
 1. Checks if onboarding record exists
 2. Gets account associated with contact
 3. Gets active onboarding records
@@ -1969,11 +2168,12 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### DOMAIN_External_Contact_Credential_RCD_Before_Save_Flow_to_Prevent_Duplicates
 
 **Type**: Record-Triggered Flow (Before Save)  
-**Trigger**: Before Save on POE_External_Contact_Credential__c
+**Trigger**: Before Save on POE_External_Contact_Credential\_\_c
 
 **Purpose**: Prevents duplicate credential records.
 
 **Logic:**
+
 1. Creates unique key from contact and credential type
 2. Checks for existing records with same unique key
 3. Prevents save if duplicate found
@@ -1981,7 +2181,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### DOMAIN_External_Contact_Credential_Type_RCD_Before_Save_Flow_to_Prevent_Duplicate
 
 **Type**: Record-Triggered Flow (Before Save)  
-**Trigger**: Before Save on External_Contact_Credential_Type__c
+**Trigger**: Before Save on External_Contact_Credential_Type\_\_c
 
 **Purpose**: Prevents duplicate credential types.
 
@@ -2005,11 +2205,13 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### Record-Triggered Flows
 
 **Before Save:**
+
 - Validation and duplicate prevention
 - Unique key creation
 - Field calculations
 
 **After Save:**
+
 - Status updates
 - Related record creation
 - Email notifications
@@ -2017,6 +2219,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### Autolaunched Flows
 
 **Purpose**: Background automation
+
 - Task management
 - Record updates
 - Data synchronization
@@ -2024,6 +2227,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### Screen Flows
 
 **Purpose**: User interaction
+
 - Contact creation
 - Opportunity creation
 - Onboarding record updates
@@ -2031,6 +2235,7 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ### Subflows
 
 **Purpose**: Reusable flow logic
+
 - Common operations
 - Data transformations
 - Business rule execution
@@ -2038,21 +2243,25 @@ The onboarding system uses Salesforce Flows for automation across three architec
 ## Flow Best Practices
 
 ### Naming
+
 - Follow naming convention
 - Use descriptive names
 - Include operation type (CREATE, UPDATE, GET, etc.)
 
 ### Error Handling
+
 - Use decision elements for error conditions
 - Provide clear error messages
 - Log errors appropriately
 
 ### Performance
+
 - Use bulkified operations
 - Minimize SOQL queries
 - Use collections efficiently
 
 ### Maintainability
+
 - Document flow purpose
 - Use clear element labels
 - Organize flows by layer
@@ -2069,11 +2278,12 @@ The onboarding system uses Salesforce Flows for automation across three architec
 
 ## Core Onboarding Objects
 
-### Onboarding__c
+### Onboarding\_\_c
 
 **Purpose**: Central object tracking an onboarding request for a vendor.
 
 **Key Fields:**
+
 - `Name` (Auto-Number) - Onboarding Number
 - `Account__c` (Master-Detail to Account) - Vendor account
 - `Onboarding_Status__c` (Picklist) - Current status
@@ -2081,20 +2291,23 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Vendor_Customization__c` (Lookup) - Related vendor customization
 
 **Relationships:**
+
 - Master-Detail to Account
-- Has many Onboarding_Requirement__c
+- Has many Onboarding_Requirement\_\_c
 
 **Sharing**: Controlled by Parent (Account)
 
 **Key Flows:**
+
 - `APP_Onboarding` - Main orchestration
 - `Onboarding_Record_Trigger_Update_Onboarding_Status` - Status evaluation
 
-### Vendor Program (Vendor_Customization__c)
+### Vendor Program (Vendor_Customization\_\_c)
 
 **Purpose**: Versioned vendor program configuration. The object label is "Vendor Program" while the API name is `Vendor_Customization__c`. Lookups named `Vendor_Program__c` reference this object.
 
 **Key Fields:**
+
 - `Name` (Text) - Program name
 - `Status__c` (Picklist) - Draft/Active/Deprecated lifecycle
 - `Active__c` (Checkbox) - Active status
@@ -2104,32 +2317,36 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Previous_Version__c` (Lookup) - Parent version
 
 **Relationships:**
-- Has many Vendor_Program_Requirement__c
-- Has many Vendor_Program_Requirement_Set__c
-- Has many Vendor_Program_Recipient_Group__c
-- Has many Onboarding__c (via `Vendor_Customization__c`)
-- Linked to Vendor_Program_Group__c via Vendor_Program_Group_Member__c
 
-### Vendor_Program_Group__c
+- Has many Vendor_Program_Requirement\_\_c
+- Has many Vendor_Program_Requirement_Set\_\_c
+- Has many Vendor_Program_Recipient_Group\_\_c
+- Has many Onboarding**c (via `Vendor_Customization**c`)
+- Linked to Vendor_Program_Group**c via Vendor_Program_Group_Member**c
+
+### Vendor_Program_Group\_\_c
 
 **Purpose**: Groups requirements and rules for a vendor program.
 
 **Key Fields:**
+
 - `Name` (Text) - Group name
 - `Active__c` (Checkbox) - Active status
 - `Logic_Type__c` (Picklist) - Inheritance logic
 - `Parent_Group__c` (Lookup) - Optional parent group
 
 **Relationships:**
-- Has many Vendor_Program_Group_Member__c
-- Has many Onboarding_Status_Rules_Engine__c
-- Referenced by Vendor_Customization__c as a default program group
 
-### Vendor_Program_Group_Member__c
+- Has many Vendor_Program_Group_Member\_\_c
+- Has many Onboarding_Status_Rules_Engine\_\_c
+- Referenced by Vendor_Customization\_\_c as a default program group
+
+### Vendor_Program_Group_Member\_\_c
 
 **Purpose**: Members of a vendor program group.
 
 **Key Fields:**
+
 - `Vendor_Program_Group__c` (Lookup) - Parent group
 - `Required_Program__c` (Lookup to `Vendor_Customization__c`) - Required/included program
 - `Inherited_Program_Requirement_Group__c` (Lookup) - Inherited requirement group
@@ -2137,31 +2354,35 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Active__c` (Checkbox) - Active membership flag
 
 **Relationships:**
-- Junction between Vendor_Program_Group__c and Vendor_Customization__c
+
+- Junction between Vendor_Program_Group**c and Vendor_Customization**c
 
 ## Requirement Objects
 
-### Onboarding_Requirement__c
+### Onboarding_Requirement\_\_c
 
 **Purpose**: Tracks individual requirements for an onboarding.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Onboarding__c` (Lookup) - Parent onboarding
 - `Vendor_Program_Requirement__c` (Lookup) - Requirement definition
 - `Status__c` (Picklist) - Status (Not Started, Incomplete, Complete, Approved, Denied)
 
 **Relationships:**
-- Belongs to Onboarding__c
-- References Vendor_Program_Requirement__c
+
+- Belongs to Onboarding\_\_c
+- References Vendor_Program_Requirement\_\_c
 
 **Usage**: Used by status evaluation engine
 
-### Vendor_Program_Requirement__c
+### Vendor_Program_Requirement\_\_c
 
 **Purpose**: Defines requirements for a vendor program.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Parent program
 - `Requirement_Template__c` (Lookup) - Source template
@@ -2170,16 +2391,18 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Belongs to Vendor_Customization__c (via `Vendor_Program__c`)
-- Referenced by Onboarding_Requirement__c
+
+- Belongs to Vendor_Customization**c (via `Vendor_Program**c`)
+- Referenced by Onboarding_Requirement\_\_c
 
 ## Status Rules Objects
 
-### Onboarding_Status_Rules_Engine__c
+### Onboarding_Status_Rules_Engine\_\_c
 
 **Purpose**: Defines a rules engine for status evaluation.
 
 **Key Fields:**
+
 - `Name` (Text) - Rules engine name
 - `Vendor_Program_Group__c` (Lookup) - Associated program group
 - `Requirement_Group__c` (Lookup) - Associated requirement group
@@ -2188,16 +2411,18 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Custom_Evaluation_Logic__c` (Text) - Custom expression
 
 **Relationships:**
-- Belongs to Vendor_Program_Group__c
-- Has many Onboarding_Status_Rule__c
+
+- Belongs to Vendor_Program_Group\_\_c
+- Has many Onboarding_Status_Rule\_\_c
 
 **Usage**: Used by status evaluation engine
 
-### Onboarding_Status_Rule__c
+### Onboarding_Status_Rule\_\_c
 
 **Purpose**: Individual rule conditions within a rules engine.
 
 **Key Fields:**
+
 - `Name` (Text) - Rule name
 - `Parent_Rule__c` (Lookup) - Parent rules engine
 - `Requirement__c` (Lookup) - Requirement to evaluate
@@ -2205,31 +2430,35 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Rule_Number__c` (Number) - Order of evaluation
 
 **Relationships:**
-- Belongs to Onboarding_Status_Rules_Engine__c
-- References Vendor_Program_Requirement__c
+
+- Belongs to Onboarding_Status_Rules_Engine\_\_c
+- References Vendor_Program_Requirement\_\_c
 
 **Usage**: Used in rule evaluation logic
 
 ## Application Framework Objects
 
-### Onboarding_Application_Process__c
+### Onboarding_Application_Process\_\_c
 
 **Purpose**: Defines a reusable onboarding flow process.
 
 **Key Fields:**
+
 - `Name` (Text) - Process name
 - `Description__c` (Text) - Process description
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many Onboarding_Application_Stage__c
-- Has many Onboarding_Application_Progress__c
 
-### Onboarding_Application_Stage__c
+- Has many Onboarding_Application_Stage\_\_c
+- Has many Onboarding_Application_Progress\_\_c
+
+### Onboarding_Application_Stage\_\_c
 
 **Purpose**: Defines a stage within an onboarding process.
 
 **Key Fields:**
+
 - `Name` (Text) - Stage name
 - `Onboarding_Application_Process__c` (Lookup) - Parent process
 - `Onboarding_Component_Library__c` (Lookup) - Component to render
@@ -2239,41 +2468,47 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Next_Stage__c` (Lookup) - Next stage (for branching)
 
 **Relationships:**
-- Belongs to Onboarding_Application_Process__c
-- References Onboarding_Component_Library__c
+
+- Belongs to Onboarding_Application_Process\_\_c
+- References Onboarding_Component_Library\_\_c
 - Self-referential for branching
 
-### Onboarding_Component_Library__c
+### Onboarding_Component_Library\_\_c
 
 **Purpose**: Maps LWC components to metadata.
 
 **Key Fields:**
+
 - `Name` (Text) - Component name
 - `Component_API_Name__c` (Text) - LWC component API name
 - `Description__c` (Text) - Component description
 
 **Relationships:**
-- Referenced by Onboarding_Application_Stage__c
 
-### Onboarding_Application_Progress__c
+- Referenced by Onboarding_Application_Stage\_\_c
+
+### Onboarding_Application_Progress\_\_c
 
 **Purpose**: Tracks user progress through an onboarding process.
 
 **Key Fields:**
+
 - `Onboarding_Application_Process__c` (Lookup) - Process being executed
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program being onboarded
 - `Current_Stage__c` (Lookup) - Current stage
 
 **Relationships:**
-- Belongs to Onboarding_Application_Process__c
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Onboarding_Application_Stage__c
 
-### Onboarding_Application_Stage_Completion__c
+- Belongs to Onboarding_Application_Process\_\_c
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Onboarding_Application_Stage\_\_c
+
+### Onboarding_Application_Stage_Completion\_\_c
 
 **Purpose**: Audit log of completed stages.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` (Lookup) - Process
 - `Onboarding_Application_Stage__c` (Lookup) - Completed stage
@@ -2281,69 +2516,79 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Completed_By__c` (Lookup to User) - User who completed
 
 **Relationships:**
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Onboarding_Application_Process__c
-- References Onboarding_Application_Stage__c
+
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Onboarding_Application_Process\_\_c
+- References Onboarding_Application_Stage\_\_c
 
 ## Training Objects
 
-### Training_Requirement__c
+### Training_Requirement\_\_c
 
 **Purpose**: Defines training requirements.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Training_System__c` (Lookup) - Training system
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- References Training_System__c
 
-### Training_Assignment__c
+- References Training_System\_\_c
+
+### Training_Assignment\_\_c
 
 **Purpose**: Tracks training assignments to contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Assignment name
 - `Contact__c` (Lookup) - Assigned contact
 - `Training_Requirement__c` (Lookup) - Training requirement
 - `Status__c` (Picklist) - Assignment status
 
 **Relationships:**
-- Belongs to Contact
-- References Training_Requirement__c
 
-### Training_System__c
+- Belongs to Contact
+- References Training_Requirement\_\_c
+
+### Training_System\_\_c
 
 **Purpose**: Defines training systems.
 
 **Key Fields:**
+
 - `Name` (Text) - System name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many Training_Requirement__c
+
+- Has many Training_Requirement\_\_c
 
 ## Credential Objects
 
-### External_Contact_Credential_Type__c
+### External_Contact_Credential_Type\_\_c
 
 **Purpose**: Defines types of credentials for external contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Credential type name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many POE_External_Contact_Credential__c
+
+- Has many POE_External_Contact_Credential\_\_c
 
 **Duplicate Prevention**: Matching rule prevents duplicates
 
-### POE_External_Contact_Credential__c
+### POE_External_Contact_Credential\_\_c
 
 **Purpose**: Tracks credentials for external contacts.
 
 **Key Fields:**
+
 - `Name` (Text) - Credential name
 - `Contact__c` (Lookup) - Contact
 - `External_Contact_Credential_Type__c` (Lookup) - Credential type
@@ -2351,64 +2596,74 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Unique_Key__c` (Text) - Unique identifier (auto-generated)
 
 **Relationships:**
+
 - Belongs to Contact
-- References External_Contact_Credential_Type__c
+- References External_Contact_Credential_Type\_\_c
 
 **Duplicate Prevention**: Matching rule prevents duplicates per contact/type
 
-### Required_Credential__c
+### Required_Credential\_\_c
 
 **Purpose**: Defines required credentials for programs.
 
 **Key Fields:**
+
 - `Name` (Text) - Requirement name
 - `Credential_Type__c` (Lookup) - Required credential type
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- References External_Contact_Credential_Type__c
 
-### Required_External_Contact_Credential__c
+- References External_Contact_Credential_Type\_\_c
+
+### Required_External_Contact_Credential\_\_c
 
 **Purpose**: Links required credentials to vendor programs.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Required_Credential__c` (Lookup) - Required credential
 
 **Relationships:**
-- References Vendor_Customization__c (via `Vendor_Program__c`)
-- References Required_Credential__c
 
-### External_Credential_Type_Dependency__c
+- References Vendor_Customization**c (via `Vendor_Program**c`)
+- References Required_Credential\_\_c
+
+### External_Credential_Type_Dependency\_\_c
 
 **Purpose**: Defines dependencies between credential types.
 
 **Key Fields:**
+
 - `Credential_Type__c` (Lookup) - Credential type
 - `Dependent_Credential_Type__c` (Lookup) - Dependent credential type
 
 **Relationships:**
-- References External_Contact_Credential_Type__c (self-referential)
+
+- References External_Contact_Credential_Type\_\_c (self-referential)
 
 ## ECC Configuration Objects
 
-### ECC_Field_Configuration_Group__c
+### ECC_Field_Configuration_Group\_\_c
 
 **Purpose**: Groups field configurations for ECC forms.
 
 **Key Fields:**
+
 - `Name` (Text) - Group name
 - `Active__c` (Checkbox) - Active status
 
 **Relationships:**
-- Has many ECC_Field_Configuration_Group_Mapping__c
 
-### ECC_Field_Display_Configuration__c
+- Has many ECC_Field_Configuration_Group_Mapping\_\_c
+
+### ECC_Field_Display_Configuration\_\_c
 
 **Purpose**: Defines how fields are displayed in ECC forms.
 
 **Key Fields:**
+
 - `Name` (Text) - Configuration name
 - `Field_API_Name__c` (Text) - Salesforce field API name
 - `Display_Label__c` (Text) - Display label
@@ -2416,19 +2671,22 @@ The onboarding system uses Salesforce Flows for automation across three architec
 - `Display_Order__c` (Number) - Order in form
 
 **Relationships:**
-- Referenced by ECC_Field_Configuration_Group_Mapping__c
 
-### ECC_Field_Configuration_Group_Mapping__c
+- Referenced by ECC_Field_Configuration_Group_Mapping\_\_c
+
+### ECC_Field_Configuration_Group_Mapping\_\_c
 
 **Purpose**: Maps field configurations to groups.
 
 **Key Fields:**
+
 - `ECC_Field_Configuration_Group__c` (Lookup) - Configuration group
 - `ECC_Field_Display_Configuration__c` (Lookup) - Field configuration
 
 **Relationships:**
-- Belongs to ECC_Field_Configuration_Group__c
-- References ECC_Field_Display_Configuration__c
+
+- Belongs to ECC_Field_Configuration_Group\_\_c
+- References ECC_Field_Display_Configuration\_\_c
 
 ## Related Documentation
 
