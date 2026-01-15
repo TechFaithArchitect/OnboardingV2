@@ -69,10 +69,11 @@ public with sharing class OnboardingStatusEvaluator {
       rulesByGroup.get(statusRule.Vendor_Program_Group__c).add(statusRule);
     }
 
-    // Fetch full Onboarding__c records with all fields for dynamic field access
+    Set<String> mappedFieldApiNames = collectMappedFieldApiNames(allRules);
     Map<Id, Onboarding__c> onboardingRecordsById = new Map<Id, Onboarding__c>(
-      OnboardingRulesRepository.fetchOnboardingsByIdsWithAllFields(
-        onboardingIds
+      OnboardingRulesRepository.fetchOnboardingsByIdsWithFields(
+        onboardingIds,
+        mappedFieldApiNames
       )
     );
 
@@ -217,5 +218,28 @@ public with sharing class OnboardingStatusEvaluator {
       return 'In Process';
     }
     return 'New';
+  }
+
+  private static Set<String> collectMappedFieldApiNames(
+    List<Onboarding_Status_Rules_Engine__c> rulesEngines
+  ) {
+    Set<String> fieldApiNames = new Set<String>();
+    if (rulesEngines == null || rulesEngines.isEmpty()) {
+      return fieldApiNames;
+    }
+    for (Onboarding_Status_Rules_Engine__c engine : rulesEngines) {
+      if (engine.Onboarding_Status_Rules__r == null) {
+        continue;
+      }
+      for (Onboarding_Status_Rule__c rule : engine.Onboarding_Status_Rules__r) {
+        String fieldApiName = rule.Requirement__r
+          ?.Requirement_Template__r
+          ?.Onboarding_Status_Field_API_Name__c;
+        if (String.isNotBlank(fieldApiName)) {
+          fieldApiNames.add(fieldApiName);
+        }
+      }
+    }
+    return fieldApiNames;
   }
 }

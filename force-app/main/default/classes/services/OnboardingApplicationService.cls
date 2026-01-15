@@ -107,10 +107,19 @@ public with sharing class OnboardingApplicationService {
     public Date dueDate;
 
     public RequirementDTO(Onboarding_Requirement__c onboardingRequirement) {
+      if (onboardingRequirement == null) {
+        return;
+      }
       Id = onboardingRequirement.Id;
-      Name = onboardingRequirement.Name;
-      Status = onboardingRequirement.Status__c;
-      dueDate = onboardingRequirement.Due_Date__c;
+      if (onboardingRequirement.isSet('Name')) {
+        Name = (String) onboardingRequirement.get('Name');
+      }
+      if (onboardingRequirement.isSet('Status__c')) {
+        Status = (String) onboardingRequirement.get('Status__c');
+      }
+      if (onboardingRequirement.isSet('Due_Date__c')) {
+        dueDate = (Date) onboardingRequirement.get('Due_Date__c');
+      }
     }
   }
 

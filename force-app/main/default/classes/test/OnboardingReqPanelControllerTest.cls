@@ -223,7 +223,7 @@ private class OnboardingReqPanelControllerTest {
   static void testUpdateRequirementStatuses() {
     Onboarding__c testOnboarding = [SELECT Id FROM Onboarding__c LIMIT 1];
     Onboarding_Requirement__c onboardingRequirement = [
-      SELECT Id, Name, Status__c
+      SELECT Id, Name, Status__c, Due_Date__c
       FROM Onboarding_Requirement__c
       WHERE Onboarding__c = :testOnboarding.Id
       LIMIT 1
@@ -277,16 +277,23 @@ private class OnboardingReqPanelControllerTest {
   @isTest
   static void testRerunValidation() {
     Onboarding__c testOnboarding = [SELECT Id FROM Onboarding__c LIMIT 1];
-    Requirement_Field_Value__c fieldValue = new Requirement_Field_Value__c(
-      Onboarding_Requirement__c = [
-        SELECT Id
-        FROM Onboarding_Requirement__c
-        LIMIT 1
-      ]
-      .Id,
-      Validation_Status__c = 'Invalid'
+    Onboarding_Requirement__c requirement = [
+      SELECT Id
+      FROM Onboarding_Requirement__c
+      WHERE Onboarding__c = :testOnboarding.Id
+      LIMIT 1
+    ];
+    Requirement_Field__c requirementField = TestDataFactory.createRequirementField(
+      'Test_Field__c',
+      true
     );
-    insert fieldValue;
+    Requirement_Field_Value__c fieldValue = TestDataFactory.createRequirementFieldValue(
+      requirementField,
+      requirement,
+      null,
+      'Invalid',
+      true
+    );
 
     Test.startTest();
     OnboardingRequirementsPanelController.rerunValidation(

@@ -97,6 +97,7 @@ public with sharing class OnboardingRulesRepository {
       SELECT
         Id,
         Name,
+        LastModifiedDate,
         Evaluation_Logic__c,
         Custom_Evaluation_Logic__c,
         Override_Status__c,
@@ -213,33 +214,60 @@ public with sharing class OnboardingRulesRepository {
   /**
    * Fetches Onboarding__c records for dynamic field access
    * Used when we need to check custom status fields dynamically
-   * Note: SObject.get() will work for any field, even if not explicitly queried
    * @param onboardingIds Set of Onboarding IDs
    * @return List of Onboarding__c records
    */
   public static List<Onboarding__c> fetchOnboardingsByIdsWithAllFields(
     Set<Id> onboardingIds
   ) {
+    return fetchOnboardingsByIdsWithFields(onboardingIds, null);
+  }
+
+  /**
+   * Fetches Onboarding__c records with optional dynamic fields included.
+   * @param onboardingIds Set of Onboarding IDs
+   * @param extraFieldApiNames Additional Onboarding__c field API names to include
+   * @return List of Onboarding__c records
+   */
+  public static List<Onboarding__c> fetchOnboardingsByIdsWithFields(
+    Set<Id> onboardingIds,
+    Set<String> extraFieldApiNames
+  ) {
     if (onboardingIds == null || onboardingIds.isEmpty()) {
       return new List<Onboarding__c>();
     }
-    // Query standard fields we know we need
-    // SObject.get() will work for custom fields even if not explicitly queried
-    // This avoids governor limit issues while still allowing dynamic field access
-    return [
-      SELECT
-        Id,
-        Vendor_Customization__c,
-        Onboarding_Status__c,
-        External_Override_Enabled__c,
-        External_Override_Programs__c,
-        External_Override_Source__c,
-        External_Override_Request_ID__c,
-        External_Override_Date__c,
-        Previous_Status_Before_Override__c
-      FROM Onboarding__c
-      WHERE Id IN :onboardingIds
-    ];
+
+    Set<String> fields = new Set<String>{
+      'Id',
+      'Vendor_Customization__c',
+      'Onboarding_Status__c',
+      'External_Override_Enabled__c',
+      'External_Override_Programs__c',
+      'External_Override_Source__c',
+      'External_Override_Request_ID__c',
+      'External_Override_Date__c',
+      'Previous_Status_Before_Override__c'
+    };
+
+    if (extraFieldApiNames != null && !extraFieldApiNames.isEmpty()) {
+      Map<String, Schema.SObjectField> fieldMap = Onboarding__c.SObjectType.getDescribe()
+        .fields.getMap();
+      for (String fieldName : extraFieldApiNames) {
+        if (fieldMap.containsKey(fieldName)) {
+          fields.add(fieldName);
+        }
+      }
+    }
+
+    List<String> fieldList = new List<String>();
+    fieldList.addAll(fields);
+    fieldList.sort();
+
+    String soql =
+      'SELECT ' +
+      String.join(fieldList, ', ') +
+      ' FROM Onboarding__c WHERE Id IN :onboardingIds';
+    return Database.query(soql);
   }
 
   public static List<Vendor_Program_Group_Member__c> fetchGroupMembersByVendorProgramIds(
