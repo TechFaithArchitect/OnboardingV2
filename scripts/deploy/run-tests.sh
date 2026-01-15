@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Test Execution Script for OnboardingV2
-# This script runs Apex tests and validates coverage
+# This script runs all Apex tests in the project and validates coverage
 #
 # Usage:
 #   ./scripts/deploy/run-tests.sh [org-alias] [test-classes]
 #
 # Examples:
 #   ./scripts/deploy/run-tests.sh myorg
-#   ./scripts/deploy/run-tests.sh myorg OnboardingRulesServiceTest,OnboardingStatusEvaluatorTest
+#   ./scripts/deploy/run-tests.sh myorg "OnboardingReqDueDateControllerTest,OnboardingReqPanelControllerTest"
 
 set -e  # Exit on error
 
@@ -19,7 +19,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Get org alias from argument or use default
-ORG_ALIAS=${1:-myorg}
+ORG_ALIAS=${1:-OnboardV2}
 TEST_CLASSES=${2:-""}
 
 echo -e "${GREEN}========================================${NC}"
@@ -45,12 +45,42 @@ echo ""
 # Run tests
 echo -e "${YELLOW}Running Apex tests...${NC}"
 
+# Discover all test classes in the project
+# Note: We only include classes with test methods (multiple @isTest annotations).
+discover_test_classes() {
+    if [ ! -d "force-app" ]; then
+        echo -e "${RED}Error: force-app directory not found${NC}"
+        exit 1
+    fi
+
+    TEST_CLASS_NAMES=()
+    while IFS= read -r -d '' file; do
+        is_test_count=$(grep -i -c "@isTest" "$file" || true)
+        if [ "$is_test_count" -gt 1 ]; then
+            TEST_CLASS_NAMES+=("$(basename "$file" .cls)")
+            continue
+        fi
+        if grep -qiE "\\btestMethod\\b" "$file"; then
+            TEST_CLASS_NAMES+=("$(basename "$file" .cls)")
+        fi
+    done < <(find force-app -type f -name "*.cls" -print0)
+
+    if [ "${#TEST_CLASS_NAMES[@]}" -eq 0 ]; then
+        echo -e "${RED}Error: No test classes found under force-app${NC}"
+        exit 1
+    fi
+
+    printf '%s\n' "${TEST_CLASS_NAMES[@]}" | sort -u | paste -sd, -
+}
+
 if [ -z "$TEST_CLASSES" ]; then
-    # Run all tests
-    echo "Running all tests in org..."
-    TEST_RESULT=$(sf apex run test --target-org "$ORG_ALIAS" --result-format human --code-coverage --wait 10)
+    echo "Discovering test classes in force-app..."
+    ALL_TEST_CLASSES=$(discover_test_classes)
+    # Run all tests in the project
+    echo "Running all tests in the project..."
+    TEST_RESULT=$(sf apex run test --class-names "$ALL_TEST_CLASSES" --target-org "$ORG_ALIAS" --result-format human --code-coverage --wait 10)
 else
-    # Run specific test classes
+    # Run specific test classes provided as argument
     echo "Running test classes: $TEST_CLASSES"
     TEST_RESULT=$(sf apex run test --class-names "$TEST_CLASSES" --target-org "$ORG_ALIAS" --result-format human --code-coverage --wait 10)
 fi
@@ -89,4 +119,3 @@ mkdir -p test-results
 echo "$TEST_RESULT" > "$RESULT_FILE"
 echo "Test results saved to: $RESULT_FILE"
 echo ""
-

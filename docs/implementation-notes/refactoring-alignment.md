@@ -124,7 +124,7 @@ handleOpenForm(event) {
 ## Testing Strategy
 
 1. **Existing Tests:** All existing Apex tests continue to pass
-2. **New Controller Tests:** Added `OnboardingRequirementDueDateControllerTest.cls`
+2. **New Controller Tests:** Added `OnboardingReqDueDateControllerTest.cls`
 3. **Integration Tests:** Verify LWC components work with existing Apex services
 4. **End-to-End:** Validate Dealer checklist flows work with real data
 

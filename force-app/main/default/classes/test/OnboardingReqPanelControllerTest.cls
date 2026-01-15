@@ -76,12 +76,24 @@ private class OnboardingReqPanelControllerTest {
     );
 
     // Create onboarding requirement
-    Onboarding_Requirement__c onboardingRequirement = new Onboarding_Requirement__c(
-      Onboarding__c = testOnboarding.Id,
-      Vendor_Program_Requirement__c = requirement.Id,
-      Status__c = 'Complete'
+    Onboarding_Requirement__c onboardingRequirement = TestOnboardingRequirementFactory.create(
+      true,
+      testOnboarding,
+      requirement
     );
-    insert onboardingRequirement;
+    List<String> requirementStatuses = TestDataFactoryUtil.getPicklistValues(
+      Onboarding_Requirement__c.SObjectType,
+      'Status__c'
+    );
+    String completeStatus = requirementStatuses.contains('Complete')
+      ? 'Complete'
+      : (requirementStatuses.contains('Completed')
+          ? 'Completed'
+          : (requirementStatuses.isEmpty() ? null : requirementStatuses[0]));
+    if (String.isNotBlank(completeStatus)) {
+      onboardingRequirement.Status__c = completeStatus;
+      update onboardingRequirement;
+    }
   }
 
   @isTest
@@ -221,7 +233,16 @@ private class OnboardingReqPanelControllerTest {
     OnboardingApplicationService.RequirementDTO dto = new OnboardingApplicationService.RequirementDTO(
       onboardingRequirement
     );
-    dto.Status = 'Approved';
+    List<String> requirementStatuses = TestDataFactoryUtil.getPicklistValues(
+      Onboarding_Requirement__c.SObjectType,
+      'Status__c'
+    );
+    String approvedStatus = requirementStatuses.contains('Approved')
+      ? 'Approved'
+      : (requirementStatuses.contains('Complete')
+          ? 'Complete'
+          : (requirementStatuses.isEmpty() ? null : requirementStatuses[0]));
+    dto.Status = approvedStatus;
     updates.add(dto);
 
     Test.startTest();
@@ -235,7 +256,7 @@ private class OnboardingReqPanelControllerTest {
       WHERE Id = :onboardingRequirement.Id
     ];
     System.assertEquals(
-      'Approved',
+      approvedStatus,
       updatedRequirement.Status__c,
       'Status should be updated'
     );

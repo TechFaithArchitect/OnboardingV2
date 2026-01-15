@@ -18,7 +18,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Get org alias from argument or use default
-ORG_ALIAS=${1:-myorg}
+ORG_ALIAS=${1:-OnboardV2}
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}OnboardingV2 Deployment Script${NC}"

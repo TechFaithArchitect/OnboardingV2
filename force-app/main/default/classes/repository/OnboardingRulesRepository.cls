@@ -96,6 +96,7 @@ public with sharing class OnboardingRulesRepository {
     return [
       SELECT
         Id,
+        Name,
         Evaluation_Logic__c,
         Custom_Evaluation_Logic__c,
         Override_Status__c,
@@ -105,9 +106,11 @@ public with sharing class OnboardingRulesRepository {
         (
           SELECT
             Id,
+            Name,
             Rule_Number__c,
             Requirement__c,
             Expected_Status__c,
+            Requirement__r.Name,
             Requirement__r.Requirement_Template__c,
             Requirement__r.Requirement_Template__r.Onboarding_Status_Field_API_Name__c,
             Requirement__r.Requirement_Template__r.Onboarding_Status_Value_When_Complete__c
