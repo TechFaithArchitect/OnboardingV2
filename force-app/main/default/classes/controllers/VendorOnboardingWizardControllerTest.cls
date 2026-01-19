@@ -635,7 +635,7 @@ private class VendorOnboardingWizardControllerTest {
       c.Id,
       'Owner'
     );
-    List<VendorOnboardingWizardService.ContactRoleDTO> dtos = VendorOnboardingWizardController.getAccountContactsWithRoles(
+    List<VendorOnboardingWizardController.ContactRoleDTO> dtos = VendorOnboardingWizardController.getAccountContactsWithRoles(
       acct.Id
     );
     Test.stopTest();
@@ -719,7 +719,7 @@ private class VendorOnboardingWizardControllerTest {
     );
 
     Test.startTest();
-    VendorOnboardingWizardService.OnboardingWithRequirementsResult result = VendorOnboardingWizardController.createOnboardingWithRequirements(
+    VendorOnboardingWizardController.OnboardingWithRequirementsResult result = VendorOnboardingWizardController.createOnboardingWithRequirements(
       acct.Id,
       vendorProgram.Id,
       oppId

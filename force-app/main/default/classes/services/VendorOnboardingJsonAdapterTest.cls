@@ -22,7 +22,7 @@ private class VendorOnboardingJsonAdapterTest {
 
     // Execute Adapter
     Test.startTest();
-    List<String> results = VendorOnboardingJsonAdapter.getVendorsAsJson(
+    List<String> results = VendorOnboardingService.getVendorsAsJson(
       new List<Id>{ acct.Id }
     );
     Test.stopTest();
@@ -43,7 +43,7 @@ private class VendorOnboardingJsonAdapterTest {
   @isTest
   static void testEmptyInputReturnsEmptyJsonArray() {
     Test.startTest();
-    List<String> results = VendorOnboardingJsonAdapter.getVendorsAsJson(
+    List<String> results = VendorOnboardingService.getVendorsAsJson(
       new List<Id>()
     );
     Test.stopTest();

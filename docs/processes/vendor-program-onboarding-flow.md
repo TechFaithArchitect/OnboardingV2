@@ -13,11 +13,13 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 ### Step-by-Step Flow
 
 #### **Step 1: Select Vendor**
+
 - **Component:** `vendorProgramOnboardingVendor`
 - **Purpose:** Search for existing vendors or create a new vendor
 - **Output:** `vendorId` passed to next step
 
 #### **Step 2: Search or Create Vendor Program**
+
 - **Component:** `vendorProgramOnboardingVendorProgramSearchOrCreate`
 - **Purpose:** Search for existing vendor programs or create a new draft vendor program
 - **Features:**
@@ -30,6 +32,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `vendorProgramId` passed to next step
 
 #### **Step 3: Select Requirement Set OR Create Requirements**
+
 - **Component:** `vendorProgramOnboardingRequirementSetOrCreate`
 - **Purpose:** Select existing Onboarding Requirement Set or create new requirements
 - **Sub-steps:**
@@ -48,6 +51,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `requirementSetId`, `requirementTemplateId` passed to next step
 
 #### **Step 4: Create and Link Requirement Group Components**
+
 - **Component:** `vendorProgramOnboardingRequirementGroupLinking`
 - **Purpose:** Create and link Vendor Program Group, Vendor Program Requirement Group, and Vendor Program Group Member
 - **Sub-steps:**
@@ -60,6 +64,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `groupMemberId` passed to next step
 
 #### **Step 5: Required Credentials (Conditional)**
+
 - **Component:** `vendorProgramOnboardingRequiredCredentials`
 - **Purpose:** Configure required credentials if needed
 - **Features:**
@@ -69,6 +74,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `credentialsNeeded` boolean flag
 
 #### **Step 6: Training Requirements**
+
 - **Component:** `vendorProgramOnboardingTrainingRequirements`
 - **Purpose:** Configure training requirements using dual-listbox selection
 - **Features:**
@@ -80,6 +86,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** Training requirements linked to Vendor Program
 
 #### **Step 7: Status Rules Engine**
+
 - **Component:** `vendorProgramOnboardingStatusRulesEngine`
 - **Purpose:** Select or create Status Rules Engine
 - **Sub-steps:**
@@ -95,6 +102,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `statusRulesEngineId` passed to next step
 
 #### **Step 8: Communication Template & Recipient Groups**
+
 - **Component (Admin):** `vendorProgramOnboardingRecipientGroup`
 - **Component (User):** Skip to Step 9
 - **Purpose (Admin):** Create or select Recipient Groups and link to Vendor Program
@@ -107,6 +115,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** `recipientGroupId` passed to next step
 
 #### **Step 9: Communication Template Selection**
+
 - **Component:** `vendorProgramOnboardingCommunicationTemplate`
 - **Purpose:** Select Communication Template, Recipient Group, and trigger condition
 - **Features:**
@@ -117,6 +126,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 - **Output:** Communication template linked with trigger condition
 
 #### **Step 10: Finalize Vendor Program**
+
 - **Component:** `vendorProgramOnboardingFinalize`
 - **Purpose:** Complete onboarding setup and navigate to Vendor Program
 - **Features:**
@@ -131,6 +141,7 @@ The Vendor Program Onboarding wizard has been restructured into a **10-step flow
 The Component Library is the central registry that maps Lightning Web Component API names to displayable metadata records. This allows the system to dynamically determine which LWC components are available for use in onboarding flows.
 
 **Key Fields:**
+
 - `Component_API_Name__c` - The API name of the LWC component (e.g., "vendorProgramOnboardingVendor")
 - `Name` - Display name (auto-generated from API name)
 - `Component_Type__c` - Type of component (e.g., "LWC")
@@ -138,9 +149,10 @@ The Component Library is the central registry that maps Lightning Web Component 
 
 **How It's Populated:**
 
-The component library is automatically populated using the `VendorOnboardingWizardService.syncComponentLibrary()` method. This method is invoked via the `@InvocableMethod` in `VendorOnboardingWizardController.syncRendererComponents()`.
+The component library is automatically populated using the `VendorOnboardingWizardController.syncRendererComponents()` method, which is marked as `@InvocableMethod` for Flow integration.
 
 **Available Components (Current):**
+
 1. `vendorProgramOnboardingVendor` - Vendor selection/creation
 2. `vendorProgramOnboardingVendorProgramSearchOrCreate` - Search/create vendor program with Label, Retail Option, Business Vertical
 3. `vendorProgramOnboardingRequirementSetOrCreate` - Select Requirement Set or create requirements with inline templates
@@ -157,6 +169,7 @@ The component library is automatically populated using the `VendorOnboardingWiza
 A process defines a sequence of stages that make up an onboarding workflow. Multiple processes can exist for different types of onboarding scenarios.
 
 **Key Fields:**
+
 - `Name` - Process name (e.g., "Vendor Program Onboarding")
 - `Active__c` - Whether the process is active
 - `Description__c` - Process description
@@ -166,6 +179,7 @@ A process defines a sequence of stages that make up an onboarding workflow. Mult
 Stages define individual steps in the onboarding process. Each stage references a component from the Component Library that should be rendered.
 
 **Key Fields:**
+
 - `Onboarding_Application_Process__c` - Parent process
 - `Onboarding_Component_Library__c` - Component to render (lookup to Component Library)
 - `Display_Order__c` - Order in sequence (1, 2, 3, etc.)
@@ -178,6 +192,7 @@ Stages define individual steps in the onboarding process. Each stage references 
 Tracks where a user is in the onboarding process for a specific Vendor Program.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - The vendor program being onboarded
 - `Onboarding_Application_Process__c` - The process being executed
 - `Current_Stage__c` - Current stage ID (allows resuming)
@@ -187,6 +202,7 @@ Tracks where a user is in the onboarding process for a specific Vendor Program.
 Audit log of completed stages.
 
 **Key Fields:**
+
 - `Vendor_Program__c` (Lookup to `Vendor_Customization__c`) - Vendor program
 - `Onboarding_Application_Process__c` - Process
 - `Onboarding_Application_Stage__c` - Completed stage
@@ -281,10 +297,12 @@ get showVendorProgramOnboardingRequirementSetOrCreate() {
 ## User vs Admin Flow Differences
 
 ### User Flow
+
 - **Step 9:** Skips Recipient Group creation (uses existing groups)
 - **Step 10:** Only selects Communication Template, Recipient Group, and trigger condition
 
 ### Admin Flow
+
 - **Step 9:** Can create new Recipient Groups, add members, and link to Vendor Program
 - **Step 10:** Same as User flow - selects Communication Template, Recipient Group, and trigger condition
 
@@ -305,6 +323,7 @@ The HTML template has all possible components statically defined, but only one r
 ### Context Passing
 
 Components receive context via props:
+
 - `vendorProgramId` - Current Vendor Program ID
 - `stageId` - Current Stage ID
 - `requirementSetId` - From Step 4 (optional)
@@ -315,6 +334,7 @@ Components receive context via props:
 ### Progress Persistence
 
 After each stage:
+
 1. `Onboarding_Application_Progress__c` is upserted with `Current_Stage__c`
 2. `Onboarding_Application_Stage_Completion__c` is inserted for audit trail
 3. Step data is stored in `_stepData` map for context passing
@@ -323,6 +343,7 @@ After each stage:
 ### Apex Integration
 
 All stage components use `VendorOnboardingWizardController` methods:
+
 - `searchVendors()` / `createVendor()`
 - `searchVendorPrograms()` / `createVendorProgram()`
 - `searchOnboardingRequirementSets()` / `linkRequirementSetToVendorProgram()` / `createRequirementSetFromExisting()`
@@ -339,7 +360,7 @@ All stage components use `VendorOnboardingWizardController` methods:
 
 ```apex
 // Execute via Anonymous Apex or Flow
-VendorOnboardingWizardService.syncComponentLibrary();
+VendorOnboardingWizardController.syncRendererComponents();
 ```
 
 This creates all `Onboarding_Component_Library__c` records for the wizard components.
@@ -365,7 +386,7 @@ List<Onboarding_Application_Stage__c> stages = new List<Onboarding_Application_S
 // Get component library records
 Map<String, Id> componentMap = new Map<String, Id>();
 for (Onboarding_Component_Library__c lib : [
-    SELECT Id, Component_API_Name__c 
+    SELECT Id, Component_API_Name__c
     FROM Onboarding_Component_Library__c
 ]) {
     componentMap.put(lib.Component_API_Name__c, lib.Id);
@@ -410,18 +431,21 @@ insert progress;
 ## Entry Points
 
 ### 1. From Dashboard (New Vendor Program)
+
 - User clicks "Start Onboarding Vendor Program" → "Create New"
 - Selects/creates Vendor
 - Navigates to new Vendor Program record
 - Flow starts automatically
 
 ### 2. From Vendor Program Record Page
+
 - User views existing Vendor Program
 - `vendorProgramOnboardingFlow` component detects Process
 - If Process exists, flow resumes or starts
 - If no Process, user can select one (or system uses default)
 
 ### 3. From Home Dashboard
+
 - "Start Dealer Onboarding" for Account-based onboarding
 - "Start Onboarding Vendor Program" for vendor program setup
 

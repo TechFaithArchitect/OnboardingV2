@@ -613,39 +613,42 @@ Used by `onboardingStatusRulesEngine` and `statusEvaluationPreviewModal` LWC com
 **Usage:**
 Used by `onboardingStatusRuleList` and related LWC components.
 
-### OnboardingAppECCController
+### OnboardingAppECCService
 
-**Location:** `force-app/main/default/classes/OnboardingAppECCController.cls`
+**Location:** `force-app/main/default/classes/services/OnboardingAppECCService.cls`
 
-**Purpose:** Controller for External Contact Credential (ECC) management.
+**Purpose:** Service for External Contact Credential (ECC) management with direct LWC integration.
 
 **Key Methods:**
 
-- `getRequiredCredentials(Id vendorProgramId)` - Returns required credentials for a vendor program
-- `getAvailableCredentialTypes()` - Returns available credential types
-- `createCredentialType(String name)` - Creates a new credential type
-- `linkCredentialTypeToRequiredCredential(Id requiredCredentialId, Id credentialTypeId)` - Links credential type to required credential
+- `getRequiredCredentials(Id vendorProgramId)` - @AuraEnabled method, returns required credentials for a vendor program
+- `getAvailableCredentialTypes()` - @AuraEnabled method, returns available credential types
+- `createCredentialType(String name)` - @AuraEnabled method, creates a new credential type
+- `linkCredentialTypeToRequiredCredential(Id requiredCredentialId, Id credentialTypeId)` - @AuraEnabled method, links credential type to required credential
 
 **Usage:**
-Used by `onboardingAppVendorProgramECCManager` LWC component.
+Called directly by `onboardingAppVendorProgramECCManager` LWC component.
 
 **Dependencies:**
 
-- `OnboardingAppECCService` - Business logic layer
 - `OnboardingAppECCRepository` - Data access layer
 
-### OnboardingAppActivationController
+**Note:** The `OnboardingAppECCController` has been removed. LWC components now call the service directly.
 
-**Location:** `force-app/main/default/classes/controllers/OnboardingAppActivationController.cls`
+### OnboardingAppActivationService
 
-**Purpose:** Controller for activating versioned records (vendor programs, etc.).
+**Location:** `force-app/main/default/classes/services/OnboardingAppActivationService.cls`
+
+**Purpose:** Service for activating versioned records (vendor programs, etc.) with direct LWC integration.
 
 **Key Methods:**
 
-- `activate(Id recordId, String objectApiName)` - Activates a record via orchestrator
+- `activate(Id recordId, String objectApiName)` - @AuraEnabled method, activates a record with validation
 
 **Usage:**
-Used by `onboardingAppHeaderBar` LWC component.
+Called directly by `onboardingAppHeaderBar` LWC component.
+
+**Note:** The `OnboardingAppActivationController` and `OnboardingAppActivationOrchestrator` have been consolidated into this service.
 
 ### TwilioSettingsController
 
@@ -847,7 +850,7 @@ Used by `onboardingAdminDashboard`, `validationFailuresPanel`, `validationFailur
 
 **Dependencies:**
 
-- `VendorOnboardingWizardService` - Business logic layer
+- **Consolidated Domain Services** - Business logic layer (see below)
 - `VendorOnboardingWizardRepository` - Data access layer
 
 **Usage:**
@@ -860,25 +863,19 @@ Used by all Vendor Program Onboarding Wizard LWC components.
 
 ## Vendor Onboarding Wizard Service Layer
 
-### VendorOnboardingWizardService (Facade)
+**Note:** The `VendorOnboardingWizardService` facade has been removed. The controller now calls consolidated domain services directly.
 
-**Location:** `force-app/main/default/classes/services/VendorOnboardingWizardService.cls`
+### Consolidated Domain Services
 
-**Purpose:** Facade service that delegates to domain-specific services. Maintains backward compatibility while improving code organization. **Note:** This service is deprecated - use domain-specific services directly.
+The following domain services have been created by consolidating related services:
 
-**Architecture:** This service acts as a facade pattern, delegating all calls to domain-specific services:
+- **VendorDomainService** - Consolidates VendorService, VendorProgramService, VendorProgramGroupService
+- **RequirementDomainService** - Consolidates VendorProgramRequirementService, VendorProgramRequirementGroupService
+- **CommunicationDomainService** - Consolidates CommunicationTemplateService, RecipientGroupService
+- **OnboardingRequirementSetService** - Requirement Set operations (unchanged)
+- **StatusRulesEngineService** - Status Rules Engine operations (unchanged)
 
-- `VendorService` - Vendor operations
-- `VendorProgramService` - Vendor Program operations
-- `VendorProgramGroupService` - Vendor Program Group operations
-- `VendorProgramRequirementGroupService` - Requirement Group operations
-- `VendorProgramRequirementService` - Requirement operations
-- `OnboardingRequirementSetService` - Requirement Set operations
-- `RecipientGroupService` - Recipient Group operations
-- `StatusRulesEngineService` - Status Rules Engine operations
-- `CommunicationTemplateService` - Communication Template operations
-
-**Key Methods:** All methods delegate to corresponding domain services (see individual service documentation below).
+**Key Methods:** See individual domain service documentation below.
 
 #### Vendor Operations
 
@@ -1033,55 +1030,31 @@ Used by all Vendor Program Onboarding Wizard LWC components.
 
 - `OnboardingAppActivationOrchestrator` - Orchestrates activation process
 
-### OnboardingAppECCController
+### OnboardingAppECCService
 
-**Location:** `force-app/main/default/classes/OnboardingAppECCController.cls`
+**Location:** `force-app/main/default/classes/services/OnboardingAppECCService.cls`
 
-**Purpose:** Controller for External Contact Credential (ECC) management.
+**Purpose:** Service for External Contact Credential (ECC) management with direct LWC integration.
 
 **Key Methods:**
 
-- `getRequiredCredentials(Id vendorProgramId)` - Returns required credentials for a vendor program (cacheable)
-- `getAvailableCredentialTypes()` - Returns all available credential types (cacheable)
-- `createCredentialType(String name)` - Creates a new credential type
-- `linkCredentialTypeToRequiredCredential(Id requiredCredentialId, Id credentialTypeId)` - Links a credential type to a required credential
+- `getRequiredCredentials(Id vendorProgramId)` - @AuraEnabled method, returns required credentials for a vendor program (cacheable)
+- `getAvailableCredentialTypes()` - @AuraEnabled method, returns all available credential types (cacheable)
+- `createCredentialType(String name)` - @AuraEnabled method, creates a new credential type
+- `linkCredentialTypeToRequiredCredential(Id requiredCredentialId, Id credentialTypeId)` - @AuraEnabled method, links a credential type to a required credential
 
 **Usage:**
-Used by `onboardingAppVendorProgramECCManager` LWC component.
+Called directly by `onboardingAppVendorProgramECCManager` LWC component.
 
 **Dependencies:**
 
-- `OnboardingAppECCService` - Business logic layer
 - `OnboardingAppECCRepository` - Data access layer
 
-## Orchestrators
+**Note:** The `OnboardingAppECCController` has been removed. LWC components now call the service directly.
 
-### OnboardingAppActivationOrchestrator
+## Orchestrators (Legacy)
 
-**Location:** `force-app/main/default/classes/orchestrators/OnboardingAppActivationOrchestrator.cls`
-
-**Purpose:** Orchestrates the activation workflow for onboarding application objects. Routes activation requests to appropriate service based on object type.
-
-**Key Methods:**
-
-- `activate(Id recordId, String objectApiName)` - Activates a record with validation
-
-**Flow:**
-
-1. Validates input parameters
-2. Routes to specialized service for `Vendor_Customization__c` (calls `VendorProgramActivationService`)
-3. Routes to generic service for other objects (calls `OnboardingAppActivationService`)
-4. Note: Activation rules are executed by the services, not by the orchestrator
-
-**Routing Logic:**
-
-- `Vendor_Customization__c` → `VendorProgramActivationService.activate()`
-- `Communication_Template__c` → `OnboardingAppActivationService.activateRecord()`
-- All other objects → `OnboardingAppActivationService.activateRecord()`
-
-**Note:** Orchestrator does not execute activation rules directly - this is handled by the services. Both `VendorProgramActivationService` and `OnboardingAppActivationService` execute activation rules before activation.
-
-### OnboardingAppVendorProgramReqOrch
+**Note:** Most orchestrators have been consolidated into services. Only complex multi-domain workflows may still use orchestrators.
 
 **Location:** `force-app/main/default/classes/orchestrators/OnboardingAppVendorProgramReqOrch.cls`
 
@@ -1155,11 +1128,15 @@ Used by `onboardingAppVendorProgramECCManager` LWC component.
 **Usage:**
 Used by `OnboardingAppECCController` for ECC management operations.
 
-### VendorOnboardingWizardService
+### Consolidated Domain Services
 
-**Location:** `force-app/main/default/classes/services/VendorOnboardingWizardService.cls`
+**Note:** The `VendorOnboardingWizardService` facade has been removed. The following consolidated domain services are now used directly:
 
-**Purpose:** Service for vendor onboarding wizard operations. Provides business logic for creating and managing vendor onboarding entities including vendors, vendor programs, groups, requirement sets, recipient groups, status rules engines, and communication templates.
+#### VendorDomainService
+
+**Location:** `force-app/main/default/classes/services/VendorDomainService.cls`
+
+**Purpose:** Consolidated service for Vendor, VendorProgram, and VendorProgramGroup operations. Replaces VendorService, VendorProgramService, and VendorProgramGroupService.
 
 **Key Methods:**
 
@@ -1239,7 +1216,7 @@ Used by `VendorOnboardingWizardController` and wizard LWC components for vendor 
 
 **Location:** `force-app/main/default/classes/controllers/VendorOnboardingWizardController.cls`
 
-**Purpose:** Controller for vendor onboarding wizard LWC components. Provides AuraEnabled methods for vendor, vendor program, groups, requirement sets, recipient groups, status rules, and communication templates operations. All methods delegate to `VendorOnboardingWizardService`.
+**Purpose:** Controller for vendor onboarding wizard LWC components. Provides AuraEnabled methods for vendor, vendor program, groups, requirement sets, recipient groups, status rules, and communication templates operations. Coordinates multiple consolidated domain services.
 
 **Key Methods:**
 
@@ -1758,20 +1735,35 @@ DTO classes in `dto/` package provide structured data transfer:
 
 ## Domain-Specific Services
 
-The Vendor Onboarding Wizard service layer has been refactored into domain-specific services following the Single Responsibility Principle. Each service handles operations for a specific domain.
+The Vendor Onboarding Wizard service layer has been consolidated into domain-specific services. Related services have been merged to reduce complexity.
 
-### VendorService
+### VendorDomainService
 
-**Location:** `force-app/main/default/classes/services/VendorService.cls`
+**Location:** `force-app/main/default/classes/services/VendorDomainService.cls`
 
-**Purpose:** Service for Vendor domain operations.
+**Purpose:** Consolidated service for Vendor, VendorProgram, and VendorProgramGroup operations. Replaces VendorService, VendorProgramService, and VendorProgramGroupService.
 
 **Key Methods:**
 
-- `searchVendors(String vendorName)` - Searches vendors by name
-- `createVendor(Vendor__c vendor)` - Creates vendor with validation and default values
-- `getVendorsWithPrograms()` - Gets all vendors with associated programs
-- `searchVendorsWithPrograms(String searchText)` - Searches vendors with programs
+**Vendor Operations:**
+
+- `searchVendors(String vendorName)` - @AuraEnabled, searches vendors by name
+- `createVendor(Vendor__c vendor)` - @AuraEnabled, creates vendor with validation and default values
+- `getVendorsWithPrograms()` - @AuraEnabled, gets all vendors with associated programs
+- `searchVendorsWithPrograms(String searchText)` - @AuraEnabled, searches vendors with programs
+
+**Vendor Program Operations:**
+
+- `searchVendorPrograms(String vendorProgramName)` - @AuraEnabled, searches vendor programs
+- `getRecentVendorPrograms(Integer limitCount)` - @AuraEnabled, gets recent vendor programs
+- `createVendorProgram(Vendor_Customization__c vendorProgram, Id vendorId)` - @AuraEnabled, creates vendor program
+- `finalizeVendorProgram(...)` - @AuraEnabled, finalizes vendor program setup
+
+**Vendor Program Group Operations:**
+
+- `searchVendorProgramGroups(String vendorProgramGroupName)` - @AuraEnabled, searches program groups
+- `getAllVendorProgramGroups()` - @AuraEnabled, gets all program groups
+- `createVendorProgramGroup(Vendor_Program_Group__c vendorProgramGroup)` - @AuraEnabled, creates program group
 
 **Dependencies:**
 
@@ -1779,84 +1771,35 @@ The Vendor Onboarding Wizard service layer has been refactored into domain-speci
 - `ValidationHelper` - Input validation
 - `DefaultValueHelper` - Default value assignment
 
-### VendorProgramService
+### RequirementDomainService
 
-**Location:** `force-app/main/default/classes/services/VendorProgramService.cls`
+**Location:** `force-app/main/default/classes/services/RequirementDomainService.cls`
 
-**Purpose:** Service for Vendor Program domain operations.
+**Purpose:** Consolidated service for VendorProgramRequirement and VendorProgramRequirementGroup operations. Replaces VendorProgramRequirementService and VendorProgramRequirementGroupService.
 
 **Key Methods:**
 
-- `searchVendorPrograms(String vendorProgramName)` - Searches vendor programs
-- `getRecentVendorPrograms(Integer limitCount)` - Gets recent vendor programs
-- `createVendorProgram(Vendor_Customization__c vendorProgram, Id vendorId)` - Creates vendor program
-- `getVendorProgramGroupForVendorProgram(Id vendorProgramId)` - Gets program group
-- `getVendorProgramRequirementGroupForVendorProgram(Id vendorProgramId)` - Gets requirement group
-- `finalizeVendorProgram(Id vendorProgramId, Id vendorId, Id vendorProgramGroupId, Id vendorProgramRequirementGroupId)` - Finalizes vendor program setup
+**Vendor Program Requirement Operations:**
+
+- `searchVendorProgramRequirements(String requirementName)` - @AuraEnabled, searches requirements
+- `createVendorProgramRequirement(Vendor_Program_Requirement__c requirement)` - @AuraEnabled, creates requirement
+- `bulkCreateRequirementsFromTemplates(List<Id> templateIds, Id vendorProgramId)` - @AuraEnabled, bulk creates requirements from templates
+- `updateRequirementSequences(List<Vendor_Program_Requirement__c> requirements)` - @AuraEnabled, updates requirement sequences
+- `getRecentVendorProgramRequirements(Id vendorProgramId)` - @AuraEnabled, gets recent requirements
+- `getRequirementsByGroup(Id requirementGroupId)` - @AuraEnabled, gets requirements by group
+- `deleteVendorProgramRequirement(Id requirementId)` - @AuraEnabled, deletes requirement
+
+**Vendor Program Requirement Group Operations:**
+
+- `searchVendorProgramRequirementGroups(String requirementGroupName)` - @AuraEnabled, searches requirement groups
+- `getAllVendorProgramRequirementGroups()` - @AuraEnabled, gets all requirement groups
+- `createVendorProgramRequirementGroup(Vendor_Program_Requirement_Group__c vendorProgramRequirementGroup)` - @AuraEnabled, creates requirement group
 
 **Dependencies:**
 
 - `VendorOnboardingWizardRepository` - Data access
 - `ValidationHelper` - Input validation
 - `DefaultValueHelper` - Default value assignment
-
-### VendorProgramGroupService
-
-**Location:** `force-app/main/default/classes/services/VendorProgramGroupService.cls`
-
-**Purpose:** Service for Vendor Program Group domain operations.
-
-**Key Methods:**
-
-- `searchVendorProgramGroups(String vendorProgramGroupName)` - Searches program groups
-- `getAllVendorProgramGroups()` - Gets all program groups
-- `createVendorProgramGroup(Vendor_Program_Group__c vendorProgramGroup)` - Creates program group
-- `getDefaultLogicType()` - Gets default Logic_Type\_\_c value
-
-**Dependencies:**
-
-- `VendorOnboardingWizardRepository` - Data access
-- `ValidationHelper` - Input validation
-
-### VendorProgramRequirementGroupService
-
-**Location:** `force-app/main/default/classes/services/VendorProgramRequirementGroupService.cls`
-
-**Purpose:** Service for Vendor Program Requirement Group domain operations.
-
-**Key Methods:**
-
-- `searchVendorProgramRequirementGroups(String requirementGroupName)` - Searches requirement groups
-- `getAllVendorProgramRequirementGroups()` - Gets all requirement groups
-- `createVendorProgramRequirementGroup(Vendor_Program_Requirement_Group__c vendorProgramRequirementGroup)` - Creates requirement group
-
-**Dependencies:**
-
-- `VendorOnboardingWizardRepository` - Data access
-- `ValidationHelper` - Input validation
-- `DefaultValueHelper` - Default value assignment
-
-### VendorProgramRequirementService
-
-**Location:** `force-app/main/default/classes/services/VendorProgramRequirementService.cls`
-
-**Purpose:** Service for Vendor Program Requirement domain operations.
-
-**Key Methods:**
-
-- `searchVendorProgramRequirements(String requirementName)` - Searches requirements
-- `createVendorProgramRequirement(Vendor_Program_Requirement__c requirement)` - Creates requirement
-- `bulkCreateRequirementsFromTemplates(List<Id> templateIds, Id vendorProgramId)` - Bulk creates requirements from templates
-- `updateRequirementSequences(List<Vendor_Program_Requirement__c> requirements)` - Updates requirement sequences
-- `getRecentVendorProgramRequirements(Id vendorProgramId)` - Gets recent requirements
-- `getRequirementsByGroup(Id requirementGroupId)` - Gets requirements by group
-- `getTemplatesByGroup(Id requirementGroupId)` - Gets templates by group
-- `deleteVendorProgramRequirement(Id requirementId)` - Deletes requirement
-
-**Dependencies:**
-
-- `VendorOnboardingWizardRepository` - Data access
-- `ValidationHelper` - Input validation
 
 ### OnboardingRequirementSetService
 

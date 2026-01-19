@@ -13,9 +13,10 @@ This document lists all test classes in the OnboardingV2 project and provides co
 ### Main Package Test Classes
 
 #### Controllers
-- `OnboardingAppActivationControllerTest`
-- `OnboardingAppECCControllerTest`
-- `OnboardingAppVendorProgramReqCtlrTest`
+
+- `OnboardingAppActivationControllerTest` - Tests `OnboardingAppActivationService` (controller consolidated into service)
+- `OnboardingAppECCControllerTest` - Tests `OnboardingAppECCService` (controller consolidated into service)
+- `OnboardingAppVendorProgramReqCtlrTest` - Tests `OnboardingAppVendorProgramReqSvc` (controller consolidated into service)
 - `OnboardingRequirementsPanelCtlrTest`
 - `OnboardingStatusRuleControllerTest`
 - `OnboardingStatusRulesEngineCtlrTest`
@@ -24,13 +25,18 @@ This document lists all test classes in the OnboardingV2 project and provides co
 - `EmailTemplateSyncControllerTest`
 
 #### Services
-- `VendorOnboardingWizardServiceTest`
+
+- `VendorOnboardingWizardServiceTest` - **Removed** (facade service eliminated, tests moved to domain service tests)
 - `OnboardingAppECCServiceTest`
+- `VendorDomainServiceTest` - Tests consolidated Vendor/VendorProgram/VendorProgramGroup operations
+- `RequirementDomainServiceTest` - Tests consolidated Requirement/RequirementGroup operations
+- `CommunicationDomainServiceTest` - Tests consolidated CommunicationTemplate/RecipientGroup operations
 - `OnboardingEligibilityServiceTest`
 - `OnboardingRulesServiceTest`
 - `EmailTemplateSyncServiceTest`
 
 #### Repositories
+
 - `OnboardingRepositoryTest`
 - `OnboardingRulesRepositoryTest`
 - `OnboardingAppVendorProgramReqRepoTest`
@@ -45,12 +51,14 @@ This document lists all test classes in the OnboardingV2 project and provides co
 - `VendorOnboardingWizardRepositoryTest`
 
 #### Handlers
+
 - `VersioningTriggerHandlerTest`
 - `VendorProgramTriggerHandlerTest`
 - `VendorProgramReqGroupTriggerHandlerTest`
 - `OnboardingAppVendorProgramReqHdlrTest`
 
 #### Orchestrators
+
 - `OrgWideEmailSyncOrchestratorTest`
 - `EmailTemplateSyncOrchestratorTest`
 - `RecipientGroupEmailOrchestratorTest`
@@ -58,30 +66,37 @@ This document lists all test classes in the OnboardingV2 project and provides co
 - `OnboardingAppVendorProgramReqOrchTest`
 
 #### Actions
+
 - `OnboardingAppActivationActionTest`
 - `RecipientGroupEmailActionTest`
 - `EmailTemplateSyncFlowActionTest`
 
 #### Jobs
+
 - `EmailCommTerritoryRoleSyncJobTest`
 
 #### Helpers
+
 - `EmailCommTerritoryRoleHelperTest`
 - `UtilitiesSyncLogHelperTest`
 
 #### Resolvers
+
 - `RecipientGroupResolverTest`
 
 #### Rules
+
 - `OnlyOneActiveRecGrpPerPrgrmRuleTest`
 - `RequireParentVersionOnActivationRuleTest`
 - `RecipientAndProgramMustBeActiveRuleTest`
 - `PreventDupRecGrpAssignmentRuleTest`
 
 #### DTOs
+
 - `OrgWideEmailDTOTest`
 
 #### Test Directory Classes
+
 - `FollowUpDetectionServiceTest`
 - `FollowUpProcessorTest`
 - `FollowUpExecutionServiceTest`
@@ -224,7 +239,7 @@ echo "Running Apex tests..."
 ## Test Results Location
 
 - **Jest Results**: Console output + coverage reports in `coverage/` directory
-- **Apex Results**: 
+- **Apex Results**:
   - Console output
   - JUnit XML files in `test-results/` directory
   - Coverage shown in console and Salesforce org

@@ -15,12 +15,14 @@ The onboarding system follows a three-layer architecture pattern that separates 
 **Purpose**: Handles user interactions and high-level process orchestration.
 
 **Components:**
+
 - Lightning Web Components (LWC)
-- Salesforce Flows (APP_*)
+- Salesforce Flows (APP\_\*)
 - Lightning Record Pages
 - Screen Flows
 
 **Responsibilities:**
+
 - User interface rendering
 - User input handling
 - Process orchestration
@@ -28,75 +30,90 @@ The onboarding system follows a three-layer architecture pattern that separates 
 - Progress tracking
 
 **Key Flows:**
+
 - `APP_Onboarding` - Main onboarding orchestration
 
 **Key Components:**
+
 - `onboardingFlowEngine` - Flow controller
 - `onboardingStageRenderer` - Component renderer
 - `vendorProgramOnboardingFlow` - Entry point
 - `onboardingRequirementsPanel` - Requirements UI
 
 **Communication:**
+
 - Calls Business Logic Layer services
 - Receives data from Business Logic Layer
 - Delegates data operations to Domain Layer
 
-### Business Logic Layer
+### Service Layer
 
-**Purpose**: Contains business rules, validation, and coordination logic.
+**Purpose**: Contains consolidated domain services with business rules, validation, and LWC/Flow integration.
 
 **Components:**
-- Apex Services (*Service.cls)
-- Apex Orchestrators (*Orch.cls)
-- Apex Controllers (*Ctlr.cls)
-- Apex Handlers (*Hdlr.cls)
-- Salesforce Flows (BLL_*)
+
+- Apex Domain Services (\*DomainService.cls) - Consolidated services by domain
+- Apex Business Logic Services (\*Service.cls) - Core business logic
+- Apex Controllers (\*Ctlr.cls) - Only complex controllers
+- Apex Handlers (\*Hdlr.cls)
+- Salesforce Flows (BLL\_\*)
 
 **Responsibilities:**
+
 - Business rule enforcement
 - Validation logic
-- Service coordination
+- LWC integration (via @AuraEnabled methods)
+- Flow integration (via @InvocableMethod annotations)
 - Status evaluation
 - Rules engine execution
 
-**Key Classes:**
+**Key Consolidated Domain Services:**
+
+- `VendorDomainService` - Vendor, VendorProgram, VendorProgramGroup operations
+- `RequirementDomainService` - VendorProgramRequirement, VendorProgramRequirementGroup operations
+- `CommunicationDomainService` - CommunicationTemplate, RecipientGroup operations
+- `VendorOnboardingService` - Vendor eligibility and onboarding logic (with LWC/Flow adapters)
+- `EmailSyncDomainService` - Email template and org-wide email synchronization
+
+**Key Business Logic Services:**
+
 - `OnboardingApplicationService` - Process management
 - `OnboardingRulesService` - Rules data access
 - `OnboardingStatusEvaluator` - Status evaluation
 - `OnboardingRuleEvaluator` - Rule evaluation
-- `OnboardingAppActivationOrchestrator` - Activation workflow
+- `OnboardingAppActivationService` - Activation workflow (with @AuraEnabled)
 - `OnboardingAccessService` - Ownership and view filter resolution
 - `OnboardingDashboardFilterService` - Dashboard filter logic
 - `OnboardingBlockingDetectionService` - Blocking and at-risk detection
-- **Domain-Specific Services** (following Single Responsibility Principle):
-  - `VendorService` - Vendor operations
-  - `VendorProgramService` - Vendor Program operations
-  - `VendorProgramGroupService` - Vendor Program Group operations
-  - `VendorProgramRequirementGroupService` - Requirement Group operations
-  - `VendorProgramRequirementService` - Requirement operations
-  - `OnboardingRequirementSetService` - Requirement Set operations
-  - `RecipientGroupService` - Recipient Group operations
-  - `StatusRulesEngineService` - Status Rules Engine operations
-  - `CommunicationTemplateService` - Communication Template operations
-- **Utility Classes:**
-  - `ValidationHelper` - Centralized input validation
-  - `DefaultValueHelper` - Centralized default value assignment
-  - `PicklistHelper` - Centralized picklist value retrieval
-  - `StageCompletionConfig` - Stage completion configuration
-- **Strategy Classes:**
-  - `ActivationStrategy` - Activation strategy interface
-  - `EmailSenderStrategy` - Email sender strategy interface
-  - `ActivationStrategyFactory` - Activation strategy factory
-  - `EmailSenderStrategyFactory` - Email sender strategy factory
+- `OnboardingRequirementSetService` - Requirement Set operations
+- `StatusRulesEngineService` - Status Rules Engine operations
+
+**Utility Classes:**
+
+- `ValidationHelper` - Centralized input validation
+- `DefaultValueHelper` - Centralized default value assignment
+- `PicklistHelper` - Centralized picklist value retrieval
+- `StageCompletionConfig` - Stage completion configuration
+
+**Strategy Classes:**
+
+- `ActivationStrategy` - Activation strategy interface
+- `EmailSenderStrategy` - Email sender strategy interface
+- `ActivationStrategyFactory` - Activation strategy factory
+- `EmailSenderStrategyFactory` - Email sender strategy factory
 
 **Key Flows:**
+
 - `BLL_Training_Assignment_Credential_RCD_Unique_Key_Creation`
 - `BLL_Contact_Training_Assignment_RCD_Update_Related_Records`
 - `BLL_External_Contact_Credential_RCD_Execute_Supplemental_Onboarding_Requirements`
 - `BLL_Order_RCD_GET_Onboarding_Record`
 
 **Communication:**
-- Called by Application Layer
+
+- Called directly by Application Layer (LWC/Flow)
+- Methods annotated with `@AuraEnabled` for LWC integration
+- Methods annotated with `@InvocableMethod` for Flow integration
 - Calls Repository Layer for data operations
 - Contains business logic only (no direct SOQL/DML)
 - Repositories handle all data access (SOQL, DML)
@@ -106,11 +123,13 @@ The onboarding system follows a three-layer architecture pattern that separates 
 **Purpose**: Handles data operations and domain-specific logic.
 
 **Components:**
-- Salesforce Flows (DOMAIN_*)
+
+- Salesforce Flows (DOMAIN\_\*)
 - Record-Triggered Flows
 - Subflows
 
 **Responsibilities:**
+
 - Data creation
 - Data updates
 - Data queries
@@ -119,6 +138,7 @@ The onboarding system follows a three-layer architecture pattern that separates 
 - Email communications
 
 **Key Flows:**
+
 - `DOMAIN_Onboarding_SFL_CREATE_Order_and_Assign_Product_to_Order`
 - `DOMAIN_Onboarding_SFL_UPDATE_Onboarding_Record`
 - `DOMAIN_Onboarding_SFL_GET_Records`
@@ -127,10 +147,12 @@ The onboarding system follows a three-layer architecture pattern that separates 
 - `DOMAIN_External_Contact_Credential_RCD_Before_Save_Flow_to_Prevent_Duplicates`
 
 **Naming Convention:**
+
 - `DOMAIN_[Object]_SFL_[Operation]_[Description]` - Subflows
 - `DOMAIN_[Object]_RCD_[Trigger]_[Description]` - Record-triggered flows
 
 **Communication:**
+
 - Called by Business Logic Layer
 - Called by Application Layer (for simple operations)
 - No business logic (pure data operations)
@@ -138,6 +160,7 @@ The onboarding system follows a three-layer architecture pattern that separates 
 ## Data Flow
 
 ### Example: Status Evaluation
+
 Application Layer
 Onboardingc record changes
 ↓
@@ -159,8 +182,8 @@ Data queries via SOQL
 Business Logic Layer
 Update Onboardingc.Onboarding_Status_c
 
-
 ### Example: Onboarding Flow
+
 Application Layer
 User navigates to Vendor Program record page
 ↓
@@ -187,7 +210,6 @@ OnboardingApplicationService.saveProgress()
 ↓
 Domain Layer (if needed)
 Data operations via flows
-
 
 ## Benefits of Layered Architecture
 
@@ -219,17 +241,19 @@ Data operations via flows
 
 ### Application Layer
 
-1. **Thin Controllers**: Keep component logic minimal
-2. **Service Delegation**: Delegate to Business Logic Layer
+1. **Direct Service Calls**: Call domain services directly via @AuraEnabled methods
+2. **Service Delegation**: Delegate to Service Layer
 3. **Error Handling**: Handle errors gracefully
 4. **Loading States**: Show loading indicators
 
-### Business Logic Layer
+### Service Layer
 
-1. **Service Classes**: Organize logic into services
-2. **No Direct Data Access**: Use Domain Layer for data
-3. **Validation**: Enforce business rules
-4. **Error Handling**: Throw meaningful exceptions
+1. **Consolidated Domain Services**: Group related functionality into domain services
+2. **@AuraEnabled Methods**: Expose methods directly to LWC components
+3. **@InvocableMethod Annotations**: Expose methods to Flows
+4. **No Direct Data Access**: Use Repository Layer for data
+5. **Validation**: Enforce business rules
+6. **Error Handling**: Throw meaningful exceptions
 
 ### Domain Layer
 
@@ -243,34 +267,41 @@ Data operations via flows
 **Purpose**: Handles all data access operations (SOQL, DML).
 
 **Components:**
+
 - Apex Repositories (*Repo.cls, *Repository.cls)
 - Located in `repository/` subdirectory
 
 **Responsibilities:**
+
 - SOQL queries
 - DML operations (insert, update, delete, upsert)
 - Query optimization
 - Data integrity operations
 
 **Must NOT:**
+
 - Contain business logic
 - Perform validation (except data integrity)
 - Transform data (except for query results)
 
 **Example:**
+
 ```apex
 public with sharing class OnboardingAppECCRepository {
-    public static List<Required_Credential__c> fetchRequiredCredentials(Id vendorProgramId) {
-        return [
-            SELECT Id, Name, External_Contact_Credential_Type__c
-            FROM Required_Credential__c
-            WHERE Vendor_Customization__c = :vendorProgramId
-        ];
-    }
+  public static List<Required_Credential__c> fetchRequiredCredentials(
+    Id vendorProgramId
+  ) {
+    return [
+      SELECT Id, Name, External_Contact_Credential_Type__c
+      FROM Required_Credential__c
+      WHERE Vendor_Customization__c = :vendorProgramId
+    ];
+  }
 }
 ```
 
 **Communication:**
+
 - Called by Business Logic Layer services
 - No business logic (pure data operations)
 

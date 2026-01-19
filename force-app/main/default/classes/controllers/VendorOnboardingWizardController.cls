@@ -1,25 +1,27 @@
 public with sharing class VendorOnboardingWizardController {
   // -------------------------------
   // Vendor
+  // Consolidates VendorOnboardingWizardService facade - removed facade layer
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor__c> searchVendors(String vendorNameSearchText) {
-    return VendorOnboardingWizardService.searchVendors(vendorNameSearchText);
+    return VendorDomainService.searchVendors(vendorNameSearchText);
   }
 
   @AuraEnabled
   public static Id createVendor(Vendor__c vendor) {
-    return VendorOnboardingWizardService.createVendor(vendor);
+    return VendorDomainService.createVendor(vendor);
   }
 
   // -------------------------------
   // Vendor Program
+  // Consolidates VendorOnboardingWizardService facade - removed facade layer
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Customization__c> searchVendorPrograms(
     String vendorProgramNameSearchText
   ) {
-    return VendorOnboardingWizardService.searchVendorPrograms(
+    return VendorDomainService.searchVendorPrograms(
       vendorProgramNameSearchText
     );
   }
@@ -37,7 +39,7 @@ public with sharing class VendorOnboardingWizardController {
     Boolean accountHasNda,
     Boolean accountHasProgramBase
   ) {
-    return VendorOnboardingWizardService.searchVendorProgramsForAccount(
+    return VendorDomainService.searchVendorProgramsForAccount(
       accountId,
       vendorProgramNameSearchText,
       eligibilityPassed,
@@ -48,21 +50,56 @@ public with sharing class VendorOnboardingWizardController {
 
   /**
    * Returns NDA/Base Application eligibility for a given Account.
+   * Consolidates VendorOnboardingWizardService facade - moved unique logic to controller
    */
   @AuraEnabled(cacheable=true)
-  public static VendorOnboardingWizardService.VendorProgramEligibilityResult getVendorProgramEligibilityForAccount(
+  public static VendorProgramEligibilityResult getVendorProgramEligibilityForAccount(
     Id accountId
   ) {
-    return VendorOnboardingWizardService.getVendorProgramEligibilityForAccount(
+    ValidationHelper.requireId(accountId, 'Account ID');
+    VendorOnboardingWizardRepository.AccountEligibility eligibility = VendorOnboardingWizardRepository.getAccountOnboardingEligibility(
       accountId
     );
+
+    Boolean eligible = eligibility.hasNda && eligibility.hasProgramBase;
+    String message;
+    if (eligible) {
+      message = 'Eligible for all vendor programs.';
+    } else if (!eligibility.hasNda && !eligibility.hasProgramBase) {
+      message = 'NDA and Program Base Application must be completed.';
+    } else if (!eligibility.hasNda) {
+      message = 'NDA must be completed.';
+    } else {
+      message = 'Program Base Application must be completed.';
+    }
+
+    VendorProgramEligibilityResult eligibilityResult = new VendorProgramEligibilityResult();
+    eligibilityResult.eligibilityPassed = eligible;
+    eligibilityResult.hasNda = eligibility.hasNda;
+    eligibilityResult.hasProgramBase = eligibility.hasProgramBase;
+    eligibilityResult.message = message;
+    return eligibilityResult;
   }
 
   @AuraEnabled(cacheable=true)
-  public static List<VendorOnboardingWizardService.ContactRoleDTO> getAccountContactsWithRoles(
-    Id accountId
-  ) {
-    return VendorOnboardingWizardService.getAccountContactsWithRoles(accountId);
+  public static List<ContactRoleDTO> getAccountContactsWithRoles(Id accountId) {
+    ValidationHelper.requireId(accountId, 'Account ID');
+    List<VendorOnboardingWizardRepository.ContactRoleInfo> infos = VendorOnboardingWizardRepository.getAccountContactsWithRoles(
+      accountId
+    );
+    List<ContactRoleDTO> contactRoleDTOList = new List<ContactRoleDTO>();
+    for (
+      VendorOnboardingWizardRepository.ContactRoleInfo contactRoleInfo : infos
+    ) {
+      ContactRoleDTO contactRoleDTO = new ContactRoleDTO();
+      contactRoleDTO.contactId = contactRoleInfo.contactId;
+      contactRoleDTO.name = contactRoleInfo.name;
+      contactRoleDTO.email = contactRoleInfo.email;
+      contactRoleDTO.role = contactRoleInfo.role;
+      contactRoleDTO.hasAcr = contactRoleInfo.hasAcr;
+      contactRoleDTOList.add(contactRoleDTO);
+    }
+    return contactRoleDTOList;
   }
 
   @AuraEnabled
@@ -71,7 +108,14 @@ public with sharing class VendorOnboardingWizardController {
     Id contactId,
     String role
   ) {
-    return VendorOnboardingWizardService.upsertAccountContactRelation(
+    ValidationHelper.requireId(accountId, 'Account ID');
+    ValidationHelper.requireId(contactId, 'Contact ID');
+    if (String.isBlank(role)) {
+      throw new AuraHandledException(
+        'Role is required for Contact ' + String.valueOf(contactId)
+      );
+    }
+    return VendorOnboardingWizardRepository.upsertAccountContactRelation(
       accountId,
       contactId,
       role
@@ -80,6 +124,7 @@ public with sharing class VendorOnboardingWizardController {
 
   // -------------------------------
   // Onboarding Opportunity + OCR + AVO
+  // Consolidates VendorOnboardingWizardService facade - moved unique logic to controller
   // -------------------------------
   @AuraEnabled
   public static Id createOnboardingOpportunity(
@@ -89,13 +134,22 @@ public with sharing class VendorOnboardingWizardController {
     Date closeDate,
     Id recordTypeId
   ) {
-    return VendorOnboardingWizardService.createOnboardingOpportunity(
-      accountId,
-      name,
-      stageName,
-      closeDate,
-      recordTypeId
+    ValidationHelper.requireId(accountId, 'Account ID');
+    if (String.isBlank(name)) {
+      throw new AuraHandledException('Opportunity Name is required.');
+    }
+    Opportunity opp = new Opportunity(
+      AccountId = accountId,
+      Name = name,
+      StageName = stageName,
+      CloseDate = closeDate
     );
+    if (recordTypeId != null) {
+      opp.RecordTypeId = recordTypeId;
+    }
+    opp = DefaultValueHelper.applyOnboardingOpportunityDefaults(opp);
+    insert opp;
+    return opp.Id;
   }
 
   @AuraEnabled
@@ -105,12 +159,16 @@ public with sharing class VendorOnboardingWizardController {
     String role,
     Boolean isPrimary
   ) {
-    return VendorOnboardingWizardService.upsertOpportunityContactRole(
-      opportunityId,
-      contactId,
-      role,
-      isPrimary
+    ValidationHelper.requireId(opportunityId, 'Opportunity ID');
+    ValidationHelper.requireId(contactId, 'Contact ID');
+    OpportunityContactRole ocr = new OpportunityContactRole(
+      OpportunityId = opportunityId,
+      ContactId = contactId,
+      Role = role,
+      IsPrimary = isPrimary == null ? false : isPrimary
     );
+    insert ocr;
+    return ocr.Id;
   }
 
   @AuraEnabled
@@ -121,22 +179,28 @@ public with sharing class VendorOnboardingWizardController {
     String status,
     Id primaryContactId
   ) {
-    return VendorOnboardingWizardService.createAccountVendorProgramOnboarding(
-      accountId,
-      onboardingId,
-      opportunityId,
-      status,
-      primaryContactId
+    ValidationHelper.requireId(accountId, 'Account ID');
+    ValidationHelper.requireId(onboardingId, 'Onboarding ID');
+    Account_Vendor_Program_Onboarding__c avo = new Account_Vendor_Program_Onboarding__c(
+      Account__c = accountId,
+      Onboarding__c = onboardingId,
+      Opportunity__c = opportunityId,
+      Status__c = String.isNotBlank(status) ? status : 'Intake',
+      Primary_Contact__c = primaryContactId
     );
+    insert avo;
+    return avo.Id;
   }
 
   @AuraEnabled
-  public static VendorOnboardingWizardService.OnboardingWithRequirementsResult createOnboardingWithRequirements(
+  public static OnboardingWithRequirementsResult createOnboardingWithRequirements(
     Id accountId,
     Id vendorProgramId,
     Id opportunityId
   ) {
-    return VendorOnboardingWizardService.createOnboardingWithRequirements(
+    ValidationHelper.requireId(accountId, 'Account ID');
+    ValidationHelper.requireId(vendorProgramId, 'Vendor Program ID');
+    return VendorOnboardingWizardRepository.createOnboardingWithRequirements(
       accountId,
       vendorProgramId,
       opportunityId
@@ -147,7 +211,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Customization__c> getRecentVendorPrograms(
     Integer limitCount
   ) {
-    return VendorOnboardingWizardService.getRecentVendorPrograms(limitCount);
+    return VendorDomainService.getRecentVendorPrograms(limitCount);
   }
 
   @AuraEnabled
@@ -155,32 +219,30 @@ public with sharing class VendorOnboardingWizardController {
     Vendor_Customization__c vendorProgram,
     Id vendorId
   ) {
-    return VendorOnboardingWizardService.createVendorProgram(
-      vendorProgram,
-      vendorId
-    );
+    return VendorDomainService.createVendorProgram(vendorProgram, vendorId);
   }
 
   // -------------------------------
   // Vendor Program Group
+  // Consolidates VendorOnboardingWizardService facade - removed facade layer
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Group__c> searchVendorProgramGroups(
     String vendorProgramGroupNameSearchText
   ) {
-    return VendorOnboardingWizardService.searchVendorProgramGroups(
+    return VendorDomainService.searchVendorProgramGroups(
       vendorProgramGroupNameSearchText
     );
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Group__c> getAllVendorProgramGroups() {
-    return VendorOnboardingWizardService.getAllVendorProgramGroups();
+    return VendorDomainService.getAllVendorProgramGroups();
   }
 
   @AuraEnabled(cacheable=true)
   public static Id getVendorProgramGroupForVendorProgram(Id vendorProgramId) {
-    return VendorOnboardingWizardService.getVendorProgramGroupForVendorProgram(
+    return VendorDomainService.getVendorProgramGroupForVendorProgram(
       vendorProgramId
     );
   }
@@ -189,7 +251,7 @@ public with sharing class VendorOnboardingWizardController {
   public static Id getVendorProgramRequirementGroupForVendorProgram(
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.getVendorProgramRequirementGroupForVendorProgram(
+    return VendorDomainService.getVendorProgramRequirementGroupForVendorProgram(
       vendorProgramId
     );
   }
@@ -198,9 +260,7 @@ public with sharing class VendorOnboardingWizardController {
   public static Id createVendorProgramGroup(
     Vendor_Program_Group__c vendorProgramGroup
   ) {
-    return VendorOnboardingWizardService.createVendorProgramGroup(
-      vendorProgramGroup
-    );
+    return VendorDomainService.createVendorProgramGroup(vendorProgramGroup);
   }
 
   @AuraEnabled(cacheable=true)
@@ -307,26 +367,27 @@ public with sharing class VendorOnboardingWizardController {
 
   // -------------------------------
   // Vendor Program Requirement Group
+  // Consolidates VendorProgramRequirementGroupService - Phase 2 consolidation
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Requirement_Group__c> searchVendorProgramRequirementGroups(
     String requirementGroupNameSearchText
   ) {
-    return VendorOnboardingWizardService.searchVendorProgramRequirementGroups(
+    return RequirementDomainService.searchVendorProgramRequirementGroups(
       requirementGroupNameSearchText
     );
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Requirement_Group__c> getAllVendorProgramRequirementGroups() {
-    return VendorOnboardingWizardService.getAllVendorProgramRequirementGroups();
+    return RequirementDomainService.getAllVendorProgramRequirementGroups();
   }
 
   @AuraEnabled
   public static Id createVendorProgramRequirementGroup(
     Vendor_Program_Requirement_Group__c vendorProgramRequirementGroup
   ) {
-    return VendorOnboardingWizardService.createVendorProgramRequirementGroup(
+    return RequirementDomainService.createVendorProgramRequirementGroup(
       vendorProgramRequirementGroup
     );
   }
@@ -338,7 +399,7 @@ public with sharing class VendorOnboardingWizardController {
     Id vendorProgramGroupId,
     Id vendorProgramRequirementGroupId
   ) {
-    VendorOnboardingWizardService.finalizeVendorProgram(
+    VendorDomainService.finalizeVendorProgram(
       vendorProgramId,
       vendorId,
       vendorProgramGroupId,
@@ -350,11 +411,15 @@ public with sharing class VendorOnboardingWizardController {
   // Vendor Program Requirement Group
   // -------------------------------
 
+  // -------------------------------
+  // Vendor Program Requirement
+  // Consolidates VendorProgramRequirementService - Phase 2 consolidation
+  // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Requirement__c> searchVendorProgramRequirements(
     String vendorProgramRequirements
   ) {
-    return VendorOnboardingWizardService.searchVendorProgramRequirements(
+    return RequirementDomainService.searchVendorProgramRequirements(
       vendorProgramRequirements
     );
   }
@@ -363,7 +428,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Requirement__c> getRecentVendorProgramRequirements(
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.getRecentVendorProgramRequirements(
+    return RequirementDomainService.getRecentVendorProgramRequirements(
       vendorProgramId
     );
   }
@@ -372,16 +437,14 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Requirement__c> getRequirementsByGroup(
     Id requirementGroupId
   ) {
-    return VendorOnboardingWizardService.getRequirementsByGroup(
-      requirementGroupId
-    );
+    return RequirementDomainService.getRequirementsByGroup(requirementGroupId);
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Onboarding_Req_Template__c> getTemplatesByGroup(
     Id requirementGroupId
   ) {
-    return VendorOnboardingWizardService.getTemplatesByGroup(
+    return OnboardingRequirementSetService.getTemplatesByGroup(
       requirementGroupId
     );
   }
@@ -390,14 +453,14 @@ public with sharing class VendorOnboardingWizardController {
   public static Id createVendorProgramRequirement(
     Vendor_Program_Requirement__c vendorProgramRequirement
   ) {
-    return VendorOnboardingWizardService.createVendorProgramRequirement(
+    return RequirementDomainService.createVendorProgramRequirement(
       vendorProgramRequirement
     );
   }
 
   @AuraEnabled
   public static void deleteVendorProgramRequirement(Id requirementId) {
-    VendorOnboardingWizardService.deleteVendorProgramRequirement(requirementId);
+    RequirementDomainService.deleteVendorProgramRequirement(requirementId);
   }
 
   @AuraEnabled
@@ -407,7 +470,7 @@ public with sharing class VendorOnboardingWizardController {
     String defaultStatus,
     Boolean defaultIsRequired
   ) {
-    VendorOnboardingWizardService.BulkCreateRequirementsResult bulkCreateResult = VendorOnboardingWizardService.bulkCreateRequirementsFromTemplates(
+    RequirementDomainService.BulkCreateRequirementsResult bulkCreateResult = RequirementDomainService.bulkCreateRequirementsFromTemplates(
       vendorProgramId,
       templateIds,
       defaultStatus,
@@ -426,14 +489,14 @@ public with sharing class VendorOnboardingWizardController {
   public static void updateRequirementSequences(
     List<Vendor_Program_Requirement__c> requirements
   ) {
-    VendorOnboardingWizardService.updateRequirementSequences(requirements);
+    RequirementDomainService.updateRequirementSequences(requirements);
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Requirement__c> getRequirementsForVendorProgram(
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.getRecentVendorProgramRequirements(
+    return RequirementDomainService.getRecentVendorProgramRequirements(
       vendorProgramId
     );
   }
@@ -449,22 +512,21 @@ public with sharing class VendorOnboardingWizardController {
 
   // -------------------------------
   // Onboarding Status Rules Engine
+  // Consolidates VendorOnboardingWizardService facade - removed facade layer
   // -------------------------------
 
   @AuraEnabled(cacheable=true)
   public static List<Onboarding_Status_Rules_Engine__c> searchStatusRulesEngines(
     String nameSearchText
   ) {
-    return VendorOnboardingWizardService.searchStatusRulesEngines(
-      nameSearchText
-    );
+    return StatusRulesEngineService.searchStatusRulesEngines(nameSearchText);
   }
 
   @AuraEnabled
   public static Id createOnboardingStatusRulesEngine(
     Onboarding_Status_Rules_Engine__c onboardingStatusRulesEngine
   ) {
-    return VendorOnboardingWizardService.createOnboardingStatusRulesEngine(
+    return StatusRulesEngineService.createOnboardingStatusRulesEngine(
       onboardingStatusRulesEngine
     );
   }
@@ -473,23 +535,26 @@ public with sharing class VendorOnboardingWizardController {
   public static Onboarding_Status_Rules_Engine__c getStatusRulesEngineById(
     Id engineId
   ) {
-    return VendorOnboardingWizardService.getStatusRulesEngineById(engineId);
+    return StatusRulesEngineService.getStatusRulesEngineById(engineId);
   }
 
   // -------------------------------
   // Onboarding Status Rules
+  // Consolidates VendorOnboardingWizardService facade - removed facade layer
   // -------------------------------
 
   @AuraEnabled
-  public static Id createStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
-    return VendorOnboardingWizardService.createStatusRule(statusRuleRecord);
+  public static Id createStatusRule(
+    Onboarding_Status_Rule__c statusRuleRecord
+  ) {
+    return StatusRulesEngineService.createStatusRule(statusRuleRecord);
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Onboarding_Status_Rule__c> searchStatusRules(
     String nameSearchText
   ) {
-    return VendorOnboardingWizardService.searchStatusRules(nameSearchText);
+    return StatusRulesEngineService.searchStatusRules(nameSearchText);
   }
 
   @AuraEnabled(cacheable=true)
@@ -513,11 +578,12 @@ public with sharing class VendorOnboardingWizardController {
 
   // -------------------------------
   // Communication Templates
+  // Consolidates CommunicationTemplateService - Phase 2 consolidation
   // -------------------------------
 
   @AuraEnabled(cacheable=true)
   public static List<Communication_Template__c> getCommunicationTemplates() {
-    return VendorOnboardingWizardService.getCommunicationTemplates();
+    return CommunicationDomainService.getCommunicationTemplates();
   }
 
   @AuraEnabled
@@ -525,7 +591,7 @@ public with sharing class VendorOnboardingWizardController {
     Id vendorProgramId,
     Id templateId
   ) {
-    VendorOnboardingWizardService.linkCommunicationTemplateToVendorProgram(
+    CommunicationDomainService.linkCommunicationTemplateToVendorProgram(
       vendorProgramId,
       templateId
     );
@@ -539,7 +605,7 @@ public with sharing class VendorOnboardingWizardController {
   public static Id createOnboardingRequirementSet(
     Onboarding_Requirement_Set__c requirementSet
   ) {
-    return VendorOnboardingWizardService.createOnboardingRequirementSet(
+    return OnboardingRequirementSetService.createOnboardingRequirementSet(
       requirementSet
     );
   }
@@ -549,8 +615,9 @@ public with sharing class VendorOnboardingWizardController {
     Vendor_Program_Onboarding_Req_Template__c template
   ) {
     // Delegate to service which handles junction linking
-    return VendorOnboardingWizardService.createOnboardingRequirementTemplate(
-      template
+    return OnboardingRequirementSetService.createOnboardingRequirementTemplate(
+      template,
+      new List<Id>()
     );
   }
 
@@ -642,7 +709,9 @@ public with sharing class VendorOnboardingWizardController {
   public static void updateOnboardingRequirementTemplate(
     Vendor_Program_Onboarding_Req_Template__c template
   ) {
-    VendorOnboardingWizardService.updateOnboardingRequirementTemplate(template);
+    OnboardingRequirementSetService.updateOnboardingRequirementTemplate(
+      template
+    );
   }
 
   @AuraEnabled(cacheable=true)
@@ -670,7 +739,7 @@ public with sharing class VendorOnboardingWizardController {
 
   @AuraEnabled(cacheable=true)
   public static List<Onboarding_Requirement_Set__c> getOnboardingRequirementSets() {
-    return VendorOnboardingWizardService.getOnboardingRequirementSets();
+    return OnboardingRequirementSetService.getOnboardingRequirementSets();
   }
 
   @AuraEnabled
@@ -678,7 +747,7 @@ public with sharing class VendorOnboardingWizardController {
     String searchText,
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.searchOnboardingRequirementSets(
+    return OnboardingRequirementSetService.searchOnboardingRequirementSets(
       searchText,
       vendorProgramId
     );
@@ -689,7 +758,7 @@ public with sharing class VendorOnboardingWizardController {
    */
   @AuraEnabled(cacheable=true)
   public static List<RequirementSetHierarchyDTO> getRequirementSetsWithTemplates() {
-    List<Onboarding_Requirement_Set__c> requirementSets = VendorOnboardingWizardService.getRequirementSetsWithTemplates();
+    List<Onboarding_Requirement_Set__c> requirementSets = OnboardingRequirementSetService.getRequirementSetsWithTemplates();
     return buildRequirementSetHierarchy(requirementSets);
   }
 
@@ -700,7 +769,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<RequirementSetHierarchyDTO> searchRequirementSetsWithTemplates(
     String searchText
   ) {
-    List<Onboarding_Requirement_Set__c> requirementSets = VendorOnboardingWizardService.searchRequirementSetsWithTemplates(
+    List<Onboarding_Requirement_Set__c> requirementSets = OnboardingRequirementSetService.searchRequirementSetsWithTemplates(
       searchText
     );
     return buildRequirementSetHierarchy(requirementSets);
@@ -798,7 +867,9 @@ public with sharing class VendorOnboardingWizardController {
       List<Vendor_Program_Onboarding_Req_Template__c> requirementTemplates = templatesByRequirementSet.get(
         reqSet.Id
       );
-      reqSetDTO.templateCount = requirementTemplates != null ? requirementTemplates.size() : 0;
+      reqSetDTO.templateCount = requirementTemplates != null
+        ? requirementTemplates.size()
+        : 0;
       reqSetDTO.createdDate = reqSet.CreatedDate;
       reqSetDTO.lastModifiedDate = reqSet.LastModifiedDate;
       reqSetDTO.children = new List<RequirementSetHierarchyDTO>();
@@ -836,7 +907,7 @@ public with sharing class VendorOnboardingWizardController {
   public static Onboarding_Requirement_Set__c getRequirementSetById(
     Id requirementSetId
   ) {
-    return VendorOnboardingWizardService.getRequirementSetById(
+    return OnboardingRequirementSetService.getRequirementSetById(
       requirementSetId
     );
   }
@@ -846,7 +917,7 @@ public with sharing class VendorOnboardingWizardController {
     Id requirementSetId,
     Id vendorProgramId
   ) {
-    VendorOnboardingWizardService.linkRequirementSetToVendorProgram(
+    OnboardingRequirementSetService.linkRequirementSetToVendorProgram(
       requirementSetId,
       vendorProgramId
     );
@@ -857,7 +928,7 @@ public with sharing class VendorOnboardingWizardController {
     Id existingRequirementSetId,
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.createRequirementSetFromExisting(
+    return OnboardingRequirementSetService.createRequirementSetFromExisting(
       existingRequirementSetId,
       vendorProgramId
     );
@@ -867,7 +938,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Onboarding_Req_Template__c> getTemplatesForRequirementSet(
     Id requirementSetId
   ) {
-    return VendorOnboardingWizardService.getTemplatesForRequirementSet(
+    return OnboardingRequirementSetService.getTemplatesForRequirementSet(
       requirementSetId
     );
   }
@@ -877,7 +948,7 @@ public with sharing class VendorOnboardingWizardController {
     Id templateId,
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.createRequirementFromTemplate(
+    return OnboardingRequirementSetService.createRequirementFromTemplate(
       templateId,
       vendorProgramId
     );
@@ -887,7 +958,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Group_Member__c> getHistoricalGroupMembers(
     Id requirementSetId
   ) {
-    return VendorOnboardingWizardService.getHistoricalGroupMembers(
+    return OnboardingRequirementSetService.getHistoricalGroupMembers(
       requirementSetId
     );
   }
@@ -898,7 +969,7 @@ public with sharing class VendorOnboardingWizardController {
     Id requirementSetId,
     Boolean useHistorical
   ) {
-    return VendorOnboardingWizardService.createRequirementGroupComponents(
+    return OnboardingRequirementSetService.createRequirementGroupComponents(
       vendorProgramId,
       requirementSetId,
       useHistorical
@@ -909,7 +980,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Onboarding_Status_Rules_Engine__c> getHistoricalStatusRulesEngines(
     Id requirementSetId
   ) {
-    return VendorOnboardingWizardService.getHistoricalStatusRulesEngines(
+    return OnboardingRequirementSetService.getHistoricalStatusRulesEngines(
       requirementSetId
     );
   }
@@ -918,7 +989,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Onboarding_Req_Template__c> getRequirementTemplatesForSet(
     Id requirementSetId
   ) {
-    return VendorOnboardingWizardService.getRequirementTemplatesForSet(
+    return OnboardingRequirementSetService.getRequirementTemplatesForSet(
       requirementSetId
     );
   }
@@ -929,7 +1000,7 @@ public with sharing class VendorOnboardingWizardController {
     List<Id> templateIdsToLink,
     List<Id> templateIdsToUnlink
   ) {
-    VendorOnboardingWizardService.updateRequirementTemplateGroupLinks(
+    OnboardingRequirementSetService.updateRequirementTemplateGroupLinks(
       requirementGroupId,
       templateIdsToLink,
       templateIdsToUnlink
@@ -941,7 +1012,7 @@ public with sharing class VendorOnboardingWizardController {
     Id requirementGroupId,
     List<Id> templateIds
   ) {
-    VendorOnboardingWizardService.assignTemplatesToRequirementGroup(
+    OnboardingRequirementSetService.assignTemplatesToRequirementGroup(
       requirementGroupId,
       templateIds
     );
@@ -949,38 +1020,40 @@ public with sharing class VendorOnboardingWizardController {
 
   // -------------------------------
   // Recipient Groups
+  // Consolidates RecipientGroupService - Phase 2 consolidation
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Recipient_Group__c> searchRecipientGroups(
     String recipientGroupNameSearchText
   ) {
-    return VendorOnboardingWizardService.searchRecipientGroups(
+    return CommunicationDomainService.searchRecipientGroups(
       recipientGroupNameSearchText
     );
   }
 
   @AuraEnabled
   public static Id createRecipientGroup(Recipient_Group__c recipientGroup) {
-    return VendorOnboardingWizardService.createRecipientGroup(recipientGroup);
+    return CommunicationDomainService.createRecipientGroup(recipientGroup);
   }
 
   @AuraEnabled
   public static Id createRecipientGroupMember(
     Recipient_Group_Member__c recipientGroupMember
   ) {
-    return VendorOnboardingWizardService.createRecipientGroupMember(
+    return CommunicationDomainService.createRecipientGroupMember(
       recipientGroupMember
     );
   }
 
   // -------------------------------
   // Vendor Program Recipient Groups
+  // Consolidates RecipientGroupService - Phase 2 consolidation
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Vendor_Program_Recipient_Group__c> searchVendorProgramRecipientGroups(
     String vprgNameSearchText
   ) {
-    return VendorOnboardingWizardService.searchVendorProgramRecipientGroups(
+    return CommunicationDomainService.searchVendorProgramRecipientGroups(
       vprgNameSearchText
     );
   }
@@ -990,7 +1063,7 @@ public with sharing class VendorOnboardingWizardController {
     Id vendorProgramId,
     Id recipientGroupId
   ) {
-    return VendorOnboardingWizardService.createVendorProgramRecipientGroupLink(
+    return CommunicationDomainService.createVendorProgramRecipientGroupLink(
       vendorProgramId,
       recipientGroupId
     );
@@ -1000,7 +1073,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Vendor_Program_Recipient_Group__c> getRecipientGroupsForVendorProgram(
     Id vendorProgramId
   ) {
-    return VendorOnboardingWizardService.getRecipientGroupsForVendorProgram(
+    return CommunicationDomainService.getRecipientGroupsForVendorProgram(
       vendorProgramId
     );
   }
@@ -1009,7 +1082,7 @@ public with sharing class VendorOnboardingWizardController {
   public static List<Recipient_Group_Member__c> getRecipientGroupMembers(
     Id recipientGroupId
   ) {
-    return VendorOnboardingWizardService.getRecipientGroupMembers(
+    return CommunicationDomainService.getRecipientGroupMembers(
       recipientGroupId
     );
   }
@@ -1021,7 +1094,7 @@ public with sharing class VendorOnboardingWizardController {
     Id communicationTemplateId,
     String triggerCondition
   ) {
-    return VendorOnboardingWizardService.createVendorProgramRecipientGroupWithTemplate(
+    return CommunicationDomainService.createVendorProgramRecipientGroupWithTemplate(
       vendorProgramId,
       recipientGroupId,
       communicationTemplateId,
@@ -1045,29 +1118,33 @@ public with sharing class VendorOnboardingWizardController {
    */
   @AuraEnabled(cacheable=true)
   public static Map<String, Object> getOnboardingContext(Id vendorProgramId) {
-    return VendorOnboardingWizardService.getOnboardingContext(vendorProgramId);
+    return OnboardingRequirementSetService.getOnboardingContext(
+      vendorProgramId
+    );
   }
 
   // -------------------------------
   // Assignable Entities
+  // Consolidates VendorOnboardingWizardService facade - moved unique logic to controller
   // -------------------------------
   @AuraEnabled(cacheable=true)
   public static List<Territory_Role_Assignment__c> getTerritoryRoleAssignments() {
-    return VendorOnboardingWizardService.getTerritoryRoleAssignments();
+    return VendorOnboardingWizardRepository.getTerritoryRoleAssignments();
   }
 
   @AuraEnabled(cacheable=true)
   public static List<User> getAssignableUsers() {
-    return VendorOnboardingWizardService.getAssignableUsers();
+    return VendorOnboardingWizardRepository.getAssignableUsers();
   }
 
   @AuraEnabled(cacheable=true)
   public static List<Group> getPublicGroups() {
-    return VendorOnboardingWizardService.getPublicGroups();
+    return VendorOnboardingWizardRepository.getPublicGroups();
   }
 
   // -------------------------------
   // Onboarding Component Library
+  // Consolidates VendorOnboardingWizardService facade - moved unique logic to controller
   // -------------------------------
 
   @InvocableMethod(
@@ -1075,7 +1152,7 @@ public with sharing class VendorOnboardingWizardController {
     description='Populates Onboarding_Component_Library__c with wizard renderer components.'
   )
   public static void syncRendererComponents(List<Id> dummy) {
-    VendorOnboardingWizardService.syncComponentLibrary();
+    syncComponentLibraryInternal();
   }
 
   // -------------------------------
@@ -1085,7 +1162,7 @@ public with sharing class VendorOnboardingWizardController {
   @AuraEnabled
   public static String syncComponentLibrary() {
     try {
-      VendorOnboardingWizardService.syncComponentLibrary();
+      syncComponentLibraryInternal();
       return 'Component Library synced successfully. All 10 wizard components are now available in the library.';
     } catch (Exception ex) {
       throw new AuraHandledException(
@@ -1094,8 +1171,26 @@ public with sharing class VendorOnboardingWizardController {
     }
   }
 
+  private static void syncComponentLibraryInternal() {
+    List<String> components = new List<String>{
+      'vendorProgramOnboardingVendor',
+      'vendorProgramOnboardingVendorProgramSearchOrCreate',
+      'vendorProgramOnboardingRequirementSetOrCreate',
+      'vendorProgramOnboardingRequirementGroupLinking',
+      'vendorProgramOnboardingRequiredCredentials',
+      'vendorProgramOnboardingTrainingRequirements',
+      'vendorProgramOnboardingStatusRulesEngine',
+      'vendorProgramOnboardingRecipientGroup',
+      'vendorProgramOnboardingCommunicationTemplate',
+      'vendorProgramOnboardingFinalize'
+    };
+
+    VendorOnboardingWizardRepository.upsertOnboardingComponents(components);
+  }
+
   // -------------------------------
   // Default Process Initialization (Admin Utility)
+  // Consolidates VendorOnboardingWizardService facade - moved unique logic to controller
   // -------------------------------
 
   /**
@@ -1107,7 +1202,7 @@ public with sharing class VendorOnboardingWizardController {
   @AuraEnabled
   public static String initializeDefaultProcess() {
     try {
-      Id processId = VendorOnboardingWizardService.initializeDefaultVendorProgramOnboardingProcess();
+      Id processId = initializeDefaultVendorProgramOnboardingProcessInternal();
       return 'Default Vendor Program Onboarding process created successfully with all 10 stages. Process ID: ' +
         processId;
     } catch (Exception ex) {
@@ -1115,6 +1210,62 @@ public with sharing class VendorOnboardingWizardController {
         'Failed to initialize default process: ' + ex.getMessage()
       );
     }
+  }
+
+  private static Id initializeDefaultVendorProgramOnboardingProcessInternal() {
+    // Step 1: Check if process already exists
+    List<Onboarding_Application_Process__c> existingProcesses = OnboardingApplicationRepository.fetchActiveProcessesByName(
+      'Vendor Program Onboarding'
+    );
+    if (existingProcesses != null && !existingProcesses.isEmpty()) {
+      return existingProcesses[0].Id;
+    }
+
+    // Step 2: Create the process
+    Onboarding_Application_Process__c process = new Onboarding_Application_Process__c(
+      Name = 'Vendor Program Onboarding',
+      Active__c = true
+    );
+    insert process;
+
+    // Step 3: Get component library entries for the 10 wizard components
+    List<Onboarding_Component_Library__c> components = [
+      SELECT Id, Component_API_Name__c
+      FROM Onboarding_Component_Library__c
+      WHERE
+        Component_API_Name__c IN (
+          'vendorProgramOnboardingVendor',
+          'vendorProgramOnboardingVendorProgramSearchOrCreate',
+          'vendorProgramOnboardingRequirementSetOrCreate',
+          'vendorProgramOnboardingRequirementGroupLinking',
+          'vendorProgramOnboardingRequiredCredentials',
+          'vendorProgramOnboardingTrainingRequirements',
+          'vendorProgramOnboardingStatusRulesEngine',
+          'vendorProgramOnboardingRecipientGroup',
+          'vendorProgramOnboardingCommunicationTemplate',
+          'vendorProgramOnboardingFinalize'
+        )
+      ORDER BY Component_API_Name__c
+    ];
+
+    // Step 4: Create stages in order
+    List<Onboarding_Application_Stage__c> stages = new List<Onboarding_Application_Stage__c>();
+    Integer displayOrder = 1;
+    for (Onboarding_Component_Library__c component : components) {
+      stages.add(
+        new Onboarding_Application_Stage__c(
+          Onboarding_Application_Process__c = process.Id,
+          Onboarding_Component_Library__c = component.Id,
+          Display_Order__c = displayOrder++
+        )
+      );
+    }
+
+    if (!stages.isEmpty()) {
+      insert stages;
+    }
+
+    return process.Id;
   }
 
   // -------------------------------
@@ -1229,5 +1380,39 @@ public with sharing class VendorOnboardingWizardController {
     public String parentId;
     @AuraEnabled
     public List<RequirementSetHierarchyDTO> children; // Note: Apex doesn't allow _ prefix, will map to _children in JS
+  }
+
+  // -------------------------------
+  // DTO Classes (moved from VendorOnboardingWizardService facade)
+  // -------------------------------
+  public class ContactRoleDTO {
+    @AuraEnabled
+    public Id contactId;
+    @AuraEnabled
+    public String name;
+    @AuraEnabled
+    public String email;
+    @AuraEnabled
+    public String role;
+    @AuraEnabled
+    public Boolean hasAcr;
+  }
+
+  public class VendorProgramEligibilityResult {
+    @AuraEnabled
+    public Boolean eligibilityPassed;
+    @AuraEnabled
+    public Boolean hasNda;
+    @AuraEnabled
+    public Boolean hasProgramBase;
+    @AuraEnabled
+    public String message;
+  }
+
+  public class OnboardingWithRequirementsResult {
+    @AuraEnabled
+    public Id onboardingId;
+    @AuraEnabled
+    public Integer requirementCount;
   }
 }

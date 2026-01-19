@@ -503,7 +503,10 @@ public with sharing class OnboardingHomeDashboardController {
 
     // Also include onboarding with Denied status
     for (Onboarding__c onboardingRecord : onboardings) {
-      if (onboardingRecord.Onboarding_Status__c == 'Denied' && !blockedIdSet.contains(onboardingRecord.Id)) {
+      if (
+        onboardingRecord.Onboarding_Status__c == 'Denied' &&
+        !blockedIdSet.contains(onboardingRecord.Id)
+      ) {
         blockedIds.add(onboardingRecord.Id);
       }
     }
@@ -661,7 +664,7 @@ public with sharing class OnboardingHomeDashboardController {
    */
   @AuraEnabled(cacheable=true)
   public static List<VendorHierarchyDTO> getVendorsWithPrograms() {
-    List<Vendor__c> vendors = VendorOnboardingWizardService.getVendorsWithPrograms();
+    List<Vendor__c> vendors = VendorDomainService.getVendorsWithPrograms();
     return buildVendorHierarchy(vendors);
   }
 
@@ -672,7 +675,7 @@ public with sharing class OnboardingHomeDashboardController {
   public static List<VendorHierarchyDTO> searchVendorsWithPrograms(
     String searchText
   ) {
-    List<Vendor__c> vendors = VendorOnboardingWizardService.searchVendorsWithPrograms(
+    List<Vendor__c> vendors = VendorDomainService.searchVendorsWithPrograms(
       searchText
     );
     return buildVendorHierarchy(vendors);

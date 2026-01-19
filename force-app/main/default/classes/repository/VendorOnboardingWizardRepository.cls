@@ -243,7 +243,7 @@ public with sharing class VendorOnboardingWizardRepository {
   /**
    * Creates Onboarding__c and seeds Onboarding_Requirement__c records from Vendor_Program_Requirement__c.
    */
-  public static VendorOnboardingWizardService.OnboardingWithRequirementsResult createOnboardingWithRequirements(
+  public static VendorOnboardingWizardController.OnboardingWithRequirementsResult createOnboardingWithRequirements(
     Id accountId,
     Id vendorProgramId,
     Id opportunityId
@@ -283,7 +283,7 @@ public with sharing class VendorOnboardingWizardRepository {
       insert onboardingReqs;
     }
 
-    VendorOnboardingWizardService.OnboardingWithRequirementsResult onboardingWithRequirementsResult = new VendorOnboardingWizardService.OnboardingWithRequirementsResult();
+    VendorOnboardingWizardController.OnboardingWithRequirementsResult onboardingWithRequirementsResult = new VendorOnboardingWizardController.OnboardingWithRequirementsResult();
     onboardingWithRequirementsResult.onboardingId = onboarding.Id;
     onboardingWithRequirementsResult.requirementCount = onboardingReqs.size();
     return onboardingWithRequirementsResult;
@@ -909,7 +909,9 @@ public with sharing class VendorOnboardingWizardRepository {
   // Onboarding Status Rules
   // -------------------------------
 
-  public static Id insertStatusRule(Onboarding_Status_Rule__c statusRuleRecord) {
+  public static Id insertStatusRule(
+    Onboarding_Status_Rule__c statusRuleRecord
+  ) {
     // Clone to avoid issues if record already has an Id
     Onboarding_Status_Rule__c statusRuleToInsert = statusRuleRecord.Id != null
       ? statusRuleRecord.clone(false, true, false, false)
@@ -1341,7 +1343,9 @@ public with sharing class VendorOnboardingWizardRepository {
       WHERE Id = :vendorProgramId
       LIMIT 1
     ];
-    return vendorCustomizationRecords.isEmpty() ? null : vendorCustomizationRecords[0].Label__c;
+    return vendorCustomizationRecords.isEmpty()
+      ? null
+      : vendorCustomizationRecords[0].Label__c;
   }
 
   public static void assignRequirementTemplatesToRequirementGroup(
@@ -1360,7 +1364,9 @@ public with sharing class VendorOnboardingWizardRepository {
       WHERE Id IN :templateIds
     ];
 
-    for (Vendor_Program_Onboarding_Req_Template__c requirementTemplate : requirementTemplates) {
+    for (
+      Vendor_Program_Onboarding_Req_Template__c requirementTemplate : requirementTemplates
+    ) {
       requirementTemplate.Category_Group__c = requirementGroupId;
     }
 

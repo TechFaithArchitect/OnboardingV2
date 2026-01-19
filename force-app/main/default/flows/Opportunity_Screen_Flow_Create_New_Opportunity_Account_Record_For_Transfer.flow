@@ -5,7 +5,7 @@
         <label>Get Available Vendors</label>
         <locationX>1194</locationX>
         <locationY>674</locationY>
-        <actionName>VendorOnboardingJsonAdapter</actionName>
+        <actionName>VendorOnboardingService</actionName>
         <actionType>apex</actionType>
         <connector>
             <targetReference>ScreenFlow1cNew</targetReference>
@@ -17,7 +17,7 @@
                 <elementReference>AccountRecord.Id</elementReference>
             </value>
         </inputParameters>
-        <nameSegment>VendorOnboardingJsonAdapter</nameSegment>
+        <nameSegment>getVendorsAsJson</nameSegment>
         <offset>0</offset>
         <outputParameters>
             <assignToReference>availableVendorOptionString</assignToReference>

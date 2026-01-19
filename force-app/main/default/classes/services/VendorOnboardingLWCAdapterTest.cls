@@ -21,7 +21,7 @@ private class VendorOnboardingLWCAdapterTest {
     // No Onboarding__c record = vendor is eligible
 
     Test.startTest();
-    List<VendorOptionDTO> options = VendorOnboardingLWCAdapter.getVendorOptions(
+    List<VendorOptionDTO> options = VendorOnboardingService.getVendorOptions(
       acct.Id
     );
     Test.stopTest();
@@ -35,7 +35,7 @@ private class VendorOnboardingLWCAdapterTest {
   @isTest
   static void testNullAccountIdReturnsEmptyList() {
     Test.startTest();
-    List<VendorOptionDTO> options = VendorOnboardingLWCAdapter.getVendorOptions(
+    List<VendorOptionDTO> options = VendorOnboardingService.getVendorOptions(
       null
     );
     Test.stopTest();

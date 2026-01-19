@@ -428,14 +428,14 @@ The component automatically loads data when added to a home page. Filters can be
 **Methods:**
 
 - `handleSave()` - Saves record via lightning-record-edit-form
-- `handleActivate()` - Activates record via OnboardingAppActivationController
+- `handleActivate()` - Activates record via OnboardingAppActivationService
 - `handleDeactivate()` - Deactivates record
 - `handleFormChange()` - Tracks unsaved changes
 - `toggleMenu()` - Opens/closes action menu
 
 **Dependencies:**
 
-- `OnboardingAppActivationController.activate()`
+- `OnboardingAppActivationService.activate()` (direct service call)
 - Lightning UI Record API (`getRecord`, `updateRecord`)
 
 ### onboardingAppVendorProgramECCManager
@@ -464,10 +464,10 @@ The component automatically loads data when added to a home page. Filters can be
 
 **Dependencies:**
 
-- `OnboardingAppECCController.getRequiredCredentials()`
-- `OnboardingAppECCController.getAvailableCredentialTypes()`
-- `OnboardingAppECCController.createCredentialType()`
-- `OnboardingAppECCController.linkCredentialTypeToRequiredCredential()`
+- `OnboardingAppECCService.getRequiredCredentials()` (direct service call)
+- `OnboardingAppECCService.getAvailableCredentialTypes()` (direct service call)
+- `OnboardingAppECCService.createCredentialType()` (direct service call)
+- `OnboardingAppECCService.linkCredentialTypeToRequiredCredential()` (direct service call)
 
 ### onboardingAppRequirementSetupWizard
 
@@ -1879,10 +1879,10 @@ Used in vendor onboarding wizard workflows for requirement setup.
 
 **Dependencies:**
 
-- `OnboardingAppECCController.getRequiredCredentials()`
-- `OnboardingAppECCController.getAvailableCredentialTypes()`
-- `OnboardingAppECCController.createCredentialType()`
-- `OnboardingAppECCController.linkCredentialTypeToRequiredCredential()`
+- `OnboardingAppECCService.getRequiredCredentials()` (direct service call)
+- `OnboardingAppECCService.getAvailableCredentialTypes()` (direct service call)
+- `OnboardingAppECCService.createCredentialType()` (direct service call)
+- `OnboardingAppECCService.linkCredentialTypeToRequiredCredential()` (direct service call)
 
 **Usage:**
 Add to a Vendor Program record page:
@@ -3017,57 +3017,31 @@ Used by `onboardingStatusRulesEngine` LWC.
 **Usage:**
 Used by `onboardingStatusRuleList` LWC.
 
-### OnboardingAppActivationController
-
-**Location:** `force-app/main/default/classes/controllers/OnboardingAppActivationController.cls`
-
-**Purpose:** Controller for activation actions.
-
-**Key Methods:**
-
-- Activation-related methods for onboarding application objects
-
-## Orchestrators
-
-### OnboardingAppActivationOrchestrator
-
-**Location:** `force-app/main/default/classes/orchestrators/OnboardingAppActivationOrchestrator.cls`
-
-**Purpose:** Orchestrates the activation workflow for onboarding application objects.
-
-**Key Methods:**
-
-- `activate(Id recordId, String objectApiName)` - Activates a record with validation
-
-**Flow:**
-
-1. Validates record using `OnboardingAppRuleRegistry`
-2. Calls activation service
-3. Handles errors
-
-### OnboardingAppVendorProgramReqOrch
-
-**Location:** `force-app/main/default/classes/orchestrators/OnboardingAppVendorProgramReqOrch.cls`
-
-**Purpose:** Orchestrates vendor program requirement operations.
-
-## Services
-
 ### OnboardingAppActivationService
 
 **Location:** `force-app/main/default/classes/services/OnboardingAppActivationService.cls`
 
-**Purpose:** Service for activating onboarding application records.
+**Purpose:** Service for activation actions with direct LWC integration (consolidated from controller and orchestrator).
 
 **Key Methods:**
 
+- `activate(Id recordId, String objectApiName)` - @AuraEnabled method for direct LWC calls
 - Activation logic for various object types
 
-### VendorOnboardingWizardService
+**Note:** The `OnboardingAppActivationController` and `OnboardingAppActivationOrchestrator` have been consolidated into this service.
 
-**Location:** `force-app/main/default/classes/services/VendorOnboardingWizardService.cls`
+## Services (Consolidated)
 
-**Purpose:** Service for vendor onboarding wizard operations.
+**Note:** Most orchestrators have been consolidated into services. Services now expose @AuraEnabled methods for direct LWC integration.
+
+### Consolidated Domain Services
+
+**VendorDomainService** - Vendor, VendorProgram, VendorProgramGroup operations
+**RequirementDomainService** - VendorProgramRequirement, VendorProgramRequirementGroup operations
+**CommunicationDomainService** - CommunicationTemplate, RecipientGroup operations
+**VendorOnboardingService** - Vendor eligibility and onboarding logic
+
+**Note:** The `VendorOnboardingWizardService` facade has been removed. Controllers now call domain services directly.
 
 ## Handlers
 
@@ -3351,57 +3325,31 @@ Used by `onboardingStatusRulesEngine` LWC.
 **Usage:**
 Used by `onboardingStatusRuleList` LWC.
 
-### OnboardingAppActivationController
-
-**Location:** `force-app/main/default/classes/controllers/OnboardingAppActivationController.cls`
-
-**Purpose:** Controller for activation actions.
-
-**Key Methods:**
-
-- Activation-related methods for onboarding application objects
-
-## Orchestrators
-
-### OnboardingAppActivationOrchestrator
-
-**Location:** `force-app/main/default/classes/orchestrators/OnboardingAppActivationOrchestrator.cls`
-
-**Purpose:** Orchestrates the activation workflow for onboarding application objects.
-
-**Key Methods:**
-
-- `activate(Id recordId, String objectApiName)` - Activates a record with validation
-
-**Flow:**
-
-1. Validates record using `OnboardingAppRuleRegistry`
-2. Calls activation service
-3. Handles errors
-
-### OnboardingAppVendorProgramReqOrch
-
-**Location:** `force-app/main/default/classes/orchestrators/OnboardingAppVendorProgramReqOrch.cls`
-
-**Purpose:** Orchestrates vendor program requirement operations.
-
-## Services
-
 ### OnboardingAppActivationService
 
 **Location:** `force-app/main/default/classes/services/OnboardingAppActivationService.cls`
 
-**Purpose:** Service for activating onboarding application records.
+**Purpose:** Service for activation actions with direct LWC integration (consolidated from controller and orchestrator).
 
 **Key Methods:**
 
+- `activate(Id recordId, String objectApiName)` - @AuraEnabled method for direct LWC calls
 - Activation logic for various object types
 
-### VendorOnboardingWizardService
+**Note:** The `OnboardingAppActivationController` and `OnboardingAppActivationOrchestrator` have been consolidated into this service.
 
-**Location:** `force-app/main/default/classes/services/VendorOnboardingWizardService.cls`
+## Services (Consolidated)
 
-**Purpose:** Service for vendor onboarding wizard operations.
+**Note:** Most orchestrators have been consolidated into services. Services now expose @AuraEnabled methods for direct LWC integration.
+
+### Consolidated Domain Services
+
+**VendorDomainService** - Vendor, VendorProgram, VendorProgramGroup operations
+**RequirementDomainService** - VendorProgramRequirement, VendorProgramRequirementGroup operations
+**CommunicationDomainService** - CommunicationTemplate, RecipientGroup operations
+**VendorOnboardingService** - Vendor eligibility and onboarding logic
+
+**Note:** The `VendorOnboardingWizardService` facade has been removed. Controllers now call domain services directly.
 
 ## Handlers
 

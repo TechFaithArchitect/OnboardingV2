@@ -31,15 +31,14 @@ The system follows a **layered architecture pattern** with three main layers:
 └─────────────────────────────────────────┘
 ↓
 ┌─────────────────────────────────────────┐
-│ BUSINESS LOGIC LAYER │
-│ (Apex Services, Orchestrators) │
+│ SERVICE LAYER (with @AuraEnabled) │
+│ (Consolidated Domain Services) │
 └─────────────────────────────────────────┘
 ↓
 ┌─────────────────────────────────────────┐
-│ DOMAIN LAYER │
-│ (Domain Flows, Data Operations) │
+│ REPOSITORY LAYER │
+│ (Data Access Only) │
 └─────────────────────────────────────────┘
-
 
 ### Application Layer
 
@@ -50,6 +49,7 @@ The Application Layer handles user interactions and orchestrates business proces
 - **Record Pages**: Lightning pages that host onboarding components
 
 **Key Components:**
+
 - `onboardingHomeDashboard` - Central home page dashboard for onboarding overview
 - `onboardingFlowEngine` - Main flow controller
 - `onboardingStageRenderer` - Dynamic component renderer
@@ -57,21 +57,30 @@ The Application Layer handles user interactions and orchestrates business proces
 - `onboardingRequirementsPanel` - Requirements management UI
 - `onboardingStatusRulesEngine` - Rules configuration UI
 
-### Business Logic Layer
+### Service Layer
 
-The Business Logic Layer contains the core business rules and orchestration:
+The Service Layer contains consolidated domain services with business logic and LWC/Flow integration:
 
-- **Services**: Business logic services (e.g., `OnboardingApplicationService`, `OnboardingRulesService`)
-- **Orchestrators**: Coordinate multiple services (e.g., `OnboardingAppActivationOrchestrator`)
-- **Controllers**: LWC-facing Apex controllers
+- **Domain Services**: Consolidated services organized by domain (e.g., `VendorDomainService`, `RequirementDomainService`)
+- **Business Logic Services**: Core business logic services (e.g., `OnboardingApplicationService`, `OnboardingRulesService`)
+- **Controllers**: Only complex controllers that coordinate multiple services
 - **Handlers**: Trigger and event handlers
 - **Evaluators**: Rule evaluation engines (e.g., `OnboardingStatusEvaluator`, `OnboardingRuleEvaluator`)
 
-**Key Classes:**
+**Key Consolidated Domain Services:**
+
+- `VendorDomainService` - Vendor, VendorProgram, VendorProgramGroup operations
+- `RequirementDomainService` - VendorProgramRequirement, VendorProgramRequirementGroup operations
+- `CommunicationDomainService` - CommunicationTemplate, RecipientGroup operations
+- `VendorOnboardingService` - Vendor eligibility and onboarding logic
+- `EmailSyncDomainService` - Email template and org-wide email synchronization
+
+**Key Business Logic Services:**
+
 - `OnboardingApplicationService` - Process and stage management
 - `OnboardingRulesService` - Rules engine data access
 - `OnboardingStatusEvaluator` - Status evaluation logic
-- `OnboardingAppActivationOrchestrator` - Activation workflow orchestration
+- `OnboardingAppActivationService` - Activation workflow (with @AuraEnabled)
 
 ### Domain Layer
 
@@ -82,6 +91,7 @@ The Domain Layer handles data operations and domain-specific logic:
 - **Data Integrity**: Duplicate prevention, unique key creation
 
 **Naming Convention:**
+
 - `DOMAIN_[Object]_SFL_[Operation]_[Description]` - Subflows
 - `DOMAIN_[Object]_RCD_[Trigger]_[Description]` - Record-triggered flows
 
@@ -124,6 +134,7 @@ The system uses the **Campaign/Campaign Member** pattern (similar to Salesforce 
 - **Flexible membership attributes** stored on the junction object
 
 **Example Implementation:**
+
 ```
 Vendor_Program_Group__c (Parent)    Vendor_Program_Group_Member__c (Junction)
 ├─ Name                              ├─ Vendor_Program_Group__c (lookup)
@@ -134,12 +145,14 @@ Vendor_Program_Group__c (Parent)    Vendor_Program_Group_Member__c (Junction)
 ```
 
 **Benefits:**
+
 - One Vendor Program can belong to multiple Groups
 - One Group can contain multiple Vendor Programs
 - Junction object stores relationship-specific attributes
 - Supports collaborative workflows with versioning
 
 **Objects Using This Pattern:**
+
 - `Vendor_Program_Group__c` / `Vendor_Program_Group_Member__c`
 - `Vendor_Program_Requirement_Group__c` / `Vendor_Program_Requirement_Group_Member__c`
 - `Recipient_Group__c` / `Recipient_Group_Member__c`
@@ -154,16 +167,19 @@ The system implements versioning to support collaborative, multi-user workflows 
 - **Version lineage** through `Previous_Version__c` field
 
 **Versioning Fields:**
+
 - `Status__c` - Draft, Active, Deprecated
 - `Previous_Version__c` - Links to parent version (tracks lineage)
 - `Active__c` - Boolean flag for active status
 
 **Versioning Rules:**
+
 1. Draft records cannot be Active (auto-corrected)
 2. Only one Active version per parent context
 3. Version lineage maintained through `Previous_Version__c`
 
 **Objects Supporting Versioning:**
+
 - `Vendor_Customization__c` (Vendor Programs)
 - `Vendor_Program_Recipient_Group__c`
 - `Vendor_Program_Onboarding_Req_Template__c`
@@ -171,6 +187,7 @@ The system implements versioning to support collaborative, multi-user workflows 
 
 **Use Case:**
 Multiple users can work on different parts of onboarding simultaneously:
+
 - User A creates a Draft vendor program
 - User B adds requirements to the Draft
 - User C configures recipient groups
@@ -179,12 +196,19 @@ Multiple users can work on different parts of onboarding simultaneously:
 
 ### 6. Service Layer Pattern
 
-Business logic is organized into service classes:
+Business logic is organized into consolidated domain services:
 
-- **Services**: Core business logic (`*Service.cls`)
-- **Repositories**: Data access layer (`*Repo.cls`)
-- **Orchestrators**: Coordinate multiple services (`*Orch.cls`)
-- **Controllers**: LWC-facing APIs (`*Ctlr.cls`)
+- **Domain Services**: Consolidated services by domain (`*DomainService.cls`) - e.g., `VendorDomainService`, `RequirementDomainService`
+- **Business Logic Services**: Core business logic (`*Service.cls`) - e.g., `OnboardingApplicationService`
+- **Repositories**: Data access layer (`*Repo.cls`, `*Repository.cls`)
+- **Controllers**: Only complex controllers that coordinate multiple services (`*Ctlr.cls`)
+
+**Simplified Architecture:**
+
+- LWC components call domain services directly (via `@AuraEnabled` methods)
+- Flows call domain services directly (via `@InvocableMethod` annotations)
+- Services delegate to repositories for all data access
+- Thin orchestrator and facade layers have been eliminated
 
 ### 7. Base Class Pattern (LWC)
 
@@ -192,13 +216,14 @@ The Vendor Program Onboarding Wizard uses a base class pattern to eliminate code
 
 - **Base Class**: `onboardingStepBase` - Provides common functionality for all step components
 - **Inheritance**: All 14 wizard step components extend `OnboardingStepBase`
-- **Benefits**: 
+- **Benefits**:
   - Eliminates ~700+ lines of duplicate code
   - Standardizes navigation, validation, and event handling
   - Ensures consistency across all steps
   - Makes adding new steps easier
 
 **Key Features:**
+
 - Footer navigation event handling
 - Validation state dispatching
 - Toast notification utility
@@ -206,6 +231,7 @@ The Vendor Program Onboarding Wizard uses a base class pattern to eliminate code
 - Standardized event dispatching
 
 **Required Overrides:**
+
 - `get canProceed()` - Validation state
 - `proceedToNext()` - Next navigation with data
 - `stepName` - Step name for card title
@@ -213,6 +239,7 @@ The Vendor Program Onboarding Wizard uses a base class pattern to eliminate code
 ## Data Flow
 
 ### Onboarding Flow Execution
+
 User Action
 ↓
 vendorProgramOnboardingFlow (LWC)
@@ -226,6 +253,8 @@ OnboardingApplicationService.getStagesForProcess()
 onboardingStageRenderer (LWC) - Dynamically renders stage components
 ↓
 Stage-specific LWC (e.g., vendorProgramOnboardingVendor)
+↓
+VendorDomainService.searchVendors() - Direct service call
 ↓
 OnboardingApplicationService.saveProgress() - Persists progress
 

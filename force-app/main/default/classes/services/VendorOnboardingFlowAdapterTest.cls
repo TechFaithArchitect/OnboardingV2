@@ -21,7 +21,7 @@ private class VendorOnboardingFlowAdapterTest {
     // Mock prerequisites — skip logic for now unless testing the full evaluator
     Test.startTest();
     List<Id> accountIds = new List<Id>{ acct.Id };
-    List<VendorOnboardingDTO> results = VendorOnboardingFlowAdapter.getEligibleVendorsForFlow(
+    List<VendorOnboardingDTO> results = VendorOnboardingService.getEligibleVendorsForFlow(
       accountIds
     );
     Test.stopTest();

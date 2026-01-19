@@ -1,4 +1,14 @@
 public with sharing class OnboardingAppActivationService {
+  /**
+   * @AuraEnabled method for LWC components - uses strategy pattern to support different object types
+   * Consolidates OnboardingAppActivationOrchestrator logic
+   * Note: Can be called from both LWC (@AuraEnabled) and test classes
+   */
+  @AuraEnabled
+  public static void activate(Id recordId, String objectApiName) {
+    activateRecord(objectApiName, recordId);
+  }
+
   public static void activateRecord(String objectApiName, Id recordId) {
     ValidationHelper.requireNotBlank(objectApiName, 'Object API Name');
     ValidationHelper.requireId(recordId, 'Record Id');

@@ -13,6 +13,7 @@ LWC does not support dynamic component loading. To work around this limitation, 
 3. **Process & Stages** - Define which component from the library to render at each stage
 
 This architecture allows you to:
+
 - Configure onboarding flows without code changes
 - Add new components by syncing the library
 - Create multiple processes with different stage sequences
@@ -24,10 +25,11 @@ This architecture allows you to:
 
 ```apex
 // Execute in Anonymous Apex
-VendorOnboardingWizardService.syncComponentLibrary();
+VendorOnboardingWizardController.syncRendererComponents();
 ```
 
 This will:
+
 1. Read the list of 14 predefined component API names
 2. For each component, create or update an `Onboarding_Component_Library__c` record
 3. Set `Component_API_Name__c` to the component name
@@ -37,9 +39,10 @@ This will:
 
 ### Method 2: Via Flow/Process Builder
 
-The `VendorOnboardingWizardController.syncRendererComponents()` method is marked as `@InvocableMethod`, making it available in Flow Builder.
+The `VendorOnboardingWizardController.syncRendererComponents()` method is marked as `@InvocableMethod`, making it available in Flow Builder. This method handles the component library synchronization.
 
 **Steps:**
+
 1. Create a new Flow
 2. Add an Action element
 3. Search for "Sync Onboarding Components"
@@ -47,6 +50,7 @@ The `VendorOnboardingWizardController.syncRendererComponents()` method is marked
 5. Save and activate the Flow
 
 **Or create a Process Builder:**
+
 1. Object: Any (or trigger on deployment)
 2. Action: Invocable Action
 3. Action: "Sync Onboarding Components"
@@ -60,30 +64,31 @@ sfdx force:apex:execute -f sync-component-library.txt
 ```
 
 Where `sync-component-library.txt` contains:
+
 ```apex
-VendorOnboardingWizardService.syncComponentLibrary();
+VendorOnboardingWizardController.syncRendererComponents();
 ```
 
 ## What Gets Created
 
 After running `syncComponentLibrary()`, you should see 14 records in `Onboarding_Component_Library__c`:
 
-| Component API Name | Display Name |
-|-------------------|--------------|
-| vendorProgramOnboardingVendor | Vendor Program Onboarding Vendor |
-| vendorProgramOnboardingVendorProgramSearchOrCreate | Vendor Program Onboarding Vendor Program Search Or Create |
-| vendorProgramOnboardingVendorProgramCreate | Vendor Program Onboarding Vendor Program Create |
-| vendorProgramOnboardingVendorProgramGroup | Vendor Program Onboarding Vendor Program Group |
+| Component API Name                                   | Display Name                                               |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| vendorProgramOnboardingVendor                        | Vendor Program Onboarding Vendor                           |
+| vendorProgramOnboardingVendorProgramSearchOrCreate   | Vendor Program Onboarding Vendor Program Search Or Create  |
+| vendorProgramOnboardingVendorProgramCreate           | Vendor Program Onboarding Vendor Program Create            |
+| vendorProgramOnboardingVendorProgramGroup            | Vendor Program Onboarding Vendor Program Group             |
 | vendorProgramOnboardingVendorProgramRequirementGroup | Vendor Program Onboarding Vendor Program Requirement Group |
-| vendorProgramOnboardingVendorProgramRecipientGroup | Vendor Program Onboarding Vendor Program Recipient Group |
-| vendorProgramOnboardingRecipientGroup | Vendor Program Onboarding Recipient Group |
-| vendorProgramOnboardingRecipientGroupMembers | Vendor Program Onboarding Recipient Group Members |
-| vendorProgramOnboardingTrainingRequirements | Vendor Program Onboarding Training Requirements |
-| vendorProgramOnboardingRequiredCredentials | Vendor Program Onboarding Required Credentials |
-| vendorProgramOnboardingVendorProgramRequirements | Vendor Program Onboarding Vendor Program Requirements |
-| vendorProgramOnboardingStatusRulesEngine | Vendor Program Onboarding Status Rules Engine |
-| vendorProgramOnboardingStatusRuleBuilder | Vendor Program Onboarding Status Rule Builder |
-| vendorProgramOnboardingCommunicationTemplate | Vendor Program Onboarding Communication Template |
+| vendorProgramOnboardingVendorProgramRecipientGroup   | Vendor Program Onboarding Vendor Program Recipient Group   |
+| vendorProgramOnboardingRecipientGroup                | Vendor Program Onboarding Recipient Group                  |
+| vendorProgramOnboardingRecipientGroupMembers         | Vendor Program Onboarding Recipient Group Members          |
+| vendorProgramOnboardingTrainingRequirements          | Vendor Program Onboarding Training Requirements            |
+| vendorProgramOnboardingRequiredCredentials           | Vendor Program Onboarding Required Credentials             |
+| vendorProgramOnboardingVendorProgramRequirements     | Vendor Program Onboarding Vendor Program Requirements      |
+| vendorProgramOnboardingStatusRulesEngine             | Vendor Program Onboarding Status Rules Engine              |
+| vendorProgramOnboardingStatusRuleBuilder             | Vendor Program Onboarding Status Rule Builder              |
+| vendorProgramOnboardingCommunicationTemplate         | Vendor Program Onboarding Communication Template           |
 
 ## Verifying Setup
 
@@ -103,7 +108,8 @@ When you create a new wizard component:
 
 1. **Create the LWC component** (e.g., `vendorProgramOnboardingNewStep`)
 
-2. **Add it to the sync list** in `VendorOnboardingWizardService.syncComponentLibrary()`:
+2. **Add it to the sync list** in `VendorOnboardingWizardController.syncRendererComponents()`:
+
    ```apex
    List<String> components = new List<String>{
        // ... existing components
@@ -120,11 +126,12 @@ When you create a new wizard component:
      ```
    - Add template block in `onboardingStageRenderer.html`:
      ```html
-     <template if:true={showVendorProgramOnboardingNewStep}>
+     <template if:true="{showVendorProgramOnboardingNewStep}">
        <c-vendor-program-onboarding-new-step
-         vendor-program-id={vendorProgramId}
-         onnext={handleNext}
-         onback={handleBack}>
+         vendor-program-id="{vendorProgramId}"
+         onnext="{handleNext}"
+         onback="{handleBack}"
+       >
        </c-vendor-program-onboarding-new-step>
      </template>
      ```
@@ -140,15 +147,17 @@ When you create a new wizard component:
 **Cause:** Component Library not populated or component not in library
 
 **Solution:**
+
 1. Verify Component Library has records: `SELECT COUNT() FROM Onboarding_Component_Library__c`
 2. Check if component API name matches exactly (case-sensitive)
-3. Run sync again: `VendorOnboardingWizardService.syncComponentLibrary()`
+3. Run sync again: `VendorOnboardingWizardController.syncRendererComponents()`
 
 ### Issue: "Unknown component" error in flow
 
 **Cause:** Component name in stage doesn't match Component Library entry
 
 **Solution:**
+
 1. Check `Onboarding_Application_Stage__c.Onboarding_Component_Library__r.Component_API_Name__c`
 2. Ensure it matches exactly the LWC component API name
 3. Verify component exists in `onboardingStageRenderer` with proper getter
@@ -158,6 +167,7 @@ When you create a new wizard component:
 **Cause:** Component not added to `onboardingStageRenderer` static rendering
 
 **Solution:**
+
 1. Add getter to `onboardingStageRenderer.js`
 2. Add template block to `onboardingStageRenderer.html`
 3. Ensure component is imported (static import, not dynamic)
@@ -186,4 +196,3 @@ When you create a new wizard component:
 - [Vendor Program Onboarding Flow](../processes/vendor-program-onboarding-flow.md)
 - [Onboarding Process](../processes/onboarding-process.md)
 - [LWC Components](../components/lwc-components.md)
-

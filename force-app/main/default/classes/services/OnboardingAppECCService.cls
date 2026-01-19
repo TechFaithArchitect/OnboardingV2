@@ -1,14 +1,20 @@
 public with sharing class OnboardingAppECCService {
+  /**
+   * Consolidates OnboardingAppECCController - removed controller layer
+   */
+  @AuraEnabled(cacheable=true)
   public static List<Required_Credential__c> getRequiredCredentials(
     Id vendorProgramId
   ) {
     return OnboardingAppECCRepository.fetchRequiredCredentials(vendorProgramId);
   }
 
+  @AuraEnabled(cacheable=true)
   public static List<External_Contact_Credential_Type__c> getAvailableCredentialTypes() {
     return OnboardingAppECCRepository.fetchCredentialTypes();
   }
 
+  @AuraEnabled
   public static External_Contact_Credential_Type__c createCredentialType(
     External_Contact_Credential_Type__c credentialTypeInput
   ) {
@@ -35,20 +41,7 @@ public with sharing class OnboardingAppECCService {
     return OnboardingAppECCRepository.insertCredentialType(newCredentialType);
   }
 
-  public static External_Contact_Credential_Type__c createCredentialType(
-    String name,
-    Integer sortOrder,
-    Id vendorCustomizationId,
-    Boolean active
-  ) {
-    return OnboardingAppECCRepository.insertCredentialType(
-      name,
-      sortOrder,
-      vendorCustomizationId,
-      active
-    );
-  }
-
+  @AuraEnabled
   public static void linkCredentialTypeToRequiredCredential(
     Id requiredCredentialId,
     Id credentialTypeId

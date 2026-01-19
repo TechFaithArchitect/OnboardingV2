@@ -39,7 +39,7 @@ Milestone 2 — Apex Services (Invocable + Services)
   - [x] Updates Due_Date\_\_c, writes audit record (or uses Field History)
   - [x] FLS check, reason captured, unit tests
 - [x] Service: ValidateProgramSetup (replaced by existing services)
-  - [x] Uses existing validation in VendorOnboardingWizardService
+  - [x] Uses existing validation in consolidated domain services
 - [x] Enums (ALL_CAPS_SNAKE_CASE):
   - [x] REQUIREMENT_STATUS (existing)
   - [x] ISSUE_SEVERITY (existing)

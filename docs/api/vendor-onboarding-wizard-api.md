@@ -20,6 +20,7 @@ public static List<Vendor__c> searchVendors(String vendorNameSearchText)
 **Purpose:** Searches for vendors by name.
 
 **Parameters:**
+
 - `vendorNameSearchText` (String) - Search text (partial match)
 
 **Returns:** `List<Vendor__c>` - List of matching vendors (limit 10)
@@ -36,7 +37,8 @@ public static Id createVendor(Vendor__c vendor)
 **Purpose:** Creates a new vendor record.
 
 **Parameters:**
-- `vendor` (Vendor__c) - Vendor record to create (must include `Name`)
+
+- `vendor` (Vendor\_\_c) - Vendor record to create (must include `Name`)
 
 **Returns:** `Id` - ID of created vendor record
 
@@ -56,6 +58,7 @@ public static List<Vendor_Customization__c> searchVendorPrograms(String vendorPr
 **Purpose:** Searches for vendor programs by name.
 
 **Parameters:**
+
 - `vendorProgramNameSearchText` (String) - Search text (partial match)
 
 **Returns:** `List<Vendor_Customization__c>` - List of matching vendor programs (limit 10)
@@ -72,12 +75,14 @@ public static Id createVendorProgram(Vendor_Customization__c vendorProgram, Id v
 **Purpose:** Creates a new draft vendor program.
 
 **Parameters:**
-- `vendorProgram` (Vendor_Customization__c) - Vendor program record (must include `Label__c`, `Retail_Option__c`, `Business_Vertical__c`)
+
+- `vendorProgram` (Vendor_Customization**c) - Vendor program record (must include `Label**c`, `Retail_Option**c`, `Business_Vertical**c`)
 - `vendorId` (Id) - Vendor ID to link
 
 **Returns:** `Id` - ID of created vendor program record
 
-**Default Values:** 
+**Default Values:**
+
 - `Status__c = 'Draft'`
 - `Active__c = false`
 - `Vendor__c = vendorId`
@@ -94,6 +99,7 @@ public static List<Vendor_Customization__c> getRecentVendorPrograms(Integer limi
 **Purpose:** Gets recent vendor programs.
 
 **Parameters:**
+
 - `limitCount` (Integer) - Maximum number of records to return
 
 **Returns:** `List<Vendor_Customization__c>` - List of recent vendor programs
@@ -136,6 +142,7 @@ public static String getVendorProgramLabel(Id vendorProgramId)
 **Purpose:** Gets the `Label__c` field value from a Vendor Program.
 
 **Parameters:**
+
 - `vendorProgramId` (Id) - Vendor Program ID
 
 **Returns:** `String` - Label value
@@ -154,6 +161,7 @@ public static List<Onboarding_Requirement_Set__c> searchOnboardingRequirementSet
 **Purpose:** Searches for Onboarding Requirement Sets.
 
 **Parameters:**
+
 - `searchText` (String) - Search text (partial match on Name)
 - `vendorProgramId` (Id) - Vendor Program ID (optional filter)
 
@@ -171,6 +179,7 @@ public static void linkRequirementSetToVendorProgram(Id requirementSetId, Id ven
 **Purpose:** Links an existing Requirement Set to a Vendor Program.
 
 **Parameters:**
+
 - `requirementSetId` (Id) - Requirement Set ID
 - `vendorProgramId` (Id) - Vendor Program ID
 
@@ -188,6 +197,7 @@ public static Id createRequirementSetFromExisting(Id existingRequirementSetId, I
 **Purpose:** Creates a new Requirement Set by copying an existing one.
 
 **Parameters:**
+
 - `existingRequirementSetId` (Id) - Existing Requirement Set ID to copy from
 - `vendorProgramId` (Id) - Vendor Program ID to link
 - `vendorProgramLabel` (String) - Vendor Program Label for naming convention
@@ -208,6 +218,7 @@ public static List<Vendor_Program_Onboarding_Req_Template__c> getTemplatesForReq
 **Purpose:** Gets all templates for a Requirement Set.
 
 **Parameters:**
+
 - `requirementSetId` (Id) - Requirement Set ID
 
 **Returns:** `List<Vendor_Program_Onboarding_Req_Template__c>` - List of templates
@@ -224,6 +235,7 @@ public static Id createRequirementFromTemplate(Id templateId, Id vendorProgramId
 **Purpose:** Creates a `Vendor_Program_Requirement__c` record from a template.
 
 **Parameters:**
+
 - `templateId` (Id) - Template ID
 - `vendorProgramId` (Id) - Vendor Program ID
 
@@ -245,6 +257,7 @@ public static List<Vendor_Program_Group_Member__c> getHistoricalGroupMembers(Id 
 **Purpose:** Gets historical group members from a Requirement Set's Vendor Program.
 
 **Parameters:**
+
 - `requirementSetId` (Id) - Requirement Set ID
 
 **Returns:** `List<Vendor_Program_Group_Member__c>` - List of historical group members with related data
@@ -263,6 +276,7 @@ public static Id createRequirementGroupComponents(Id vendorProgramId, Id require
 **Purpose:** Creates and links all Requirement Group components (Vendor Program Group, Requirement Group, Group Member).
 
 **Parameters:**
+
 - `vendorProgramId` (Id) - Vendor Program ID
 - `requirementSetId` (Id) - Requirement Set ID (optional, for historical data)
 - `useHistorical` (Boolean) - Whether to use historical values
@@ -270,6 +284,7 @@ public static Id createRequirementGroupComponents(Id vendorProgramId, Id require
 **Returns:** `Id` - ID of created Group Member record
 
 **Naming Conventions:**
+
 - Vendor Program Group: `"Vendor Program Label - Vendor Program Group"`
 - Requirement Group: `"Vendor Program Label - Requirement Group"`
 
@@ -287,6 +302,7 @@ public static List<Onboarding_Status_Rules_Engine__c> getHistoricalStatusRulesEn
 **Purpose:** Gets historical Status Rules Engines from a Requirement Set's Vendor Program.
 
 **Parameters:**
+
 - `requirementSetId` (Id) - Requirement Set ID
 
 **Returns:** `List<Onboarding_Status_Rules_Engine__c>` - List of historical engines
@@ -303,6 +319,7 @@ public static List<Onboarding_Status_Rules_Engine__c> searchStatusRulesEngines(S
 **Purpose:** Searches for Status Rules Engines by name.
 
 **Parameters:**
+
 - `nameSearchText` (String) - Search text (partial match)
 
 **Returns:** `List<Onboarding_Status_Rules_Engine__c>` - List of matching engines (limit 10)
@@ -319,7 +336,8 @@ public static Id createOnboardingStatusRulesEngine(Onboarding_Status_Rules_Engin
 **Purpose:** Creates a new Status Rules Engine.
 
 **Parameters:**
-- `onboardingStatusRulesEngine` (Onboarding_Status_Rules_Engine__c) - Engine record (must include `Name`, `Evaluation_Logic__c`, `Required_Status__c`, `Target_Onboarding_Status__c`)
+
+- `onboardingStatusRulesEngine` (Onboarding_Status_Rules_Engine**c) - Engine record (must include `Name`, `Evaluation_Logic**c`, `Required_Status**c`, `Target_Onboarding_Status**c`)
 
 **Returns:** `Id` - ID of created engine record
 
@@ -378,6 +396,7 @@ public static List<Recipient_Group__c> searchRecipientGroups(String recipientGro
 **Purpose:** Searches for Recipient Groups by name.
 
 **Parameters:**
+
 - `recipientGroupNameSearchText` (String) - Search text (partial match)
 
 **Returns:** `List<Recipient_Group__c>` - List of matching groups (limit 10)
@@ -394,11 +413,13 @@ public static Id createRecipientGroup(Recipient_Group__c recipientGroup)
 **Purpose:** Creates a new Recipient Group.
 
 **Parameters:**
-- `recipientGroup` (Recipient_Group__c) - Group record (must include `Name`, `Group_Type__c`)
+
+- `recipientGroup` (Recipient_Group**c) - Group record (must include `Name`, `Group_Type**c`)
 
 **Returns:** `Id` - ID of created group record
 
-**Default Values:** 
+**Default Values:**
+
 - `Group_Type__c = 'User'` if not provided
 - `Is_Active__c = true` if not provided
 
@@ -414,11 +435,13 @@ public static Id createRecipientGroupMember(Recipient_Group_Member__c recipientG
 **Purpose:** Creates a new Recipient Group Member.
 
 **Parameters:**
-- `recipientGroupMember` (Recipient_Group_Member__c) - Member record (must include `Recipient_Group__c`, `Recipient_User__c`)
+
+- `recipientGroupMember` (Recipient_Group_Member**c) - Member record (must include `Recipient_Group**c`, `Recipient_User\_\_c`)
 
 **Returns:** `Id` - ID of created member record
 
 **Default Values:**
+
 - `Member_Type__c = 'User'` if not provided
 - `Recipient_Type__c = 'To'` if not provided
 
@@ -434,6 +457,7 @@ public static List<Vendor_Program_Recipient_Group__c> getRecipientGroupsForVendo
 **Purpose:** Gets all Recipient Groups linked to a Vendor Program.
 
 **Parameters:**
+
 - `vendorProgramId` (Id) - Vendor Program ID
 
 **Returns:** `List<Vendor_Program_Recipient_Group__c>` - List of linked groups with related data
@@ -452,6 +476,7 @@ public static List<Recipient_Group_Member__c> getRecipientGroupMembers(Id recipi
 **Purpose:** Gets all members for a Recipient Group.
 
 **Parameters:**
+
 - `recipientGroupId` (Id) - Recipient Group ID
 
 **Returns:** `List<Recipient_Group_Member__c>` - List of members with related user data
@@ -496,6 +521,7 @@ public static Id createVendorProgramRecipientGroupLink(Id vendorProgramId, Id re
 **Purpose:** Creates a link between Vendor Program and Recipient Group.
 
 **Parameters:**
+
 - `vendorProgramId` (Id) - Vendor Program ID
 - `recipientGroupId` (Id) - Recipient Group ID
 
@@ -525,8 +551,8 @@ public static List<Communication_Template__c> getCommunicationTemplates()
 ```apex
 @AuraEnabled
 public static Id createVendorProgramRecipientGroupWithTemplate(
-    Id vendorProgramId, 
-    Id recipientGroupId, 
+    Id vendorProgramId,
+    Id recipientGroupId,
     Id communicationTemplateId,
     String triggerCondition
 )
@@ -535,6 +561,7 @@ public static Id createVendorProgramRecipientGroupWithTemplate(
 **Purpose:** Creates a Vendor Program Recipient Group link with Communication Template and trigger condition.
 
 **Parameters:**
+
 - `vendorProgramId` (Id) - Vendor Program ID
 - `recipientGroupId` (Id) - Recipient Group ID
 - `communicationTemplateId` (Id) - Communication Template ID
@@ -563,11 +590,19 @@ public static void syncRendererComponents()
 
 **Usage:** Can be called from Flow or Process Builder. Creates/updates `Onboarding_Component_Library__c` records for all wizard components.
 
-## Service Layer: VendorOnboardingWizardService
+## Service Layer: Consolidated Domain Services
 
-**Location:** `force-app/main/default/classes/services/VendorOnboardingWizardService.cls`
+**Note:** The `VendorOnboardingWizardService` facade has been removed. The controller now calls domain services directly.
 
-**Security:** `with sharing`
+**Consolidated Domain Services:**
+
+- **VendorDomainService** - Vendor, VendorProgram, VendorProgramGroup operations
+- **RequirementDomainService** - VendorProgramRequirement, VendorProgramRequirementGroup operations
+- **CommunicationDomainService** - CommunicationTemplate, RecipientGroup operations
+- **OnboardingRequirementSetService** - Requirement Set operations
+- **StatusRulesEngineService** - Status Rules Engine operations
+
+**Security:** All services use `with sharing`
 
 All service methods delegate to the repository layer and add business logic (default values, validation, naming conventions).
 
@@ -582,6 +617,7 @@ All repository methods handle SOQL queries and DML operations directly.
 ## Error Handling
 
 All methods follow consistent error handling:
+
 - Service layer validates inputs and throws `AuraHandledException` for validation errors
 - Repository layer throws standard DML exceptions
 - Controllers catch exceptions and return user-friendly error messages
@@ -599,4 +635,3 @@ All methods follow consistent error handling:
 - All classes use `with sharing` to respect sharing rules
 - Field-level security is enforced by Salesforce automatically
 - All methods are `@AuraEnabled` for LWC access only
-
